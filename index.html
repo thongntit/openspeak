@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pronunciation Assessment MVP</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-top: 0;
+            color: #333;
+        }
+        .setup {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .setup input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .setup label {
+            font-weight: 600;
+            color: #555;
+        }
+        .word-section {
+            margin: 20px 0;
+        }
+        .word-input {
+            width: 70%;
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            margin-left: 10px;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        button.recording {
+            background: #d13438;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .status {
+            padding: 12px;
+            margin: 20px 0;
+            background: #e1f5fe;
+            border-radius: 6px;
+            color: #0277bd;
+        }
+        .results {
+            margin-top: 20px;
+            display: none;
+        }
+        .results.show {
+            display: block;
+        }
+        .score-card {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .overall-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #107c10;
+        }
+        .score-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .syllables {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .syllables h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .syllable {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 4px;
+            border-radius: 6px;
+            font-size: 20px;
+            font-family: serif;
+            background: #e9ecef;
+            border: 2px solid #dee2e6;
+        }
+        .syllable.stressed {
+            font-weight: bold;
+            font-size: 24px;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+        }
+        .syllable-score {
+            font-size: 11px;
+            display: block;
+            text-align: center;
+            margin-top: 4px;
+            color: #666;
+        }
+        .phonemes {
+            margin-top: 20px;
+        }
+        .phonemes h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .phoneme {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 4px;
+            border-radius: 6px;
+            font-size: 18px;
+            font-family: monospace;
+        }
+        .phoneme.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+        .phoneme.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+        .phoneme-score {
+            font-size: 12px;
+            display: block;
+            text-align: center;
+            margin-top: 4px;
+        }
+        .narration {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff8e1;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pronunciation Assessment</h1>
+
+        <!-- Setup Section -->
+        <div class="setup">
+            <label>Azure Speech Key:</label>
+            <input type="text" id="speechKey" placeholder="Paste your Azure Speech Service key here">
+            <label>Azure Speech Region:</label>
+            <input type="text" id="speechRegion" placeholder="e.g., eastus, westus2, southeastasia" value="southeastasia">
+            <small style="color: #666; display: block; margin-top: 5px;">Speech language: en-US (for prosody/stress assessment)</small>
+        </div>
+
+        <!-- Word to Practice -->
+        <div class="word-section">
+            <input type="text" class="word-input" id="targetWord" value="pronunciation" placeholder="Enter word to practice">
+            <button id="recordBtn" disabled>Record</button>
+        </div>
+
+        <!-- Strictness Setting -->
+        <div style="margin: 20px 0;">
+            <label style="font-weight: 600; color: #555;">Grading Strictness:</label>
+            <select id="strictness" style="padding: 8px; margin-left: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="60">Lenient (60% = pass)</option>
+                <option value="80" selected>Normal (80% = pass)</option>
+                <option value="90">Strict (90% = pass)</option>
+                <option value="95">Very Strict (95% = pass)</option>
+            </select>
+        </div>
+
+        <!-- Status -->
+        <div class="status" id="status">
+            Enter your Azure credentials to start
+        </div>
+
+        <!-- Results -->
+        <div class="results" id="results">
+            <div class="score-card">
+                <div style="display: flex; justify-content: space-around; align-items: center;">
+                    <div style="text-align: center;">
+                        <div class="overall-score" id="overallScore">-</div>
+                        <div class="score-label">Pronunciation</div>
+                    </div>
+                    <div style="text-align: center;" id="prosodyScoreContainer" style="display:none;">
+                        <div class="overall-score" id="prosodyScore" style="font-size: 36px;">-</div>
+                        <div class="score-label">Prosody (Stress/Rhythm)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="prosodyFeedback" style="display:none; margin: 15px 0; padding: 12px; background: #fff3cd; border-radius: 6px; font-size: 14px;"></div>
+
+            <div class="syllables" id="syllables" style="display:none;">
+                <h3>Syllables</h3>
+            </div>
+
+            <div class="phonemes" id="phonemes">
+                <h3>Phonemes</h3>
+            </div>
+
+            <div class="narration" id="narration"></div>
+        </div>
+    </div>
+
+    <!-- Azure Speech SDK (v1.40+ for prosody assessment) -->
+    <script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@latest/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle.js"></script>
+    <script>
+        const speechKey = document.getElementById('speechKey');
+        const speechRegion = document.getElementById('speechRegion');
+        const recordBtn = document.getElementById('recordBtn');
+        const targetWord = document.getElementById('targetWord');
+        const statusEl = document.getElementById('status');
+        const resultsEl = document.getElementById('results');
+        const strictnessEl = document.getElementById('strictness');
+
+        let recognizer = null;
+        let isRecording = false;
+
+        // Check for credentials
+        function checkCredentials() {
+            if (speechKey.value && speechRegion.value) {
+                recordBtn.disabled = false;
+                statusEl.textContent = 'Ready to practice';
+                return true;
+            }
+            recordBtn.disabled = true;
+            return false;
+        }
+
+        speechKey.addEventListener('input', checkCredentials);
+        speechRegion.addEventListener('input', checkCredentials);
+
+        // Initialize recognizer
+        function initRecognizer() {
+            const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(
+                speechKey.value,
+                speechRegion.value
+            );
+            speechConfig.outputFormat = SpeechSDK.OutputFormat.Detailed;
+
+            // Set to en-US for prosody assessment (stress/intonation)
+            speechConfig.speechRecognitionLanguage = "en-US";
+
+            const audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+            recognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+
+            return recognizer;
+        }
+
+        // Start/Stop recording
+        recordBtn.addEventListener('click', async () => {
+            if (!checkCredentials()) return;
+
+            if (!isRecording) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        function startRecording() {
+            const word = targetWord.value.trim();
+            if (!word) {
+                statusEl.textContent = 'Please enter a word to practice';
+                return;
+            }
+
+            recognizer = initRecognizer();
+
+            // Build pronunciation assessment config
+            const referenceText = word;
+            const pronunciationConfig = new SpeechSDK.PronunciationAssessmentConfig(
+                referenceText,
+                SpeechSDK.PronunciationAssessmentGradingSystem.HundredMark,
+                SpeechSDK.PronunciationAssessmentGranularity.Phoneme,
+                true
+            );
+
+            // Enable prosody assessment (stress, intonation, rhythm) - it's a property, not a method!
+            // Note: Requires en-US locale and SDK v1.34.0+
+            pronunciationConfig.enableProsodyAssessment = true;
+
+            pronunciationConfig.applyTo(recognizer);
+
+            isRecording = true;
+            recordBtn.textContent = 'Stop';
+            recordBtn.classList.add('recording');
+            statusEl.textContent = 'Recording... Say "' + word + '"';
+            resultsEl.classList.remove('show');
+
+            // Start recognition
+            recognizer.recognizeOnceAsync(
+                result => {
+                    isRecording = false;
+                    recordBtn.textContent = 'Record';
+                    recordBtn.classList.remove('recording');
+                    displayResults(result, referenceText);
+                },
+                error => {
+                    isRecording = false;
+                    recordBtn.textContent = 'Record';
+                    recordBtn.classList.remove('recording');
+                    statusEl.textContent = 'Error: ' + error.localizedDescription;
+                    console.error(error);
+                }
+            );
+        }
+
+        function stopRecording() {
+            if (recognizer) {
+                recognizer.close();
+            }
+            isRecording = false;
+            recordBtn.textContent = 'Record';
+            recordBtn.classList.remove('recording');
+            statusEl.textContent = 'Recording stopped';
+        }
+
+        function displayResults(result, referenceText) {
+            const pronunciationResult = SpeechSDK.PronunciationAssessmentResult.fromResult(result);
+
+            // DEBUG: Check prosody information
+            console.log('=== PROSODY/STRESS INFO ===');
+            console.log('Overall PronunciationAssessment:', pronunciationResult.detailResult?.PronunciationAssessment);
+
+            if (pronunciationResult.detailResult?.PronunciationAssessment) {
+                console.log('ProsodyScore:', pronunciationResult.detailResult.PronunciationAssessment.ProsodyScore);
+                console.log('Feedback:', pronunciationResult.detailResult.PronunciationAssessment.Feedback);
+            }
+
+            console.log('\n=== SYLLABLE INFO ===');
+            if (pronunciationResult.detailResult?.Words?.[0]?.Syllables) {
+                pronunciationResult.detailResult.Words[0].Syllables.forEach((syl, idx) => {
+                    console.log(`Syllable ${idx + 1}: "${syl.Grapheme}" (${syl.Syllable})`);
+                    console.log('  AccuracyScore:', syl.PronunciationAssessment?.AccuracyScore);
+                    console.log('  All properties:', Object.keys(syl));
+                });
+            }
+
+            // Overall scores
+            document.getElementById('overallScore').textContent = Math.round(pronunciationResult.pronunciationScore);
+
+            // Prosody score (if available)
+            const prosodyScoreContainer = document.getElementById('prosodyScoreContainer');
+            const prosodyScoreEl = document.getElementById('prosodyScore');
+            const prosodyFeedbackEl = document.getElementById('prosodyFeedback');
+
+            if (pronunciationResult.detailResult?.PronunciationAssessment?.ProsodyScore !== undefined) {
+                const prosodyScore = pronunciationResult.detailResult.PronunciationAssessment.ProsodyScore;
+                prosodyScoreEl.textContent = Math.round(prosodyScore);
+                prosodyScoreContainer.style.display = 'block';
+
+                // Show prosody feedback
+                const feedback = pronunciationResult.detailResult.PronunciationAssessment.Feedback;
+                let feedbackText = '';
+
+                if (feedback?.Break) {
+                    if (feedback.Break.UnexpectedBreak?.Confidence > 0.75) {
+                        feedbackText += '⚠️ Unexpected pauses detected. ';
+                    }
+                    if (feedback.Break.MissingBreak?.Confidence > 0.75) {
+                        feedbackText += '⚠️ Missing pauses between words. ';
+                    }
+                }
+
+                if (feedback?.Intonation?.Monotone?.Confidence > 0.75) {
+                    feedbackText += '⚠️ Speech sounds monotone - try varying pitch/stress. ';
+                }
+
+                if (feedbackText) {
+                    prosodyFeedbackEl.textContent = feedbackText;
+                    prosodyFeedbackEl.style.display = 'block';
+                } else {
+                    prosodyFeedbackEl.textContent = '✓ Good stress and intonation!';
+                    prosodyFeedbackEl.style.display = 'block';
+                    prosodyFeedbackEl.style.background = '#d4edda';
+                }
+            } else {
+                prosodyScoreContainer.style.display = 'none';
+                prosodyFeedbackEl.style.display = 'none';
+            }
+
+            // Status
+            statusEl.textContent = 'Recognized: "' + result.text + '"';
+
+            // IPA mapping for phoneme symbols (Azure uses ARPABET, convert to IPA)
+            const ipaMap = {
+                'aa': 'ɑ', 'ae': 'æ', 'ah': 'ʌ', 'ao': 'ɔ', 'aw': 'aʊ',
+                'ax': 'ə', 'ay': 'aɪ', 'b': 'b', 'ch': 'tʃ', 'd': 'd',
+                'dh': 'ð', 'eh': 'ɛ', 'er': 'ɝ', 'ey': 'eɪ', 'f': 'f',
+                'g': 'g', 'hh': 'h', 'ih': 'ɪ', 'iy': 'i', 'jh': 'dʒ',
+                'k': 'k', 'l': 'l', 'm': 'm', 'n': 'n', 'ng': 'ŋ',
+                'ow': 'oʊ', 'oy': 'ɔɪ', 'p': 'p', 'r': 'r', 's': 's',
+                'sh': 'ʃ', 't': 't', 'th': 'θ', 'uh': 'ʊ', 'uw': 'u',
+                'v': 'v', 'w': 'w', 'y': 'j', 'z': 'z', 'zh': 'ʒ'
+            };
+
+            // Syllable results (if available)
+            const syllablesEl = document.getElementById('syllables');
+            syllablesEl.innerHTML = '<h3>Syllables (bold = stressed)</h3>';
+
+            if (pronunciationResult.detailResult && pronunciationResult.detailResult.Words) {
+                const words = pronunciationResult.detailResult.Words;
+
+                // Render syllables first
+                let hasSyllables = false;
+                words.forEach(word => {
+                    if (word.Syllables && word.Syllables.length > 0) {
+                        hasSyllables = true;
+                        word.Syllables.forEach((syllable, idx) => {
+                            const syllableDiv = document.createElement('div');
+                            syllableDiv.className = 'syllable';
+
+                            // Check if this syllable is stressed (various possible properties)
+                            const isStressed = syllable.IsStressed ||
+                                             syllable.Stressed ||
+                                             syllable.PronunciationAssessment?.IsStressed ||
+                                             false;
+
+                            if (isStressed) {
+                                syllableDiv.classList.add('stressed');
+                            }
+
+                            const text = document.createElement('div');
+                            text.textContent = syllable.Grapheme || syllable.Syllable;
+
+                            const score = document.createElement('span');
+                            score.className = 'syllable-score';
+                            const syllableScore = syllable.PronunciationAssessment?.AccuracyScore ?? 0;
+                            score.textContent = Math.round(syllableScore) + '%';
+
+                            syllableDiv.appendChild(text);
+                            syllableDiv.appendChild(score);
+                            syllablesEl.appendChild(syllableDiv);
+                        });
+                    }
+                });
+
+                if (hasSyllables) {
+                    syllablesEl.style.display = 'block';
+                } else {
+                    syllablesEl.style.display = 'none';
+                }
+
+                // Phoneme results
+                const phonemesEl = document.getElementById('phonemes');
+                phonemesEl.innerHTML = '<h3>Phonemes</h3>';
+
+                words.forEach(word => {
+                    if (word.Phonemes) {
+                        word.Phonemes.forEach(phoneme => {
+                            const phonemeDiv = document.createElement('div');
+
+                            // Score is nested inside PronunciationAssessment object
+                            const scoreValue = phoneme.PronunciationAssessment?.AccuracyScore ?? 0;
+
+                            // Use selected strictness threshold
+                            const threshold = parseInt(strictnessEl.value);
+                            phonemeDiv.className = 'phoneme ' + (scoreValue >= threshold ? 'correct' : 'incorrect');
+
+                            const symbol = document.createElement('div');
+                            // Convert to IPA symbol
+                            const phonemeText = phoneme.Phoneme.toLowerCase().replace(/[0-9]/g, '');
+                            symbol.textContent = ipaMap[phonemeText] || phoneme.Phoneme;
+
+                            const score = document.createElement('span');
+                            score.className = 'phoneme-score';
+                            score.textContent = Math.round(scoreValue) + '%';
+
+                            phonemeDiv.appendChild(symbol);
+                            phonemeDiv.appendChild(score);
+                            phonemesEl.appendChild(phonemeDiv);
+                        });
+                    }
+                });
+            }
+
+            // Narration
+            const narrationEl = document.getElementById('narration');
+            const score = pronunciationResult.pronunciationScore;
+            const threshold = parseInt(strictnessEl.value);
+
+            if (score >= threshold) {
+                narrationEl.textContent = 'Great! Your pronunciation meets the target threshold.';
+            } else if (score >= threshold - 10) {
+                narrationEl.textContent = 'Close! Focus on the red-highlighted phonemes to reach your goal.';
+            } else {
+                narrationEl.textContent = 'Keep practicing! Pay attention to each phoneme marked in red.';
+            }
+
+            resultsEl.classList.add('show');
+        }
+
+        // Initialize
+        checkCredentials();
+    </script>
+</body>
+</html>
