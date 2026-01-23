@@ -336,10 +336,10 @@
                 sttPipeline = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
                 console.log('✓ STT model loaded');
 
-                // Load LLM (DistilGPT2 or Chrome AI)
+                // Load LLM (LaMini-590M or Chrome AI)
                 if (!useGeminiNano) {
-                    updateLoadingStatus('Loading Language Model...', 'DistilGPT2 (~80 MB)');
-                    llmPipeline = await pipeline('text-generation', 'Xenova/distilgpt2');
+                    updateLoadingStatus('Loading Language Model...', 'LaMini-590M (~448 MB) - 7x larger!');
+                    llmPipeline = await pipeline('text-generation', 'Xenova/LaMini-Cerebras-590M');
                     console.log('✓ LLM model loaded');
                 }
 
@@ -351,7 +351,7 @@
                 statusDot.classList.remove('loading');
                 statusDot.classList.add('ready');
                 statusText.textContent = 'Ready';
-                modelStatus.textContent = useGeminiNano ? 'Using Chrome Gemini Nano' : 'Using DistilGPT2 (lightweight)';
+                modelStatus.textContent = useGeminiNano ? 'Using Chrome Gemini Nano' : 'Using LaMini-590M (590M params)';
                 recordBtn.disabled = false;
 
                 console.log('All models loaded successfully!');
@@ -540,25 +540,28 @@ Your response:`;
                 const response = await chromeAI.prompt(learningPrompt);
                 return response;
             } else {
-                // Use DistilGPT2 - optimized for English learning practice
-                const prompt = `Conversation: Student is learning English.
+                // Use LaMini-590M - better quality for conversation practice
+                const prompt = `You are a friendly English teacher helping a student practice conversation. Keep responses short (1-2 sentences) and encouraging.
 
 Student: "${userMessage}"
-
 Teacher:`;
 
                 const result = await llmPipeline(prompt, {
-                    max_new_tokens: 40,
-                    temperature: 0.9,
+                    max_new_tokens: 60,
+                    temperature: 0.8,
                     do_sample: true,
-                    top_p: 0.95,
-                    repetition_penalty: 1.2,
+                    top_p: 0.9,
+                    repetition_penalty: 1.1,
                 });
 
                 // Extract response after "Teacher:"
                 let response = result[0].generated_text.split('Teacher:')[1];
                 if (response) {
-                    response = response.trim().split('\n')[0].split('.')[0] + '.'; // Get first sentence
+                    response = response.trim().split('\n')[0];
+                    // Ensure it ends with punctuation
+                    if (!response.endsWith('.') && !response.endsWith('!') && !response.endsWith('?')) {
+                        response += '.';
+                    }
                 }
 
                 return response || "That's interesting! Tell me more about that.";

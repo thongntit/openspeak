@@ -24,11 +24,12 @@ learn-english/
 - IPA symbols and syllable breakdown
 - [→ Use this feature](/index.html)
 
-### 2. AI Conversation Practice ⚠️ (Experimental)
+### 2. AI Conversation Practice ✅ (Working)
 - Local browser-based AI conversation
-- Speech-to-speech with local models
-- **Status:** Proof of concept, limited quality
-- [→ Try it anyway](/phase1-mvp/conversation.html) | [→ See documentation](/phase1-mvp/)
+- Speech-to-speech with local models (no server needed)
+- **Model:** LaMini-590M (590M parameters, good quality)
+- **Download:** ~489 MB (Whisper 41MB + LaMini 448MB + TTS 0MB)
+- [→ Try it now](/phase1-mvp/conversation.html) | [→ See documentation](/phase1-mvp/)
 
 ---
 
