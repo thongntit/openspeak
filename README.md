@@ -1,6 +1,38 @@
-# English Pronunciation Practice App
+# English Learning App
 
-A browser-based pronunciation assessment tool powered by Azure Speech Services with phoneme-level feedback, prosody analysis, and real-time scoring.
+Browser-based tools for learning English with AI-powered pronunciation assessment and conversation practice.
+
+## Project Structure
+
+```
+learn-english/
+├── index.html                    # Pronunciation Assessment (Main Feature)
+├── phase1-mvp/                   # Local AI Conversation (Experimental)
+│   ├── conversation.html         # Speech-to-speech conversation interface
+│   ├── home.html                 # Landing page with feature selection
+│   ├── test-llm.html             # LLM testing page
+│   ├── README.md                 # Phase 1 documentation
+│   └── ...                       # See phase1-mvp/ for details
+└── README.md                     # This file
+```
+
+## Features
+
+### 1. Pronunciation Assessment ✅ (Production Ready)
+- **Azure Speech Services** powered pronunciation scoring
+- Phoneme-level feedback and prosody analysis
+- IPA symbols and syllable breakdown
+- [→ Use this feature](/index.html)
+
+### 2. AI Conversation Practice ⚠️ (Experimental)
+- Local browser-based AI conversation
+- Speech-to-speech with local models
+- **Status:** Proof of concept, limited quality
+- [→ Try it anyway](/phase1-mvp/conversation.html) | [→ See documentation](/phase1-mvp/)
+
+---
+
+## Pronunciation Assessment (Main Feature)
 
 ## ✨ Features
 
