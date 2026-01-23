@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Conversation Practice - English Learning</title>
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/phase1-mvp/manifest.json">
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -50,6 +50,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
             font-size: 13px;
         }
         .status-indicator {
@@ -76,6 +78,32 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
+        }
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .model-selector label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .model-selector select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        .model-selector select:hover {
+            border-color: #667eea;
+        }
+        .model-selector select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         .chat-container {
             height: 400px;
@@ -240,6 +268,43 @@
             font-size: 12px;
             color: #004085;
         }
+        .debug-panel {
+            padding: 10px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            font-size: 11px;
+            display: none;
+        }
+        .debug-panel.show {
+            display: block;
+        }
+        .debug-panel h4 {
+            margin: 0 0 10px 0;
+            font-size: 12px;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        .debug-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .debug-item {
+            padding: 5px;
+            background: white;
+            border-radius: 4px;
+        }
+        .debug-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        .debug-value {
+            color: #28a745;
+            font-family: monospace;
+        }
+        .debug-value.error {
+            color: #dc3545;
+        }
     </style>
 </head>
 <body>
@@ -263,14 +328,22 @@
                 <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">Initializing...</span>
             </div>
-            <div id="modelStatus" style="font-size: 12px; color: #6c757d;"></div>
+            <div class="model-selector">
+                <label for="modelSelect">Model:</label>
+                <select id="modelSelect">
+                    <option value="Xenova/gpt2">GPT2 (128 MB) - Default</option>
+                    <option value="Xenova/LaMini-Cerebras-111M">LaMini 111M (121 MB)</option>
+                    <option value="Xenova/LaMini-Cerebras-256M">LaMini 256M (267 MB)</option>
+                    <option value="Xenova/LaMini-Cerebras-590M">LaMini 590M (448 MB)</option>
+                </select>
+            </div>
         </div>
 
         <div class="chat-container" id="chatContainer">
             <div class="message ai">
                 <div class="message-avatar">🤖</div>
                 <div class="message-content">
-                    Hi! I'm here to help you practice English conversation. Hold the microphone button and say something to get started. I'll respond and keep our conversation going!
+                    Hi! I'm here to help you practice English conversation. Hold the microphone button and say something to get started. I'll respond and keep our conversation going! You can change the AI model using the dropdown above.
                 </div>
             </div>
         </div>
@@ -285,20 +358,54 @@
                     <span>🗑️</span>
                     Clear Chat
                 </button>
+                <button class="btn-secondary" id="debugBtn" title="Debug">
+                    <span>🔍</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="debug-panel" id="debugPanel">
+            <h4>Debug Info</h4>
+            <div class="debug-info">
+                <div class="debug-item">
+                    <div class="debug-label">Service Worker:</div>
+                    <div class="debug-value" id="swStatus">Checking...</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-label">Cache:</div>
+                    <div class="debug-value" id="cacheStatus">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-label">Online:</div>
+                    <div class="debug-value" id="onlineStatus">-</div>
+                </div>
+                <div class="debug-item">
+                    <div class="debug-label">User Agent:</div>
+                    <div class="debug-value" id="uaStatus" style="font-size: 10px;">-</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script type="module">
-        // Import Transformers.js for STT only
+        // Import Transformers.js
         import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
 
         // Configure environment
         env.allowLocalModels = false;
 
+        // Available models configuration
+        const MODELS = {
+            'Xenova/gpt2': { name: 'GPT2', size: '128 MB', params: '124M' },
+            'Xenova/LaMini-Cerebras-111M': { name: 'LaMini 111M', size: '121 MB', params: '111M' },
+            'Xenova/LaMini-Cerebras-256M': { name: 'LaMini 256M', size: '267 MB', params: '256M' },
+            'Xenova/LaMini-Cerebras-590M': { name: 'LaMini 590M', size: '448 MB', params: '590M' }
+        };
+
         // State
         let sttPipeline = null;
         let llmPipeline = null;
+        let currentModel = localStorage.getItem('selectedModel') || 'Xenova/gpt2';
         let isRecording = false;
         let mediaRecorder = null;
         let audioChunks = [];
@@ -314,12 +421,86 @@
         const modelInfo = document.getElementById('modelInfo');
         const statusDot = document.getElementById('statusDot');
         const statusText = document.getElementById('statusText');
-        const modelStatus = document.getElementById('modelStatus');
         const chatContainer = document.getElementById('chatContainer');
         const recordBtn = document.getElementById('recordBtn');
         const recordIcon = document.getElementById('recordIcon');
         const recordText = document.getElementById('recordText');
         const clearBtn = document.getElementById('clearBtn');
+        const modelSelect = document.getElementById('modelSelect');
+        const debugBtn = document.getElementById('debugBtn');
+        const debugPanel = document.getElementById('debugPanel');
+
+        // Set initial dropdown value
+        modelSelect.value = currentModel;
+
+        // Debug toggle
+        debugBtn.addEventListener('click', () => {
+            debugPanel.classList.toggle('show');
+            if (debugPanel.classList.contains('show')) {
+                updateDebugInfo();
+            }
+        });
+
+        // Update debug information
+        async function updateDebugInfo() {
+            // Service Worker status
+            if ('serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration && registration.active) {
+                    document.getElementById('swStatus').textContent = '✓ Active';
+                    document.getElementById('swStatus').classList.remove('error');
+                } else {
+                    document.getElementById('swStatus').textContent = '✗ Not registered';
+                    document.getElementById('swStatus').classList.add('error');
+                }
+            } else {
+                document.getElementById('swStatus').textContent = '✗ Not supported';
+                document.getElementById('swStatus').classList.add('error');
+            }
+
+            // Cache status
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                if (cacheNames.length > 0) {
+                    document.getElementById('cacheStatus').textContent = `${cacheNames.length} caches`;
+                } else {
+                    document.getElementById('cacheStatus').textContent = 'Empty';
+                }
+            }
+
+            // Online status
+            document.getElementById('onlineStatus').textContent = navigator.onLine ? 'Yes' : 'No';
+
+            // User Agent
+            const ua = navigator.userAgent;
+            let browser = 'Unknown';
+            if (ua.includes('Chrome')) browser = 'Chrome';
+            else if (ua.includes('Firefox')) browser = 'Firefox';
+            else if (ua.includes('Safari')) browser = 'Safari';
+            else if (ua.includes('Edg')) browser = 'Edge';
+
+            document.getElementById('uaStatus').textContent = `${browser} (${/Android|iPhone|iPad|Mac|Windows/i.exec(ua)?.[0] || 'Unknown'})`;
+        }
+
+        // Listen for online/offline changes
+        window.addEventListener('online', () => {
+            if (debugPanel.classList.contains('show')) updateDebugInfo();
+        });
+        window.addEventListener('offline', () => {
+            if (debugPanel.classList.contains('show')) updateDebugInfo();
+        });
+
+
+        // Model selector change handler
+        modelSelect.addEventListener('change', () => {
+            const newModel = modelSelect.value;
+            if (newModel !== currentModel) {
+                localStorage.setItem('selectedModel', newModel);
+                currentModel = newModel;
+                // Reload to load the new model
+                location.reload();
+            }
+        });
 
         // Initialize models
         async function initModels() {
@@ -336,11 +517,12 @@
                 sttPipeline = await pipeline('automatic-speech-recognition', 'Xenova/whisper-tiny.en');
                 console.log('✓ STT model loaded');
 
-                // Load LLM (LaMini-590M or Chrome AI)
+                // Load LLM (selected model or Chrome AI)
                 if (!useGeminiNano) {
-                    updateLoadingStatus('Loading Language Model...', 'LaMini-590M (~448 MB) - 7x larger!');
-                    llmPipeline = await pipeline('text-generation', 'Xenova/LaMini-Cerebras-590M');
-                    console.log('✓ LLM model loaded');
+                    const modelInfo = MODELS[currentModel];
+                    updateLoadingStatus('Loading Language Model...', `${modelInfo.name} (~${modelInfo.size})`);
+                    llmPipeline = await pipeline('text-generation', currentModel);
+                    console.log('✓ LLM model loaded:', currentModel);
                 }
 
                 // TTS: Use native browser speech synthesis (no download needed)
@@ -351,7 +533,6 @@
                 statusDot.classList.remove('loading');
                 statusDot.classList.add('ready');
                 statusText.textContent = 'Ready';
-                modelStatus.textContent = useGeminiNano ? 'Using Chrome Gemini Nano' : 'Using LaMini-590M (590M params)';
                 recordBtn.disabled = false;
 
                 console.log('All models loaded successfully!');
@@ -377,10 +558,13 @@
                         useGeminiNano = true;
                         console.log('✓ Chrome Gemini Nano available');
                         modelInfo.textContent = '✓ Using Chrome Gemini Nano (better quality)';
+                        // Disable model selector when using Chrome AI
+                        modelSelect.disabled = true;
+                        modelSelect.title = 'Chrome AI is active';
                     }
                 }
             } catch (error) {
-                console.log('Chrome AI not available, using Gemma 3 270M fallback');
+                console.log('Chrome AI not available');
                 useGeminiNano = false;
             }
         }
@@ -540,7 +724,8 @@ Your response:`;
                 const response = await chromeAI.prompt(learningPrompt);
                 return response;
             } else {
-                // Use LaMini-590M - better quality for conversation practice
+                // Use selected LLM model
+                const modelInfo = MODELS[currentModel];
                 const prompt = `You are a friendly English teacher helping a student practice conversation. Keep responses short (1-2 sentences) and encouraging.
 
 Student: "${userMessage}"
@@ -652,9 +837,22 @@ Teacher:`;
 
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('Service Worker registered:', reg))
-                .catch(err => console.log('Service Worker registration failed:', err));
+            navigator.serviceWorker.register('/phase1-mvp/sw.js')
+                .then(reg => {
+                    console.log('Service Worker registered:', reg);
+                    // Update debug info when service worker is ready
+                    reg.addEventListener('controllerchange', () => {
+                        console.log('Service Worker controller changed');
+                        if (debugPanel.classList.contains('show')) updateDebugInfo();
+                    });
+                    reg.update().catch(() => {
+                        console.log('Service Worker already up to date');
+                    });
+                })
+                .catch(err => {
+                    console.error('Service Worker registration failed:', err);
+                    if (debugPanel.classList.contains('show')) updateDebugInfo();
+                });
         }
 
         // Initialize on load
