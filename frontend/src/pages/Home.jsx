@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
+import ThemeToggle from '../components/ThemeToggle';
+import { Settings } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -19,18 +21,22 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#101922] pb-20">
+    <div className="min-h-screen bg-[#f6f7f8] dark:bg-[#101922] pb-20">
       <div className="max-w-lg mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-[#111418] dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Pronounce
           </h1>
-          <button 
-            onClick={() => navigate('/settings')}
-            className="text-[#137fec] p-2"
-          >
-            ⚙️
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <button
+              onClick={() => navigate('/settings')}
+              className="p-2 text-[#137fec] hover:opacity-70 transition-opacity"
+              aria-label="Settings"
+            >
+              <Settings size={20} />
+            </button>
+          </div>
         </div>
 
         {!hasSettings && (
@@ -56,7 +62,7 @@ export default function Home() {
         )}
 
         <div className="card mb-6">
-          <h2 className="text-lg font-semibold text-[#111418] dark:text-white mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Quick Start
           </h2>
           <button
@@ -68,7 +74,7 @@ export default function Home() {
         </div>
 
         <div className="card mb-6">
-          <h2 className="text-lg font-semibold text-[#111418] dark:text-white mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Try These Words
           </h2>
           <div className="space-y-3">
@@ -77,12 +83,12 @@ export default function Home() {
                 key={index}
                 onClick={() => navigate('/practice', { state: { word: item.word } })}
                 disabled={!hasSettings}
-                className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex items-center justify-between p-3 bg-gray-100/50 dark:bg-gray-800 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <span className="font-medium text-[#111418] dark:text-white">
+                <span className="font-medium text-gray-900 dark:text-white">
                   {item.word}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">
+                <span className="text-xs text-gray-600 dark:text-gray-400 px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">
                   {item.level}
                 </span>
               </button>
@@ -91,20 +97,20 @@ export default function Home() {
         </div>
 
         <div className="card">
-          <h2 className="text-lg font-semibold text-[#111418] dark:text-white mb-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Recent Activity
           </h2>
           <div className="space-y-3">
             {recentActivity.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                className="flex items-center justify-between p-3 bg-gray-100/50 dark:bg-gray-800 rounded-lg"
               >
                 <div>
-                  <div className="font-medium text-[#111418] dark:text-white">
+                  <div className="font-medium text-gray-900 dark:text-white">
                     {item.word}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     {item.date}
                   </div>
                 </div>

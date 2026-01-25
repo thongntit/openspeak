@@ -18,7 +18,7 @@
   }
   
   .card {
-    @apply bg-white rounded-lg shadow-md p-4;
+    @apply bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800 p-4;
   }
   
   .input {
