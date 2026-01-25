@@ -3,11 +3,14 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Practice from './pages/Practice';
 import Settings from './pages/Settings';
+import { useThemeStore } from './stores/themeStore';
 
 function App() {
+  const { isDark } = useThemeStore();
+
   useEffect(() => {
     const splashScreen = document.getElementById('splash-screen');
-    
+
     if (splashScreen) {
       splashScreen.style.transition = 'opacity 0.5s ease';
       splashScreen.style.opacity = '0';
@@ -16,6 +19,14 @@ function App() {
       }, 500);
     }
   }, []);
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
 
   return (
     <Router>
