@@ -10,11 +10,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Pronunciation Coach',
-        short_name: 'ProCoach',
+        name: 'Pronounce',
+        short_name: 'Pronounce',
         description: 'Practice English pronunciation with AI-powered feedback',
-        theme_color: '#2563eb',
-        background_color: '#ffffff',
+        theme_color: '#f6f7f8',
+        background_color: '#f6f7f8',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

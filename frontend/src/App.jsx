@@ -26,6 +26,12 @@ function App() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    // Update theme-color meta tag based on current theme
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', isDark ? '#101922' : '#f6f7f8');
+    }
   }, [isDark]);
 
   return (
