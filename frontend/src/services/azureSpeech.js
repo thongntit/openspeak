@@ -24,14 +24,27 @@ class AzureSpeechService {
       throw new Error('Speech SDK not initialized');
     }
 
+    // Close any existing recognizer
+    if (this.recognizer) {
+      this.recognizer.close();
+    }
+
+    // Create pronunciation assessment config
+    const pronunciationConfig = new SpeechSDK.PronunciationAssessmentConfig(
+      text,
+      SpeechSDK.PronunciationAssessmentGradingSystem.HundredMark,
+      SpeechSDK.PronunciationAssessmentGranularity.Phoneme,
+      true
+    );
+
     this.recognizer = new SpeechSDK.SpeechRecognizer(
       this.speechConfig,
       this.audioConfig
     );
-    
-    const grammar = SpeechSDK.PhraseListGrammar.from([text]);
-    this.recognizer.grammar = grammar;
-    
+
+    // Apply pronunciation assessment config
+    pronunciationConfig.applyTo(this.recognizer);
+
     this.recognizer.recognizing = (s, e) => {
       console.log('Recognizing:', e.result.text);
     };
@@ -39,7 +52,11 @@ class AzureSpeechService {
     this.recognizer.recognized = (s, e) => {
       const result = e.result;
       console.log('Result JSON:', result.json);
-      onResult(result);
+      if (result.reason === SpeechSDK.ResultReason.RecognizedSpeech) {
+        onResult(result);
+      } else if (result.reason === SpeechSDK.ResultReason.NoMatch) {
+        onError('No speech recognized');
+      }
     };
 
     this.recognizer.canceled = (s, e) => {
@@ -57,7 +74,14 @@ class AzureSpeechService {
 
   stopRecognition() {
     if (this.recognizer) {
-      return this.recognizer.stopContinuousRecognitionAsync();
+      return this.recognizer.stopContinuousRecognitionAsync(
+        () => {
+          console.log('Recognition stopped');
+        },
+        (err) => {
+          console.error('Error stopping recognition:', err);
+        }
+      );
     }
   }
 
