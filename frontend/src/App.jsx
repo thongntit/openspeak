@@ -1,4 +1,8 @@
 import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Practice from './pages/Practice';
+import Settings from './pages/Settings';
 
 function App() {
   useEffect(() => {
@@ -14,19 +18,13 @@ function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#101922]">
-      <div className="min-h-screen flex flex-col items-center justify-center p-6">
-        <h1 className="text-4xl font-bold text-[#111418] dark:text-white mb-4">
-          Pronunciation Coach
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-          Master English pronunciation with AI
-        </p>
-        <button className="btn-primary">
-          Start Practicing
-        </button>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/practice" element={<Practice />} />
+        <Route path="/settings" element={<Settings />} />
+      </Routes>
+    </Router>
   );
 }
 
