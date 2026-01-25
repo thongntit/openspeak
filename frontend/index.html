@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Pronounce</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Lexend', sans-serif;
+      }
+      
+      #splash-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #ffffff;
+        z-index: 9999;
+      }
+      
+      .splash-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+      }
+      
+      .logo-container {
+        position: relative;
+        width: 128px;
+        height: 128px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .logo-glow {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(19, 127, 236, 0.05);
+        border-radius: 50%;
+        transform: scale(1.25);
+      }
+      
+      .logo-box {
+        position: relative;
+        z-index: 10;
+        width: 96px;
+        height: 96px;
+        background-color: #ffffff;
+        border: 4px solid #137fec;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      }
+      
+      .logo-content {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .logo-text {
+        color: #137fec;
+        font-size: 3.75rem;
+        font-weight: 700;
+        line-height: 1;
+        font-family: 'Lexend', sans-serif;
+      }
+      
+      .soundwave {
+        position: absolute;
+        bottom: -4px;
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+      }
+      
+      .soundwave-bar {
+        width: 4px;
+        background-color: #137fec;
+        border-radius: 9999px;
+        animation: pulse 1s ease-in-out infinite;
+      }
+      
+      .soundwave-bar:nth-child(1) { height: 12px; animation-delay: 0ms; }
+      .soundwave-bar:nth-child(2) { height: 20px; animation-delay: 100ms; }
+      .soundwave-bar:nth-child(3) { height: 28px; animation-delay: 200ms; }
+      .soundwave-bar:nth-child(4) { height: 16px; animation-delay: 300ms; }
+      .soundwave-bar:nth-child(5) { height: 24px; animation-delay: 400ms; }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+      
+      .app-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.025em;
+        color: #111418;
+      }
+      
+      .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      
+      .loading-text {
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #111418;
+        opacity: 0.6;
+      }
+      
+      .loading-dots {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .loading-dot {
+        width: 10px;
+        height: 10px;
+        background-color: #137fec;
+        border-radius: 50%;
+        animation: bounce 1.4s ease-in-out infinite;
+      }
+      
+      .loading-dot:nth-child(1) { animation-delay: 0s; }
+      .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+      .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+      
+      @keyframes bounce {
+        0%, 80%, 100% {
+          transform: scale(0);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      
+      .quote {
+        text-align: center;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #637588;
+        opacity: 0.8;
+        margin-top: 0.5rem;
+      }
+      
+      @media (prefers-color-scheme: dark) {
+        #splash-screen {
+          background-color: #101922;
+        }
+        
+        .logo-box {
+          background-color: #101922;
+        }
+        
+        .app-title {
+          color: #ffffff;
+        }
+        
+        .loading-text {
+          color: #ffffff;
+          opacity: 0.6;
+        }
+        
+        .quote {
+          color: rgba(255, 255, 255, 0.4);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="splash-screen">
+      <div class="splash-content">
+        <div class="logo-container">
+          <div class="logo-glow"></div>
+          <div class="logo-box">
+            <div class="logo-content">
+              <span class="logo-text">A</span>
+              <div class="soundwave">
+                <div class="soundwave-bar"></div>
+                <div class="soundwave-bar"></div>
+                <div class="soundwave-bar"></div>
+                <div class="soundwave-bar"></div>
+                <div class="soundwave-bar"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="app-title">Pronounce</div>
+        
+        <div class="loading-container">
+          <div class="loading-text">Loading</div>
+          <div class="loading-dots">
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+            <div class="loading-dot"></div>
+          </div>
+        </div>
+        
+        <div class="quote">Perfecting your accent...</div>
+      </div>
+    </div>
+    
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
