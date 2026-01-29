@@ -1,26 +1,26 @@
 ## 1. Backend Project Setup
 
-- [ ] 1.1 Initialize NestJS project with TypeScript in `backend/` directory
-- [ ] 1.2 Install core dependencies: @nestjs/core, @nestjs/common, @nestjs/platform-express
-- [ ] 1.3 Install TypeORM dependencies: @nestjs/typeorm, typeorm, pg
-- [ ] 1.4 Install validation dependencies: class-validator, class-transformer
-- [ ] 1.5 Install config dependency: @nestjs/config
-- [ ] 1.6 Configure TypeScript (tsconfig.json) with strict mode and decorators
-- [ ] 1.7 Setup ESLint and Prettier for code quality
-- [ ] 1.8 Create .env.example with required environment variables template
-- [ ] 1.9 Add .gitignore for node_modules, dist, .env files
+- [x] 1.1 Initialize NestJS project with TypeScript in `backend/` directory
+- [x] 1.2 Install core dependencies: @nestjs/core, @nestjs/common, @nestjs/platform-express
+- [x] 1.3 Install TypeORM dependencies: @nestjs/typeorm, typeorm, pg
+- [x] 1.4 Install validation dependencies: class-validator, class-transformer
+- [x] 1.5 Install config dependency: @nestjs/config
+- [x] 1.6 Configure TypeScript (tsconfig.json) with strict mode and decorators
+- [x] 1.7 Setup ESLint and Prettier for code quality
+- [x] 1.8 Create .env.example with required environment variables template
+- [x] 1.9 Add .gitignore for node_modules, dist, .env files
 
 ## 2. Database Configuration
 
-- [ ] 2.1 Create database module with TypeORM configuration
-- [ ] 2.2 Configure database connection using environment variables (DATABASE_URL)
-- [ ] 2.3 Setup TypeORM CLI configuration for migrations
-- [ ] 2.4 Create Word entity with TypeORM decorators (id, word, ipa, phonemes, difficulty, syllables, audio_url, example_sentence, timestamps)
-- [ ] 2.5 Create Collection entity with TypeORM decorators (id, name, description, difficulty, tags, timestamps)
-- [ ] 2.6 Create CollectionWord junction entity with composite primary key (collection_id, word_id, position)
-- [ ] 2.7 Generate initial migration for all three tables
-- [ ] 2.8 Add GIN index on words.phonemes column in migration
-- [ ] 2.9 Add indexes for word, difficulty, and collection lookups
+- [x] 2.1 Create database module with TypeORM configuration
+- [x] 2.2 Configure database connection using environment variables (DATABASE_URL)
+- [x] 2.3 Setup TypeORM CLI configuration for migrations
+- [x] 2.4 Create Word entity with TypeORM decorators (id, word, ipa, phonemes, difficulty, syllables, audio_url, example_sentence, timestamps)
+- [x] 2.5 Create Collection entity with TypeORM decorators (id, name, description, difficulty, tags, timestamps)
+- [x] 2.6 Create CollectionWord junction entity with composite primary key (collection_id, word_id, position)
+- [x] 2.7 Generate initial migration for all three tables
+- [x] 2.8 Add GIN index on words.phonemes column in migration
+- [x] 2.9 Add indexes for word, difficulty, and collection lookups
 - [ ] 2.10 Test migration by running it locally against PostgreSQL
 
 ## 3. Words Module Implementation
