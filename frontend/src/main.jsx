@@ -4,12 +4,17 @@ import './index.css'
 import App from './App.jsx'
 import ReloadPrompt from './components/ReloadPrompt'
 import AppLoader from './components/AppLoader'
+import DatabaseErrorBoundary from './components/DatabaseErrorBoundary'
+import OfflineIndicator from './components/OfflineIndicator'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ReloadPrompt />
-    <AppLoader>
-      <App />
-    </AppLoader>
+    <DatabaseErrorBoundary>
+      <ReloadPrompt />
+      <AppLoader>
+        <App />
+      </AppLoader>
+      <OfflineIndicator />
+    </DatabaseErrorBoundary>
   </StrictMode>
 )
