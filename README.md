@@ -5,7 +5,7 @@ Mobile-first Progressive Web App for English pronunciation assessment with Azure
 ## Monorepo Structure
 
 ```
-english-pronunciation-web/
+openspeak/
 ├── frontend/               # React + Vite + Tailwind PWA
 │   ├── src/
 │   │   ├── components/     # React components
@@ -13,16 +13,25 @@ english-pronunciation-web/
 │   │   ├── services/       # API & services
 │   │   └── utils/          # Helper functions
 │   ├── public/             # Static assets
+│   ├── .env.example        # Environment variables template
 │   ├── package.json
 │   ├── vite.config.js      # Vite + PWA config
 │   └── tailwind.config.js  # Tailwind CSS config
-├── docs/                  # Documentation & archives
+├── database/               # Static word database
+│   ├── words.json          # 3,000 words with IPA (449 KB)
+│   └── README.md           # Database documentation
+├── docs/                   # Documentation
+│   ├── database/           # Database integration guides
+│   │   ├── structure.md
+│   │   ├── access.md
+│   │   ├── indexeddb.md
+│   │   └── integration.md
 │   ├── CHANGELOG.md
-│   ├── spec.md
-│   ├── TECHNICAL_NOTES.md
-│   └── phase1-mvp/         # Experimental AI conversation (archived)
-├── index.html              # Legacy vanilla JS (to be removed)
-└── README.md              # This file
+│   └── spec.md
+├── scripts/                # Utility scripts
+│   └── serve-db.js         # Local database server
+├── package.json            # Root package.json with scripts
+└── README.md               # This file
 ```
 
 ## Tech Stack
@@ -49,24 +58,44 @@ english-pronunciation-web/
 4. Go to **"Keys and Endpoint"**
 5. Copy **Key 1** and **Region** (e.g., `southeastasia`)
 
-### 2. Run Frontend Development Server
+### 2. Install Dependencies
 
 ```bash
 cd frontend
-npm install
-npm run dev
+bun install
+```
+
+### 3. Run Development Server
+
+**Option A: Quick Start (uses GitHub database)**
+```bash
+# From project root
+bun run dev
+```
+
+**Option B: Local Database (recommended for development)**
+```bash
+# Terminal 1: Start local database server
+bun run serve-db
+
+# Terminal 2: Start frontend (with local database)
+bun run dev
+```
+
+Or use the combined command:
+```bash
+bun run dev:local
 ```
 
 Open browser: **http://localhost:5173**
 
 > **Why localhost?** Browser requires HTTPS or localhost for microphone access.
 
-### 3. Build for Production
+### 4. Build for Production
 
 ```bash
-cd frontend
-npm run build
-npm run preview  # Preview production build
+bun run build
+bun run preview  # Preview production build
 ```
 
 ### 4. Install as PWA
@@ -109,23 +138,38 @@ npm run preview  # Preview production build
 
 ## Development
 
-### Frontend Commands
+### Available Commands (from project root)
+
+```bash
+# Development
+bun run dev              # Start frontend dev server
+bun run serve-db         # Start local database server (port 3001)
+bun run dev:local        # Start both database server and frontend
+
+# Building
+bun run build            # Build frontend for production
+bun run preview          # Preview production build
+
+# Database
+bun run db:generate      # Regenerate database from sources
+bun run db:status        # Show database file stats
+
+# Utilities
+bun run lint             # Run ESLint
+bun run clean            # Clean build cache
+bun run setup            # Install frontend dependencies
+```
+
+### Frontend Commands (from frontend/ directory)
 
 ```bash
 cd frontend
 
 # Development
-npm run dev          # Start dev server
-
-# Building
-npm run build        # Build for production
-npm run preview      # Preview production build
-
-# Linting
-npm run lint         # Run ESLint
-
-# Type checking (if TypeScript added later)
-npm run type-check   # Run TypeScript check
+bun run dev              # Start dev server
+bun run build            # Build for production
+bun run preview          # Preview production build
+bun run lint             # Run ESLint
 ```
 
 ### Project Structure Details
@@ -203,6 +247,38 @@ frontend/
 - [ ] Write user guide/help section
 - [ ] Test PWA installation flow
 - [ ] Deploy to hosting (Vercel/Netlify)
+
+## Word Database
+
+The app includes a static database of **3,000 most common English words** with IPA pronunciation data.
+
+### Database Stats
+- **Total Words:** 3,000
+- **Words with IPA:** 2,929 (97.6%)
+- **File Size:** ~449 KB
+- **Format:** JSON with GitHub hosting
+
+### Data Sources
+- **Word List:** Google 10000 English (Public Domain)
+- **IPA Data:** open-dict-data/ipa-dict (MIT License)
+
+### Local Development
+
+For development, you can serve the database locally to avoid GitHub rate limits:
+
+```bash
+# Start local database server
+bun run serve-db
+
+# Configure frontend to use local server
+cp frontend/.env.example frontend/.env
+# Edit frontend/.env: VITE_DATABASE_URL=http://localhost:3001/words.json
+
+# Start frontend
+bun run dev
+```
+
+See [docs/database/](./docs/database/) for detailed integration documentation.
 
 ## Troubleshooting
 

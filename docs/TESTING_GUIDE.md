@@ -22,7 +22,7 @@ You need an **Azure Speech Service API key** to test pronunciation features.
 
 ```bash
 cd frontend
-npm run dev
+bun run dev
 ```
 
 Open: http://localhost:5173
@@ -220,10 +220,10 @@ Resize browser to test mobile view:
 
 ```bash
 # Fix build errors
-npm run build
+bun run build
 
 # Preview production build
-npm run preview
+bun run preview
 ```
 
 ## Test Results Template
