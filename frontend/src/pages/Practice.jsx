@@ -4,7 +4,7 @@ import { useSettingsStore } from '../stores/settingsStore';
 import { usePronunciationStore } from '../stores/pronunciationStore';
 import { ArrowLeft, Mic, MicOff, RefreshCw, ChevronRight } from 'lucide-react';
 import azureSpeech from '../services/azureSpeech';
-import { getRandomWordWithIPA } from '../services/wordService';
+import wordService from '../services/wordService';
 
 export default function Practice() {
   const navigate = useNavigate();
@@ -18,8 +18,16 @@ export default function Practice() {
   const loadRandomWord = useCallback(async () => {
     setIsLoadingWord(true);
     try {
-      const newWordData = await getRandomWordWithIPA();
-      setWordData(newWordData);
+      const word = await wordService.getRandomWord();
+      if (!word) {
+        throw new Error('No words available');
+      }
+      
+      const ipa = await wordService.getWordIpa(word.id);
+      setWordData({
+        word: word.word,
+        ipa: ipa || 'No IPA available'
+      });
       clearResult();
     } catch (_error) {
       setError('Failed to load word: ' + _error.message);

@@ -34,3 +34,6 @@ npm-debug.log*
 
 design
 .mcp.json
+
+# Dev dist
+dev-dist

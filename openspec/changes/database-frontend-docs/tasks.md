@@ -1,61 +1,60 @@
 ## 1. Documentation
 
-- [ ] 1.1 Create `/docs/database/` directory structure
-- [ ] 1.2 Write database structure documentation (`structure.md`)
-- [ ] 1.3 Document the words.json format, fields, and variant structure
-- [ ] 1.4 Document data sources (Google 10000 English, IPA Dict)
-- [ ] 1.5 Write database access documentation (`access.md`)
-- [ ] 1.6 Document GitHub raw URL pattern and loading strategies
-- [ ] 1.7 Document CORS considerations and rate limits
-- [ ] 1.8 Write IndexedDB integration guide (`indexeddb.md`)
-- [ ] 1.9 Document the schema, indexes, and sync approach
-- [ ] 1.10 Provide code examples for common IndexedDB operations
-- [ ] 1.11 Write frontend integration guide (`integration.md`)
-- [ ] 1.12 Document the word service API and usage examples
-- [ ] 1.13 Update main `database/README.md` with overview and links to docs
+- [x] 1.1 Create `/docs/database/` directory structure
+- [x] 1.2 Write database structure documentation (`structure.md`)
+- [x] 1.3 Document the words.json format, fields, and variant structure
+- [x] 1.4 Document data sources (Google 10000 English, IPA Dict)
+- [x] 1.5 Write database access documentation (`access.md`)
+- [x] 1.6 Document GitHub raw URL pattern and loading strategies
+- [x] 1.7 Document CORS considerations and rate limits
+- [x] 1.8 Write IndexedDB integration guide (`indexeddb.md`)
+- [x] 1.9 Document the schema, indexes, and sync approach
+- [x] 1.10 Provide code examples for common IndexedDB operations
+- [x] 1.11 Write frontend integration guide (`integration.md`)
+- [x] 1.12 Document the word service API and usage examples
+- [x] 1.13 Update main `database/README.md` with overview and links to docs
 
 ## 2. IndexedDB Setup
 
-- [ ] 2.1 Create `db.js` service file for IndexedDB operations
-- [ ] 2.2 Implement `openDatabase()` function to initialize "OpenSpeakDB"
-- [ ] 2.3 Create "words" object store with `id` as primary key
-- [ ] 2.4 Add index on `word` field for text-based lookups
-- [ ] 2.5 Implement error handling for database initialization failures
-- [ ] 2.6 Add database version management (start with version 1)
+- [x] 2.1 Create `db.js` service file for IndexedDB operations
+- [x] 2.2 Implement `openDatabase()` function to initialize "OpenSpeakDB"
+- [x] 2.3 Create "words" object store with `id` as primary key
+- [x] 2.4 Add index on `word` field for text-based lookups
+- [x] 2.5 Implement error handling for database initialization failures
+- [x] 2.6 Add database version management (start with version 1)
 
 ## 3. Database Sync Implementation
 
-- [ ] 3.1 Implement `syncFromGitHub()` function in `db.js`
-- [ ] 3.2 Fetch words.json from GitHub raw URL
-- [ ] 3.3 Parse JSON response and validate structure
-- [ ] 3.4 Clear existing word data in IndexedDB before sync
-- [ ] 3.5 Insert all words in a single transaction for atomicity
-- [ ] 3.6 Add progress callback for sync status (optional)
-- [ ] 3.7 Implement error handling for network failures
-- [ ] 3.8 Store sync timestamp in localStorage for update checking
-- [ ] 3.9 Implement `checkForUpdates()` using ETag or version comparison
+- [x] 3.1 Implement `syncFromGitHub()` function in `db.js`
+- [x] 3.2 Fetch words.json from GitHub raw URL
+- [x] 3.3 Parse JSON response and validate structure
+- [x] 3.4 Clear existing word data in IndexedDB before sync
+- [x] 3.5 Insert all words in a single transaction for atomicity
+- [x] 3.6 Add progress callback for sync status (optional)
+- [x] 3.7 Implement error handling for network failures
+- [x] 3.8 Store sync timestamp in localStorage for update checking
+- [x] 3.9 Implement `checkForUpdates()` using ETag or version comparison
 
 ## 4. Word Service Implementation
 
-- [ ] 4.1 Create `wordService.js` with new IndexedDB-based implementation
-- [ ] 4.2 Implement `initialize()` method to check cache and trigger sync if needed
-- [ ] 4.3 Implement `getWordById(id)` method
-- [ ] 4.4 Implement `getWordByText(text)` with case-insensitive search
-- [ ] 4.5 Implement `searchWords(prefix)` returning up to 20 matches
-- [ ] 4.6 Implement `getRandomWord()` filtering out words without IPA
-- [ ] 4.7 Implement `getRandomWord(filter)` with difficulty filtering
-- [ ] 4.8 Implement `getWordIpa(wordId)` returning primary IPA
-- [ ] 4.9 Implement `getWordIpa(wordId, { all: true })` returning all variants
-- [ ] 4.10 Add error handling for database not ready state
-- [ ] 4.11 Add error handling for invalid word ID format
-- [ ] 4.12 Export service as singleton (consistent with existing pattern)
+- [x] 4.1 Create `wordService.js` with new IndexedDB-based implementation
+- [x] 4.2 Implement `initialize()` method to check cache and trigger sync if needed
+- [x] 4.3 Implement `getWordById(id)` method
+- [x] 4.4 Implement `getWordByText(text)` with case-insensitive search
+- [x] 4.5 Implement `searchWords(prefix)` returning up to 20 matches
+- [x] 4.6 Implement `getRandomWord()` filtering out words without IPA
+- [x] 4.7 Implement `getWordIpa(wordId)` returning primary IPA
+- [x] 4.8 Implement `getWordIpa(wordId, { all: true })` returning all variants
+- [x] 4.9 Add error handling for database not ready state
+- [x] 4.10 Add error handling for invalid word ID format
+- [x] 4.11 Export service as singleton (consistent with existing pattern)
 
 ## 5. Frontend Integration
 
-- [ ] 5.1 Update `main.jsx` or `App.jsx` to initialize word service on startup
+- [x] 5.1 Update `main.jsx` or `App.jsx` to initialize word service on startup
 - [ ] 5.2 Add loading state while database is syncing (first load)
-- [ ] 5.3 Update practice page to use new word service methods
-- [ ] 5.4 Ensure practice only uses words with IPA data
+- [x] 5.3 Update practice page to use new word service methods
+- [x] 5.4 Ensure practice only uses words with IPA data
 - [ ] 5.5 Update any components using the old hardcoded word array
 - [ ] 5.6 Add error boundary for database initialization failures
 - [ ] 5.7 Display offline indicator when using cached data

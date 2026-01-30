@@ -1,0 +1,33 @@
+{
+  "name": "openspeak",
+  "version": "1.0.0",
+  "description": "Mobile-first PWA for English pronunciation assessment using Azure Speech Services",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve-db": "bun scripts/serve-db.js",
+    "serve-db:3001": "bun scripts/serve-db.js 3001",
+    "dev": "cd frontend && bun run dev",
+    "dev:local": "bun run serve-db & bun run dev",
+    "build": "cd frontend && bun run build",
+    "lint": "cd frontend && bun run lint",
+    "preview": "cd frontend && bun run preview",
+    "db:generate": "cd database && bun generate.js",
+    "db:status": "echo 'Database stats:' && wc -l database/words.json && ls -lh database/words.json",
+    "test": "echo 'Run tests in frontend directory' && cd frontend && bun test",
+    "clean": "rm -rf frontend/dist frontend/node_modules/.vite",
+    "setup": "echo 'Installing frontend dependencies...' && cd frontend && bun install"
+  },
+  "keywords": [
+    "pronunciation",
+    "english",
+    "speech-recognition",
+    "pwa",
+    "azure-speech"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
