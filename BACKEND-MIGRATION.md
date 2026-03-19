@@ -39,13 +39,17 @@ Azure Speech REST API
 
 | File | Purpose |
 |------|---------|
-| `backend/src/index.ts` | Entry point — Bun.serve, all routes |
+| `backend/src/index.ts` | Composition root — creates deps, wires routes into Bun.serve |
+| `backend/src/types/storage.ts` | `IQuotaStore`, `IHistoryStore` interfaces |
+| `backend/src/types/deps.ts` | `AppDeps` — passed into every route handler |
 | `backend/src/routes/auth.ts` | POST /api/auth/token — password login → JWT in httpOnly cookie |
 | `backend/src/routes/words.ts` | GET /api/words — serves words.json |
 | `backend/src/routes/pronounce.ts` | POST /api/pronounce — proxies to Azure |
 | `backend/src/routes/usage.ts` | GET /api/usage — daily quota status |
 | `backend/src/services/azure.ts` | Azure REST API call |
-| `backend/src/services/quota.ts` | In-memory daily quota tracking |
+| `backend/src/services/quota.ts` | QuotaService — uses `IQuotaStore` |
+| `backend/src/services/storage/memory.ts` | `InMemoryQuotaStore` — Phase 1 implementation |
+| `backend/src/services/storage/sqlite.ts` | `SqliteQuotaStore` stub — swap in Phase 2+ |
 | `backend/src/middleware/auth.ts` | JWT verification from httpOnly cookie |
 | `backend/.env.example` | Template for env vars |
 | `backend/package.json` | Bun project (minimal deps: `jose` for JWT) |
@@ -78,27 +82,41 @@ Azure Speech REST API
 
 ### Phase 1: Backend
 
-**Step 1.1** — Create `backend/` project with Bun (no framework)
+**Step 1.1** — Create `backend/` project with Bun (no framework) ✅
 ```
 backend/
 ├── src/
-│   ├── index.ts           # Bun.serve entry point
+│   ├── index.ts                  # composition root — creates deps, wires routes
+│   ├── types/
+│   │   ├── storage.ts            # IQuotaStore, IHistoryStore interfaces
+│   │   └── deps.ts               # AppDeps — passed into every route handler
 │   ├── routes/
-│   │   ├── auth.ts        # login/logout/me
-│   │   ├── words.ts       # word database
-│   │   ├── pronounce.ts   # Azure proxy
-│   │   └── usage.ts       # quota status
+│   │   ├── auth.ts               # login/logout/me
+│   │   ├── words.ts              # word database
+│   │   ├── pronounce.ts          # Azure proxy
+│   │   └── usage.ts              # quota status
 │   ├── services/
-│   │   ├── azure.ts       # Azure REST API call
-│   │   └── quota.ts       # in-memory quota tracking
+│   │   ├── azure.ts              # Azure REST API call
+│   │   ├── quota.ts              # QuotaService — uses IQuotaStore
+│   │   └── storage/
+│   │       ├── memory.ts         # InMemoryQuotaStore (Phase 1)
+│   │       └── sqlite.ts         # SqliteQuotaStore stub (Phase 2+)
 │   └── middleware/
-│       └── auth.ts        # JWT from cookie verification
-├── Dockerfile             # oven/bun:2-alpine
-├── docker-compose.yml     # app + optional override for local dev
-├── package.json           # only "jose" for JWT, everything else is Bun built-ins
+│       └── auth.ts               # JWT from cookie verification
+├── Dockerfile                    # oven/bun:2-alpine
+├── docker-compose.yml            # app + optional override for local dev
+├── package.json                  # only "jose" for JWT, everything else is Bun built-ins
 ├── .env.example
 └── .gitignore
 ```
+
+> **DI pattern:** `index.ts` is the composition root — it instantiates storage and passes `AppDeps` to route handlers. Routes never import storage directly. To swap in SQLite later, change one line:
+> ```ts
+> // Phase 1
+> quotaStore: new InMemoryQuotaStore()
+> // Phase 2+
+> quotaStore: new SqliteQuotaStore('./data/openspeak.db')
+> ```
 
 **Step 1.2** — Auth: password → JWT in httpOnly cookie (24h expiry)
 - `POST /api/auth/token` — body: `{ password }` → sets `httpOnly` cookie + returns `{ expiresIn }`
@@ -120,9 +138,10 @@ backend/
 
 **Step 1.5** — Quota
 - 15 requests/day default (`DAILY_LIMIT` env)
-- In-memory `Map<string, { count, resetAt }>`
+- `QuotaService` uses `IQuotaStore` — in-memory now, SQLite-swappable later
 - `GET /api/usage` — returns `{ used, limit, resetAt }`
 - Returns `429` on `/api/pronounce` when exceeded
+- Note: in-memory quota resets on container restart (acceptable for personal use; SQLite migration is post-MVP)
 
 **Step 1.6** — Serve frontend static files
 - Built frontend in `../frontend/dist/` served at `/`
