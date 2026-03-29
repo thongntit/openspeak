@@ -1,0 +1,7 @@
+# Optional: mount source for hot-reload during local dev
+# Usage: docker compose -f docker-compose.yml -f .local.yml up
+services:
+  app:
+    volumes:
+      - ./src:/app/src:ro
+      - ./words.json:/app/words.json:ro
