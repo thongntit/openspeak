@@ -4,30 +4,47 @@ import { useSettingsStore } from '../stores/settingsStore';
 import { usePronunciationStore } from '../stores/pronunciationStore';
 import { ArrowLeft, Mic, MicOff, RefreshCw, ChevronRight } from 'lucide-react';
 import azureSpeech from '../services/azureSpeech';
-import wordService from '../services/wordService';
+import { getRandomWord, searchWords } from '../services/wordService';
+
+function parseAccuracyScore(result) {
+  try {
+    const json = JSON.parse(result.json);
+    return Math.round(json?.NBest?.[0]?.PronunciationAssessment?.AccuracyScore ?? 0);
+  } catch {
+    return null;
+  }
+}
 
 export default function Practice() {
   const navigate = useNavigate();
   const location = useLocation();
   const { azureApiKey, azureRegion } = useSettingsStore();
   const { isRecording, isProcessing, result, error, setRecording, setProcessing, setResult, setError, clearResult } = usePronunciationStore();
-  const [wordData, setWordData] = useState({ word: 'entrepreneur', ipa: '/ˌɒn.trə.prəˈnɜːr/' });
+  const [wordData, setWordData] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [isLoadingWord, setIsLoadingWord] = useState(false);
 
   const loadRandomWord = useCallback(async () => {
     setIsLoadingWord(true);
     try {
-      const word = await wordService.getRandomWord();
-      if (!word) {
-        throw new Error('No words available');
-      }
-      
-      const ipa = await wordService.getWordIpa(word.id);
-      setWordData({
-        word: word.word,
-        ipa: ipa || 'No IPA available'
-      });
+      const word = await getRandomWord();
+      if (!word) throw new Error('No words available');
+      setWordData({ word: word.word, ipa: word.ipa });
+      clearResult();
+    } catch (_error) {
+      setError('Failed to load word: ' + _error.message);
+    } finally {
+      setIsLoadingWord(false);
+    }
+  }, [setError, clearResult]);
+
+  const loadWordByText = useCallback(async (text) => {
+    setIsLoadingWord(true);
+    try {
+      const results = await searchWords(text, 1);
+      const word = results[0];
+      if (!word) throw new Error(`Word "${text}" not found`);
+      setWordData({ word: word.word, ipa: word.ipa });
       clearResult();
     } catch (_error) {
       setError('Failed to load word: ' + _error.message);
@@ -48,10 +65,13 @@ export default function Practice() {
   }, [azureApiKey, azureRegion, setError]);
 
   useEffect(() => {
-    if (initialized && !location.state?.word) {
+    if (!initialized) return;
+    if (location.state?.word) {
+      loadWordByText(location.state.word);
+    } else {
       loadRandomWord();
     }
-  }, [initialized, loadRandomWord, location.state?.word]);
+  }, [initialized, loadRandomWord, loadWordByText, location.state?.word]);
 
   const handleRecording = async () => {
     if (!initialized) {
@@ -62,7 +82,6 @@ export default function Practice() {
       setError('Please wait for word to load.');
       return;
     }
-
     if (isRecording) {
       handleStopRecording();
     } else {
@@ -74,7 +93,6 @@ export default function Practice() {
     clearResult();
     setRecording(true);
     setProcessing(false);
-
     try {
       await azureSpeech.assessPronunciation(
         wordData.word,
@@ -102,13 +120,7 @@ export default function Practice() {
     setProcessing(false);
   };
 
-  const handleRetry = () => {
-    clearResult();
-  };
-
-  const handleNext = () => {
-    loadRandomWord();
-  };
+  const accuracyScore = result ? parseAccuracyScore(result) : null;
 
   if (!azureApiKey || !azureRegion) {
     return (
@@ -165,47 +177,40 @@ export default function Practice() {
 
         <div className="w-full max-w-md bg-white dark:bg-[#1c2630] rounded-xl p-8 shadow-sm border border-[#dbe0e6] dark:border-gray-800 text-center mb-6">
           <h1 className="text-[42px] font-bold leading-tight tracking-tight mb-2 text-[#111418] dark:text-white">
-            {isLoadingWord ? (
+            {isLoadingWord || !wordData ? (
               <span className="text-[#617589]">Loading...</span>
             ) : (
               wordData.word
             )}
           </h1>
           <p className="text-[#617589] dark:text-gray-400 text-lg font-normal">
-            {wordData.ipa || 'Loading IPA...'}
+            {wordData?.ipa || '\u00A0'}
           </p>
         </div>
 
-        {!result && (
-          <div className="w-full max-w-md flex flex-wrap gap-4 mb-6">
-            <div className="flex-1 flex-col gap-2 rounded-xl p-6 border border-[#dbe0e6] dark:border-gray-800 bg-white dark:bg-[#1c2630]">
-              <p className="text-[#617589] dark:text-gray-400 text-sm font-medium">Accuracy Score</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-[#111418] dark:text-white tracking-light text-3xl font-bold">--%</p>
-              </div>
+        <div className="w-full max-w-md flex flex-wrap gap-4 mb-6">
+          <div className="flex-1 flex-col gap-2 rounded-xl p-6 border border-[#dbe0e6] dark:border-gray-800 bg-white dark:bg-[#1c2630]">
+            <p className="text-[#617589] dark:text-gray-400 text-sm font-medium">Accuracy Score</p>
+            <div className="flex items-baseline gap-2">
+              <p className={`tracking-light text-3xl font-bold ${
+                accuracyScore === null
+                  ? 'text-[#111418] dark:text-white'
+                  : accuracyScore >= 80
+                  ? 'text-[#078838]'
+                  : accuracyScore >= 60
+                  ? 'text-yellow-500'
+                  : 'text-red-500'
+              }`}>
+                {accuracyScore !== null ? `${accuracyScore}%` : '--%'}
+              </p>
             </div>
           </div>
-        )}
-
-        {result && (
-          <div className="w-full max-w-md flex flex-wrap gap-4 mb-6">
-            <div className="flex-1 flex-col gap-2 rounded-xl p-6 border border-[#dbe0e6] dark:border-gray-800 bg-white dark:bg-[#1c2630]">
-              <p className="text-[#617589] dark:text-gray-400 text-sm font-medium">Accuracy Score</p>
-              <div className="flex items-baseline gap-2">
-                <p className="text-[#111418] dark:text-white tracking-light text-3xl font-bold">
-                  {result.privJSON?.DisplayText ? '85' : '--'}
-                </p>
-                <p className="text-[#078838] text-sm font-medium leading-normal">First attempt</p>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
 
         <div className="w-full max-w-md bg-white dark:bg-[#1c2630] rounded-xl p-6 pb-10 shadow-sm border border-[#dbe0e6] dark:border-gray-800">
-
           <div className="flex items-center justify-center gap-12 w-full">
             <button
-              onClick={handleRetry}
+              onClick={clearResult}
               className="flex flex-col items-center gap-1 text-[#617589] dark:text-gray-400"
             >
               <div className="p-3 rounded-full border border-[#dbe0e6] dark:border-gray-700">
@@ -219,22 +224,23 @@ export default function Practice() {
               <button
                 type="button"
                 onClick={handleRecording}
-                disabled={isProcessing || isLoadingWord}
+                disabled={isProcessing || isLoadingWord || !wordData}
                 className="relative bg-[#137fec] text-white w-20 h-20 rounded-full flex items-center justify-center shadow-lg shadow-[#137fec]/30 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isRecording ? (
                   <MicOff className="w-8 h-8" />
                 ) : isProcessing || isLoadingWord ? (
                   <svg className="w-8 h-8 animate-spin" fill="currentColor" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="31.4 31.4" />
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="31.4 31.4" />
                   </svg>
                 ) : (
                   <Mic className="w-8 h-8" />
                 )}
               </button>
             </div>
+
             <button
-              onClick={handleNext}
+              onClick={loadRandomWord}
               disabled={isLoadingWord}
               className="flex flex-col items-center gap-1 text-[#137fec] disabled:opacity-50 disabled:cursor-not-allowed"
             >

@@ -1,24 +1,39 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../stores/settingsStore';
 import ThemeToggle from '../components/ThemeToggle';
 import { Settings } from 'lucide-react';
+import { getWordsByDifficulty } from '../services/wordService';
+
+const DIFFICULTY_LABEL = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
 
 export default function Home() {
   const navigate = useNavigate();
   const { azureApiKey, azureRegion } = useSettingsStore();
   const hasSettings = !!azureApiKey && !!azureRegion;
 
-  const quickStartWords = [
-    { word: 'pronunciation', level: 'Beginner' },
-    { word: 'schedule', level: 'Intermediate' },
-    { word: 'entrepreneur', level: 'Advanced' },
-  ];
+  const [featuredWords, setFeaturedWords] = useState([]);
 
-  const recentActivity = [
-    { word: 'hello', score: 95, date: 'Today' },
-    { word: 'world', score: 88, date: 'Today' },
-    { word: 'beautiful', score: 92, date: 'Yesterday' },
-  ];
+  useEffect(() => {
+    async function loadFeaturedWords() {
+      try {
+        const [beginners, intermediates, advanced] = await Promise.all([
+          getWordsByDifficulty('beginner', 1),
+          getWordsByDifficulty('intermediate', 1),
+          getWordsByDifficulty('advanced', 1),
+        ]);
+        const words = [
+          beginners[0] && { word: beginners[0].word, difficulty: 'beginner' },
+          intermediates[0] && { word: intermediates[0].word, difficulty: 'intermediate' },
+          advanced[0] && { word: advanced[0].word, difficulty: 'advanced' },
+        ].filter(Boolean);
+        setFeaturedWords(words);
+      } catch {
+        // Silently fall back to empty list if API unavailable
+      }
+    }
+    loadFeaturedWords();
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#f6f7f8] dark:bg-[#101922] pb-20">
@@ -73,63 +88,30 @@ export default function Home() {
           </button>
         </div>
 
-        <div className="card mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Try These Words
-          </h2>
-          <div className="space-y-3">
-            {quickStartWords.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => navigate('/practice', { state: { word: item.word } })}
-                disabled={!hasSettings}
-                className="w-full flex items-center justify-between p-3 bg-gray-100/50 dark:bg-gray-800 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <span className="font-medium text-gray-900 dark:text-white">
-                  {item.word}
-                </span>
-                <span className="text-xs text-gray-600 dark:text-gray-400 px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">
-                  {item.level}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Recent Activity
-          </h2>
-          <div className="space-y-3">
-            {recentActivity.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 bg-gray-100/50 dark:bg-gray-800 rounded-lg"
-              >
-                <div>
-                  <div className="font-medium text-gray-900 dark:text-white">
+        {featuredWords.length > 0 && (
+          <div className="card mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Try These Words
+            </h2>
+            <div className="space-y-3">
+              {featuredWords.map((item) => (
+                <button
+                  key={item.word}
+                  onClick={() => navigate('/practice', { state: { word: item.word } })}
+                  disabled={!hasSettings}
+                  className="w-full flex items-center justify-between p-3 bg-gray-100/50 dark:bg-gray-800 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <span className="font-medium text-gray-900 dark:text-white">
                     {item.word}
-                  </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
-                    {item.date}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className={`text-2xl font-bold ${
-                    item.score >= 90 ? 'text-green-600' : 
-                    item.score >= 70 ? 'text-yellow-600' : 
-                    'text-red-600'
-                  }`}>
-                    {item.score}
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Score
-                  </div>
-                </div>
-              </div>
-            ))}
+                  </span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400 px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded">
+                    {DIFFICULTY_LABEL[item.difficulty]}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
