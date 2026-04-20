@@ -1,12 +1,19 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Get('health')
+  async health(): Promise<{ status: string; db: string; uptime: number }> {
+    let db = 'up';
+    try {
+      await this.dataSource.query('SELECT 1');
+    } catch {
+      db = 'down';
+    }
+    return { status: 'ok', db, uptime: Math.floor(process.uptime()) };
   }
 }
