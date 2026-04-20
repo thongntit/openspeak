@@ -146,9 +146,9 @@ Publish the backend image so any container host can pull it. Actually running th
 - [ ] 10.1 Add a `publish` job to `.github/workflows/ci.yml` that runs after backend + frontend jobs pass
 - [ ] 10.2 Grant the workflow `contents: read` and `packages: write` permissions
 - [ ] 10.3 Log in to `ghcr.io` using `GITHUB_TOKEN` (no extra secrets required)
-- [ ] 10.4 Use `docker/metadata-action@v5` to derive tags: `latest` + short SHA for `main`, semver tags for `v*` refs
+- [ ] 10.4 Use `docker/metadata-action@v5` to derive tags: `latest` (main only, `enable={{is_default_branch}}`), branch-named tags (`main`, `dev`) via `type=ref,event=branch`, short SHA via `type=sha`, semver tags for `v*` refs
 - [ ] 10.5 Use `docker/setup-buildx-action@v3` and `docker/build-push-action@v5` with registry cache for fast incremental builds
-- [ ] 10.6 Only push on `push` events to `main` and on version tags — PRs build but don't push
+- [ ] 10.6 Only push on `push` events to `main` / `dev` / version tags — PRs build but don't push; `dev` branch publishes `dev`-tagged images, not `latest`
 - [ ] 10.7 Target image: `ghcr.io/<owner>/openspeak-backend`
 - [ ] 10.8 Verify an image appears at `https://github.com/<owner>/openspeak/pkgs/container/openspeak-backend` after a `main` push
 - [ ] 10.9 Document the `docker run` invocation in `backend/README.md` (env vars, port, how to run migrations against a user-supplied Postgres)

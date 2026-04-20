@@ -217,12 +217,14 @@ Expand the seed by appending to `SEED_WORDS` in `src/database/seeds/seed.ts`. Up
 
 ## Published image (ghcr.io)
 
-CI builds the backend image on every push to `main` and on `v*` tags, and pushes it to GitHub Container Registry:
+CI builds the backend image on every push to `main`, `dev`, and on `v*` tags, and pushes it to GitHub Container Registry:
 
 ```
-ghcr.io/<owner>/openspeak-backend:latest
-ghcr.io/<owner>/openspeak-backend:sha-<short>
-ghcr.io/<owner>/openspeak-backend:<semver>   # on tag pushes
+ghcr.io/<owner>/openspeak-backend:latest       # newest stable (main branch only)
+ghcr.io/<owner>/openspeak-backend:dev          # newest dev build (dev branch)
+ghcr.io/<owner>/openspeak-backend:main         # alias for the current main tip
+ghcr.io/<owner>/openspeak-backend:sha-<short>  # immutable, every push
+ghcr.io/<owner>/openspeak-backend:<semver>     # on v* tag pushes
 ```
 
 Pulling the image does not require authentication once the package is made public (repo → Packages → package settings). For private repos, `docker login ghcr.io` with a classic PAT scoped to `read:packages`.
