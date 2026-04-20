@@ -37,3 +37,6 @@ design
 
 # OpenSpec / AI session transcripts
 session-*.md
+
+# Dev dist
+dev-dist
