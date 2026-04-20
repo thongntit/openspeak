@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseUUIDPipe,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
 import { CollectionsService } from './collections.service';
 import { GetCollectionsQueryDto } from './dto/get-collections-query.dto';
 import { GetCollectionWordsQueryDto } from './dto/get-collection-words-query.dto';

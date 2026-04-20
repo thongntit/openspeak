@@ -1,13 +1,10 @@
-import {
-  IsIn,
-  IsInt,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
-export const DIFFICULTY_LEVELS = ['beginner', 'intermediate', 'advanced'] as const;
+export const DIFFICULTY_LEVELS = [
+  'beginner',
+  'intermediate',
+  'advanced',
+] as const;
 export type Difficulty = (typeof DIFFICULTY_LEVELS)[number];
 
 export class GetWordsQueryDto {

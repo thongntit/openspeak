@@ -28,12 +28,12 @@ export class WordsService {
     }
 
     if (startsWith) {
-      qb.andWhere("w.phonemes->>0 = :startsWith", { startsWith });
+      qb.andWhere('w.phonemes->>0 = :startsWith', { startsWith });
     }
 
     if (endsWith) {
       qb.andWhere(
-        "w.phonemes->>(jsonb_array_length(w.phonemes) - 1) = :endsWith",
+        'w.phonemes->>(jsonb_array_length(w.phonemes) - 1) = :endsWith',
         { endsWith },
       );
     }
