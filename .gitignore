@@ -35,5 +35,8 @@ npm-debug.log*
 design
 .mcp.json
 
+# OpenSpec / AI session transcripts
+session-*.md
+
 # Dev dist
 dev-dist
