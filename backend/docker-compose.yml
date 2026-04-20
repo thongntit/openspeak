@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: openspeak
+      POSTGRES_PASSWORD: openspeak
+      POSTGRES_DB: openspeak_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - openspeak_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openspeak -d openspeak_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://openspeak:openspeak@postgres:5432/openspeak_dev
+      PORT: "3000"
+      NODE_ENV: production
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "3000:3000"
+
+volumes:
+  openspeak_pg:
