@@ -10,7 +10,7 @@ NestJS + TypeORM + PostgreSQL API for the OpenSpeak English pronunciation app.
 - **Validation:** class-validator DTOs + global `ValidationPipe` (whitelist + forbid-non-whitelisted)
 - **Config:** `@nestjs/config` + Joi schema
 - **Tests:** Jest (e2e via supertest)
-- **Deploy:** Docker multi-stage build, fly.io ready
+- **Deploy:** Docker multi-stage build; CI publishes images to GitHub Container Registry (ghcr.io)
 
 ## Project layout
 
@@ -215,26 +215,52 @@ Seed data uses a pragmatic subset of American-leaning IPA:
 
 Expand the seed by appending to `SEED_WORDS` in `src/database/seeds/seed.ts`. Upserts are keyed on `word`.
 
-## Deployment (fly.io)
+## Published image (ghcr.io)
 
-Config lives in `fly.toml`. One-time:
+CI builds the backend image on every push to `main` and on `v*` tags, and pushes it to GitHub Container Registry:
 
-```bash
-fly launch --no-deploy --copy-config   # pick app name & region, don't deploy
-fly postgres create --name openspeak-db
-fly postgres attach openspeak-db       # sets DATABASE_URL secret
-fly secrets set CORS_ORIGIN=https://your-frontend.example.com
-fly deploy
+```
+ghcr.io/<owner>/openspeak-backend:latest
+ghcr.io/<owner>/openspeak-backend:sha-<short>
+ghcr.io/<owner>/openspeak-backend:<semver>   # on tag pushes
 ```
 
-After deploy, run migrations + seed once:
+Pulling the image does not require authentication once the package is made public (repo → Packages → package settings). For private repos, `docker login ghcr.io` with a classic PAT scoped to `read:packages`.
+
+### Running the image
+
+You supply your own Postgres 16 instance (anywhere — managed, VM, docker-compose, etc.).
 
 ```bash
-fly ssh console -C "node -e 'require(\"child_process\").execSync(\"npm run migration:run\",{stdio:\"inherit\"})'"
-fly ssh console -C "node -e 'require(\"child_process\").execSync(\"npm run seed\",{stdio:\"inherit\"})'"
+# 1. Pull
+docker pull ghcr.io/<owner>/openspeak-backend:latest
+
+# 2. Run migrations once against your database
+docker run --rm \
+  -e DATABASE_URL=postgresql://user:pass@your-db-host:5432/openspeak \
+  ghcr.io/<owner>/openspeak-backend:latest \
+  node -e "require('child_process').execSync('npm run migration:run',{stdio:'inherit'})"
+
+# 3. (Optional) seed
+docker run --rm \
+  -e DATABASE_URL=postgresql://user:pass@your-db-host:5432/openspeak \
+  ghcr.io/<owner>/openspeak-backend:latest \
+  node -e "require('child_process').execSync('npm run seed',{stdio:'inherit'})"
+
+# 4. Run the API
+docker run -d --name openspeak-api -p 3000:3000 \
+  -e DATABASE_URL=postgresql://user:pass@your-db-host:5432/openspeak \
+  -e CORS_ORIGIN=https://your-frontend.example.com \
+  -e NODE_ENV=production \
+  ghcr.io/<owner>/openspeak-backend:latest
+
+# 5. Verify
+curl http://localhost:3000/api/health
 ```
 
-Health check: `GET /api/health` (configured in `fly.toml`).
+Health check endpoint: `GET /api/health` returns `{ status, db, uptime }`.
+
+Where the image actually runs (VM, Kubernetes, Nomad, Railway, Render, …) is up to you — the image is portable.
 
 ## Troubleshooting
 

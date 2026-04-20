@@ -137,24 +137,22 @@ Covered by the e2e suite in `backend/test/api.e2e-spec.ts` (21 tests passing) an
 - [x] 9.7 Add instructions for seeding database
 - [x] 9.8 Document Docker build and run commands
 - [x] 9.9 Add troubleshooting section for common issues
-- [x] 9.10 Document deployment steps for fly.io
+- [x] 9.10 Document how to pull and run the published ghcr.io image
 
-## 10. Deployment to fly.io
+## 10. Image Publish to GitHub Container Registry
 
-Config prepared; actual deploy deferred — requires Fly account credentials. Track as a follow-up change.
+Publish the backend image so any container host can pull it. Actually running the image in a production environment is out of scope here.
 
-- [ ] 10.1 Install fly.io CLI and authenticate
-- [ ] 10.2 Run fly launch to create new app
-- [ ] 10.3 Provision fly.io Postgres database with fly postgres create
-- [ ] 10.4 Attach database to app with fly postgres attach
-- [ ] 10.5 Set environment variables using fly secrets set
-- [x] 10.6 Configure fly.toml with correct port and health check
-- [ ] 10.7 Deploy app using fly deploy
-- [ ] 10.8 Run migrations on production database (fly ssh console + npm run migration:run)
-- [ ] 10.9 Run seed script on production database
-- [ ] 10.10 Test production API endpoints with curl/Postman
-- [ ] 10.11 Verify CORS works with frontend origin
-- [ ] 10.12 Monitor fly.io logs for errors with fly logs
+- [ ] 10.1 Add a `publish` job to `.github/workflows/ci.yml` that runs after backend + frontend jobs pass
+- [ ] 10.2 Grant the workflow `contents: read` and `packages: write` permissions
+- [ ] 10.3 Log in to `ghcr.io` using `GITHUB_TOKEN` (no extra secrets required)
+- [ ] 10.4 Use `docker/metadata-action@v5` to derive tags: `latest` + short SHA for `main`, semver tags for `v*` refs
+- [ ] 10.5 Use `docker/setup-buildx-action@v3` and `docker/build-push-action@v5` with registry cache for fast incremental builds
+- [ ] 10.6 Only push on `push` events to `main` and on version tags — PRs build but don't push
+- [ ] 10.7 Target image: `ghcr.io/<owner>/openspeak-backend`
+- [ ] 10.8 Verify an image appears at `https://github.com/<owner>/openspeak/pkgs/container/openspeak-backend` after a `main` push
+- [ ] 10.9 Document the `docker run` invocation in `backend/README.md` (env vars, port, how to run migrations against a user-supplied Postgres)
+- [ ] 10.10 Smoke-test the published image locally: `docker pull …` then `docker run --env-file .env -p 3000:3000 …` and hit `/api/health`
 
 ## 11. Frontend Integration
 

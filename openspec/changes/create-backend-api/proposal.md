@@ -9,7 +9,7 @@ The current architecture requires hardcoding word data in the frontend, making i
 - Design PostgreSQL database schema with JSONB phoneme storage optimized for contains/starts/ends queries
 - Support phoneme-based word filtering (contains, starts with, ends with) for targeted pronunciation practice
 - Update frontend to fetch words and collections from backend API
-- Add Docker configuration for self-hosted deployment (fly.io compatible)
+- Add Docker configuration and a CI pipeline that builds and publishes the backend image to GitHub Container Registry (ghcr.io)
 
 ## Capabilities
 
@@ -32,8 +32,10 @@ The current architecture requires hardcoding word data in the frontend, making i
   - `words` - word, IPA, phonemes (JSONB), difficulty, syllables, audio_url, example_sentence
   - `collections` - name, description, difficulty, tags (JSONB)
   - `collection_words` - junction table for many-to-many relationship
-- Dockerfile and docker-compose.yml for containerized deployment
-- Database migrations (TypeORM or Prisma)
+- Dockerfile (multi-stage) for the published image
+- docker-compose.yml for local development (API + Postgres)
+- GitHub Actions workflow that builds and pushes the image to `ghcr.io`
+- Database migrations (TypeORM)
 
 **Frontend Changes:**
 - `frontend/src/services/wordsApi.js` (new): API client for fetching words and collections
@@ -49,9 +51,10 @@ The current architecture requires hardcoding word data in the frontend, making i
 - `GET /api/collections/:id/words` - Get words in a collection
 
 **Infrastructure:**
-- PostgreSQL database (self-hosted or managed on fly.io)
-- Docker image: `node:20-alpine` base with multi-stage build
-- Environment variables: `DATABASE_URL`, `PORT`, `NODE_ENV`, `CORS_ORIGIN`
+- PostgreSQL database (user-supplied; any managed or self-hosted Postgres 16 instance)
+- Docker image: `node:20-alpine` base with multi-stage build, published to `ghcr.io/<owner>/openspeak-backend`
+- Environment variables consumed at runtime: `DATABASE_URL`, `PORT`, `NODE_ENV`, `CORS_ORIGIN`
+- Where the image actually runs (VM, Kubernetes, managed container service) is out of scope for this change — the deliverable is a published image + run instructions
 
 **Dependencies:**
 - Backend: `@nestjs/core`, `@nestjs/typeorm`, `typeorm`, `pg`, `class-validator`, `@nestjs/config`

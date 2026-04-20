@@ -6,7 +6,7 @@ The English learning app currently runs entirely in the browser with:
 - LocalStorage for user settings and progress
 - No backend infrastructure
 
-This design introduces a backend API to centralize word/collection management and enable phoneme-based queries. The backend will be deployed independently from the frontend (React PWA on Vercel/Netlify, backend on fly.io or self-hosted).
+This design introduces a backend API to centralize word/collection management and enable phoneme-based queries. The backend ships as a Docker image published to GitHub Container Registry (`ghcr.io`); where the image runs in production (VM, Kubernetes, managed container platform) is out of scope — the deliverable is a published image plus run instructions.
 
 **Current Frontend Stack:**
 - React 19 + Vite + Tailwind CSS
@@ -15,7 +15,7 @@ This design introduces a backend API to centralize word/collection management an
 - LocalStorage for persistence
 
 **Constraints:**
-- Must remain deployable on fly.io with Docker
+- Must ship as a portable Docker image (any Postgres 16 instance, any runtime host)
 - Database must support JSON queries (for phonemes array)
 - API must be CORS-enabled for frontend origin
 - No authentication required for MVP (public read-only API)
@@ -169,7 +169,7 @@ CMD ["node", "dist/main"]
 - Multi-stage keeps final image small (~150MB)
 - Alpine Linux reduces attack surface
 - Copying built dist/ folder avoids dev dependencies in production
-- Works on fly.io and any Docker host
+- Works on any Docker host (image is portable across providers)
 
 **Alternatives considered:**
 - Single-stage build: Simpler but larger image with dev dependencies
@@ -285,14 +285,14 @@ class GetWordsQueryDto {
 - If slow, add normalized `word_phonemes` table for complex queries
 - Current scope (~5000 words max) should be fine with GIN index
 
-### Risk: Docker image size impacts cold start time
+### Risk: Docker image size impacts pull time
 
-**Scenario:** Larger Docker images take longer to pull and start on fly.io.
+**Scenario:** Larger images take longer to pull on the eventual host and push from CI.
 
 **Mitigation:**
 - Use multi-stage build (already decided)
-- Consider distroless image if cold starts become issue
-- fly.io caches images, so only affects first deploy
+- Consider distroless image if pull/start time becomes an issue
+- Use `docker/build-push-action` caching (GHA registry cache) in CI
 
 ### Risk: No authentication means API is public
 
@@ -348,19 +348,17 @@ class GetWordsQueryDto {
 8. Configure CORS for local frontend
 9. Create seed script with sample data
 
-### Phase 2: Docker & Deployment (Week 1-2)
+### Phase 2: Docker & Image Publish (Week 1-2)
 
 1. Write Dockerfile with multi-stage build
 2. Create docker-compose.yml for local dev (app + postgres)
-3. Test Docker build locally
-4. Deploy to fly.io:
-   - Create fly.io app
-   - Provision Postgres database
-   - Set environment variables
-   - Deploy via `fly deploy`
-5. Run migrations on production database
-6. Run seed script on production
-7. Verify API endpoints with curl/Postman
+3. Test Docker build locally with `docker compose up --build`
+4. Add GitHub Actions job that builds and pushes the image to `ghcr.io`:
+   - Log in with `GITHUB_TOKEN` (`packages: write` permission)
+   - Use `docker/build-push-action@v5` with BuildKit cache
+   - Tag strategy: `latest` + short SHA for pushes to `main`, and `v*` for tag pushes
+5. Consumers pull the image and run it with their own Postgres instance
+6. Migrations + seed are run by the consumer against their database (documented in README)
 
 ### Phase 3: Frontend Integration (Week 2)
 
@@ -373,19 +371,19 @@ class GetWordsQueryDto {
 
 ### Rollback Strategy
 
-If backend deployment fails or has critical bugs:
+If a published image has critical bugs:
 
 1. **Immediate:** Frontend can fall back to hardcoded word data (keep old code temporarily)
-2. **Database rollback:** Run TypeORM migration:revert
-3. **Docker rollback:** Deploy previous Docker image tag on fly.io
-4. **DNS/Proxy:** If API domain is broken, revert DNS to return 503 (frontend handles gracefully)
+2. **Database rollback:** Run TypeORM `migration:revert`
+3. **Image rollback:** Re-deploy a previous image tag (immutable SHA tag) from `ghcr.io`
+4. **Proxy/Ingress:** If the API endpoint is broken, return 503 at the ingress (frontend handles gracefully)
 
 ### Monitoring
 
-- Log all API errors to stdout (fly.io captures logs)
+- Log all API errors to stdout (container host captures logs)
 - Monitor database connection pool usage
-- Track API response times (add logging interceptor)
-- Monitor fly.io metrics (CPU, memory, requests/sec)
+- Track API response times (logging interceptor records per-request duration)
+- Resource monitoring (CPU, memory, requests/sec) is the responsibility of whoever runs the image
 
 ## Open Questions
 
