@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 package-lock.json
+# Keep lockfile for backend so Docker builds can use `npm ci`
+!backend/package-lock.json
 
 # Environment
 .env
