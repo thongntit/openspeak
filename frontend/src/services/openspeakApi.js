@@ -71,5 +71,9 @@ export function getCollectionWords(id, params = {}, opts = {}) {
 }
 
 export function getHealth(opts = {}) {
-  return request('/health', opts);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), opts.timeout ?? 5000);
+  return request('/health', { ...opts, signal: opts.signal ?? controller.signal }).finally(
+    () => clearTimeout(timer),
+  );
 }
