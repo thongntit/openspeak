@@ -20,10 +20,11 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
-  app.enableCors({
-    origin: config.get<string>('CORS_ORIGIN'),
-    credentials: true,
-  });
+  const rawOrigin = config.getOrThrow<string>('CORS_ORIGIN');
+  const origin = rawOrigin.includes(',')
+    ? rawOrigin.split(',').map((o: string) => o.trim())
+    : rawOrigin;
+  app.enableCors({ origin, credentials: true });
 
   const port = config.get<number>('PORT') ?? 3000;
   await app.listen(port);
