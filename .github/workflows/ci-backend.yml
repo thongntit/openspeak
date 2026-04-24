@@ -4,12 +4,8 @@ on:
   push:
     branches: [main, master, dev]
     tags: ["v*"]
-    paths-ignore:
-      - "frontend/**"
   pull_request:
     branches: [main, master, dev]
-    paths-ignore:
-      - "frontend/**"
 
 concurrency:
   group: ci-backend-${{ github.ref }}
