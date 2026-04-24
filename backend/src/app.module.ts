@@ -17,7 +17,11 @@ import { CollectionsModule } from './collections/collections.module';
           .valid('development', 'production', 'test')
           .default('development'),
         CORS_ORIGIN: Joi.string().required(),
-        CLERK_SECRET_KEY: Joi.string().required(),
+        CLERK_SECRET_KEY: Joi.string().when('NODE_ENV', {
+          is: 'production',
+          then: Joi.required(),
+          otherwise: Joi.optional(),
+        }),
       }),
     }),
     DatabaseModule,
