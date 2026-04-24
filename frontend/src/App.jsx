@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Practice from './pages/Practice';
 import Settings from './pages/Settings';
+import PrivateRoute from './components/PrivateRoute';
 import { useThemeStore } from './stores/themeStore';
 
 function App() {
@@ -38,8 +39,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/practice" element={<Practice />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/practice" element={<PrivateRoute><Practice /></PrivateRoute>} />
+        <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
       </Routes>
     </Router>
   );
