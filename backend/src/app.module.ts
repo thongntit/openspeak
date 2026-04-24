@@ -1,11 +1,10 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { WordsModule } from './words/words.module';
 import { CollectionsModule } from './collections/collections.module';
-import { ClerkMiddleware } from './common/middleware/clerk.middleware';
 
 @Module({
   imports: [
@@ -28,11 +27,8 @@ import { ClerkMiddleware } from './common/middleware/clerk.middleware';
   controllers: [AppController],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    // Apply ClerkMiddleware to protected routes here as they are added.
-    // Example (uncomment when pronunciation endpoint exists):
-    // consumer
-    //   .apply(ClerkMiddleware)
-    //   .forRoutes({ path: 'pronunciation/assess', method: RequestMethod.POST });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  configure(_consumer: MiddlewareConsumer) {
+    // Wire ClerkMiddleware here when protected endpoints are added
   }
 }
