@@ -19,6 +19,7 @@ services:
       PORT: "3000"
       NODE_ENV: production
       CORS_ORIGIN: ${CORS_ORIGIN}
+      WORDS_JSON_PATH: /app/database/words.json
     ports:
       - "3000:3000"
     healthcheck:

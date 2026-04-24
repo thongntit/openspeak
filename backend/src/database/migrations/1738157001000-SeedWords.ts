@@ -12,15 +12,11 @@ interface WordsJson {
 }
 
 function loadWords(): WordEntry[] {
-  const jsonPath = path.join(
-    __dirname,
-    '..',
-    '..',
-    '..',
-    '..',
-    'database',
-    'words.json',
-  );
+  // WORDS_JSON_PATH is set in production (container) since __dirname depth differs
+  // between compiled dist/ (3 levels) and source src/ (4 levels).
+  const jsonPath =
+    process.env.WORDS_JSON_PATH ??
+    path.join(__dirname, '..', '..', '..', '..', 'database', 'words.json');
   const raw = fs.readFileSync(jsonPath, 'utf-8');
   return (JSON.parse(raw) as WordsJson).words;
 }
