@@ -1,4 +1,4 @@
-const DEFAULT_BASE = 'http://localhost:3000/api';
+const DEFAULT_BASE = 'https://openspeak-api.thongnt.dev/api';
 
 function apiBase() {
   const env = import.meta.env.VITE_OPENSPEAK_API_URL;
@@ -15,7 +15,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, { params, signal } = {}) {
+async function request(path, { params, signal, token } = {}) {
   const url = new URL(`${apiBase()}${path}`);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
@@ -24,9 +24,12 @@ async function request(path, { params, signal } = {}) {
     }
   }
 
+  const headers = { Accept: 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
   let res;
   try {
-    res = await fetch(url, { signal, headers: { Accept: 'application/json' } });
+    res = await fetch(url, { signal, headers });
   } catch (err) {
     if (err.name === 'AbortError') throw err;
     throw new ApiError(0, { message: `Network error: ${err.message}` }, path);
@@ -35,15 +38,10 @@ async function request(path, { params, signal } = {}) {
   let body = null;
   const text = await res.text();
   if (text) {
-    try {
-      body = JSON.parse(text);
-    } catch {
-      body = { message: text };
-    }
+    try { body = JSON.parse(text); }
+    catch { body = { message: text }; }
   }
-  if (!res.ok) {
-    throw new ApiError(res.status, body, path);
-  }
+  if (!res.ok) throw new ApiError(res.status, body, path);
   return body;
 }
 
