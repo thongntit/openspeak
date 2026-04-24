@@ -1,137 +1,147 @@
 # OpenSpeak Master Plan
 
 ## Vision
-A mobile-first Progressive Web App for English pronunciation improvement through AI-powered speaking practice, without requiring backend infrastructure.
+
+A mobile-first Progressive Web App for English pronunciation improvement through AI-powered speaking practice, backed by a managed backend service.
 
 ---
 
-## Phase 1: AI Speaking Coach
+## Current Architecture
 
-### Concept
-A conversational AI feature where users practice English by chatting with an AI. The AI responds naturally, corrects mistakes gently, and suggests improvements.
+```
+┌─────────────────────────────────┐
+│   Frontend (React PWA)          │
+│   Vite + Tailwind + Zustand     │
+│   React Router DOM 7            │
+└────────────┬────────────────────┘
+             │ HTTPS
+             ▼
+┌─────────────────────────────────┐
+│   Backend (NestJS)              │
+│   openspeak-api.thongnt.dev     │
+│   Deployed via Coolify          │
+└────────────┬────────────────────┘
+             │
+             ▼
+┌─────────────────────────────────┐
+│   PostgreSQL                    │
+│   3,000 words + IPA data        │
+└─────────────────────────────────┘
+```
 
-### Key Ideas
-- User provides their own OpenAI API key (no hosting costs)
-- Natural conversation flow with text and voice input
-- AI adapts to user's level and interests
-- Context-aware responses that encourage speaking practice
-
-### User Flow
-1. User enters settings and adds OpenAI API key
-2. Opens AI Coach interface
-3. Starts conversation via text or voice
-4. AI responds with engaging, natural dialogue
-5. User can practice specific phrases from the conversation
-
----
-
-## Phase 2: Shadowing Mode
-
-### Concept
-Listen to native pronunciation, repeat immediately, and compare. Uses Azure Text-to-Speech to generate native audio on-demand.
-
-### Key Ideas
-- No video hosting - use Azure TTS for audio generation
-- User's existing Azure Speech key covers the cost
-- Curated phrase library for different contexts
-- Side-by-side comparison of native vs user pronunciation
-
-### User Flow
-1. Select a phrase category (Greetings, Travel, Work, etc.)
-2. Tap "Play Native" to hear Azure TTS pronunciation
-3. Tap "Record" and repeat the phrase
-4. See pronunciation score comparing to native
-5. Practice until satisfied, then move to next phrase
+### Infrastructure
+- **Backend URL:** `openspeak-api.thongnt.dev`
+- **Deployment:** Coolify (Docker, auto-deploy on merge to `dev`/`main`)
+- **CI/CD:** GitHub Actions — separate backend/frontend workflows, deploy only on push (not on PR)
+- **Container Registry:** ghcr.io
 
 ---
 
-## Phase 3: Minimal Pairs Training
+## Tech Stack
 
-### Concept
-Focused practice on confusing sound pairs that are hard for non-native speakers to distinguish.
+### Frontend
+- React 19, Vite, Tailwind CSS, Zustand, React Router DOM 7
+- PWA (vite-plugin-pwa)
+- Microsoft Azure Speech SDK (client-side, to be moved to backend)
 
-### Key Ideas
-- Target sounds like: ship/sheep, think/sink, live/leave
-- Pre-generated audio or Azure TTS on-demand
+### Backend
+- NestJS 11, TypeORM, PostgreSQL
+- `@nestjs/config` with Joi validation
+
+---
+
+## Key Decisions
+
+| Decision | Choice | Reason |
+|----------|--------|--------|
+| Auth provider | **Clerk** | Drop-in React SDK, handles sessions/JWTs, no DB tables needed |
+| Backend framework | **NestJS** | Structured, TypeScript-native, good module system |
+| Deployment | **Coolify** | Self-hosted PaaS, Docker-based, webhook deploys |
+| Word database | **PostgreSQL** | 3,000 words with IPA, seeded via migrations |
+| Azure Speech | Moving to backend | API keys must not be user-supplied; protect as paid service |
+
+---
+
+## Feature Status
+
+### Done
+- ✅ Word database (3,000 words, IPA, difficulty levels)
+- ✅ REST API — `/words`, `/collections`, `/health`
+- ✅ Practice page — record pronunciation, get accuracy score (client-side Azure)
+- ✅ Home page — featured words by difficulty
+- ✅ Dark mode, PWA install, offline indicator
+- ✅ CI/CD — GitHub Actions + Coolify auto-deploy
+
+### In Progress
+- 🔄 Authentication (Clerk)
+
+### Planned
+- ⬜ Move Azure Speech assessment to backend (protect as paid feature)
+- ⬜ User practice history & progress tracking
+- ⬜ Shadowing mode (listen to native TTS, repeat, compare)
+- ⬜ Minimal pairs training (ship/sheep, think/sink, etc.)
+- ⬜ AI Coach (conversational practice with feedback)
+- ⬜ Intonation & rhythm training
+- ⬜ Scenario-based practice (interviews, ordering, small talk)
+
+---
+
+## Phase 1: Auth + Protected Services (Current)
+
+### Goal
+Gate pronunciation assessment behind login so Azure costs are controlled.
+
+### Tasks
+1. Integrate Clerk on frontend — `ClerkProvider`, `<SignIn>`, protected routes
+2. Integrate Clerk on backend — verify JWT on protected endpoints
+3. Move Azure Speech assessment to a backend endpoint (`POST /pronunciation/assess`)
+4. Remove Azure API key from frontend entirely
+
+### Environment Variables Needed
+- Frontend: `VITE_CLERK_PUBLISHABLE_KEY`
+- Backend: `CLERK_SECRET_KEY`, `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`
+
+---
+
+## Phase 2: Practice Features
+
+### Shadowing Mode
+- Play native Azure TTS pronunciation of a word/phrase
+- User repeats and records
+- Side-by-side score comparison
+
+### Minimal Pairs
+- Focus on confusing sound pairs (i/ee, th/s, l/r, etc.)
 - Visual phonetic notation
-- Track which specific sounds user struggles with
-
-### User Flow
-1. Select a minimal pair set (e.g., "i vs ee sounds")
-2. See two words displayed with phonetic notation
-3. Listen to audio A, record yourself repeating
-4. Listen to audio B, record yourself repeating
-5. Get scores for each, identify which needs more practice
+- Track which sounds the user struggles with
 
 ---
 
-## Phase 4: Integration & Experience
+## Phase 3: AI Coach
 
-### Concept
-Connect all features into a cohesive learning experience where each feature reinforces the others.
-
-### Key Ideas
-- AI Coach suggests shadowing phrases based on conversation topics
-- Shadowing practice feeds into AI conversation context
-- Minimal pairs auto-suggest based on pronunciation errors from other features
-- Progress tracking across all modes
-- Daily streaks and practice goals
+- Conversational practice with an LLM
+- AI responds naturally, corrects gently
+- Context-aware to the user's weak phonemes
+- Costs covered by backend (protected behind auth/subscription)
 
 ---
 
-## Future Ideas (Post-Core)
+## Phase 4: Progress & Engagement
 
-### Intonation & Rhythm
-- Practice sentence stress and pitch patterns
-- Visual pitch contour comparison
-- Focus on sounding natural, not just correct
-
-### Speech Pace Control
-- Train to speak at natural speed (150-180 wpm)
-- Identify if speaking too fast or too slow
-- Pacing exercises with visual feedback
-
-### Scenario-Based Practice
-- Job interview simulations
-- Restaurant ordering practice
-- Presentation rehearsal
-- Small talk and networking
-
-### Audio Journaling
-- Daily 2-minute speaking diary
-- AI provides feedback on patterns over time
-- Track improvement week by week
-
-### Progress Analytics
-- Visual breakdown of mastered vs struggling phonemes
+- Practice history per user
+- Phoneme-level accuracy tracking over time
+- Daily streaks and goals
 - Before/after playback comparisons
-- Personalized practice recommendations
-
-### Content Expansion
-- Idioms and expressions with proper stress
-- Industry-specific vocabulary
-- Tongue twisters for advanced practice
 
 ---
 
 ## Principles
 
-1. **Zero Backend** - All features work client-side with user's API keys
-2. **User-Paid APIs** - OpenAI and Azure costs covered by users
-3. **Mobile-First** - All features optimized for phone use
-4. **Offline-Capable** - Where possible, work without constant connection
-5. **Privacy-First** - Minimal data collection, local storage preferred
+1. **Backend-managed APIs** — No user-supplied API keys; all third-party services managed server-side
+2. **Auth-gated paid features** — Clerk protects any feature that incurs API cost
+3. **Mobile-first** — All UI optimized for phone use
+4. **PWA** — Installable, works offline where possible
 
 ---
 
-## Success Metrics
-
-- Users can hold 5+ minute conversations with AI Coach
-- Shadowing mode has 50+ phrases across 5 categories
-- Minimal pairs covers 20+ common confusing sound pairs
-- 70%+ of users return for daily practice within first week
-
----
-
-*Last Updated: January 30, 2026*
-*Status: Planning Phase*
+*Last Updated: April 2026*
