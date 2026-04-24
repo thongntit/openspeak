@@ -1,11 +1,6 @@
 name: CI Frontend
 
 on:
-  push:
-    branches: [main, master, dev]
-    paths:
-      - "frontend/**"
-      - ".github/workflows/ci-frontend.yml"
   pull_request:
     branches: [main, master, dev]
     paths:
@@ -20,7 +15,6 @@ jobs:
   frontend:
     name: Frontend
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     defaults:
       run:
         working-directory: frontend
