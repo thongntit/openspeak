@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useSettingsStore } from '../stores/settingsStore';
 import { usePronunciationStore } from '../stores/pronunciationStore';
 import { ArrowLeft, Mic, MicOff, RefreshCw, ChevronRight } from 'lucide-react';
 import azureSpeech from '../services/azureSpeech';
@@ -18,10 +17,8 @@ function parseAccuracyScore(result) {
 export default function Practice() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { azureApiKey, azureRegion } = useSettingsStore();
   const { isRecording, isProcessing, result, error, setRecording, setProcessing, setResult, setError, clearResult } = usePronunciationStore();
   const [wordData, setWordData] = useState(null);
-  const [initialized, setInitialized] = useState(false);
   const [isLoadingWord, setIsLoadingWord] = useState(false);
 
   const loadRandomWord = useCallback(async () => {
@@ -53,31 +50,17 @@ export default function Practice() {
     }
   }, [setError, clearResult]);
 
-  useEffect(() => {
-    if (azureApiKey && azureRegion) {
-      try {
-        azureSpeech.initialize(azureApiKey, azureRegion);
-        setInitialized(true);
-      } catch (_err) {
-        setError('Failed to initialize Azure Speech: ' + _err.message);
-      }
-    }
-  }, [azureApiKey, azureRegion, setError]);
+  // TODO: Azure credentials will come from backend
 
   useEffect(() => {
-    if (!initialized) return;
     if (location.state?.word) {
       loadWordByText(location.state.word);
     } else {
       loadRandomWord();
     }
-  }, [initialized, loadRandomWord, loadWordByText, location.state?.word]);
+  }, [loadRandomWord, loadWordByText, location.state?.word]);
 
   const handleRecording = async () => {
-    if (!initialized) {
-      setError('Azure Speech not initialized. Please check your settings.');
-      return;
-    }
     if (isLoadingWord) {
       setError('Please wait for word to load.');
       return;
@@ -121,32 +104,6 @@ export default function Practice() {
   };
 
   const accuracyScore = result ? parseAccuracyScore(result) : null;
-
-  if (!azureApiKey || !azureRegion) {
-    return (
-      <div className="min-h-screen bg-[#f6f7f8] dark:bg-[#101922] flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <div className="bg-white dark:bg-[#1c2630] rounded-xl p-8 shadow-sm border border-[#dbe0e6] dark:border-gray-800">
-            <div className="text-center">
-              <div className="text-4xl mb-4">⚙️</div>
-              <h2 className="text-xl font-bold text-[#111418] dark:text-white mb-2">
-                Settings Required
-              </h2>
-              <p className="text-[#617589] dark:text-gray-400 mb-4">
-                Please configure your Azure Speech API key first.
-              </p>
-              <button
-                onClick={() => navigate('/settings')}
-                className="w-full bg-[#137fec] text-white px-4 py-3 rounded-lg font-medium"
-              >
-                Go to Settings
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#f6f7f8] dark:bg-[#101922] flex flex-col">
