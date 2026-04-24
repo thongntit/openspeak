@@ -12,13 +12,15 @@ interface WordsJson {
 }
 
 function loadWords(): WordEntry[] {
-  // WORDS_JSON_PATH is set in production (container) since __dirname depth differs
-  // between compiled dist/ (3 levels) and source src/ (4 levels).
-  const jsonPath =
-    process.env.WORDS_JSON_PATH ??
-    path.join(__dirname, '..', '..', '..', '..', 'database', 'words.json');
-  const raw = fs.readFileSync(jsonPath, 'utf-8');
-  return (JSON.parse(raw) as WordsJson).words;
+  // __dirname is 3 levels from app root in compiled dist/, 4 levels in source src/
+  const candidates = [
+    path.join(__dirname, '..', '..', '..', 'database', 'words.json'),
+    path.join(__dirname, '..', '..', '..', '..', 'database', 'words.json'),
+  ];
+  const jsonPath = candidates.find((p) => fs.existsSync(p));
+  if (!jsonPath)
+    throw new Error(`words.json not found. Tried:\n${candidates.join('\n')}`);
+  return (JSON.parse(fs.readFileSync(jsonPath, 'utf-8')) as WordsJson).words;
 }
 
 export class SeedWords1738157001000 implements MigrationInterface {
