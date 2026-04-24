@@ -5,10 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "serve-db": "bun scripts/serve-db.js",
-    "serve-db:3001": "bun scripts/serve-db.js 3001",
     "dev": "cd frontend && bun run dev",
-    "dev:local": "bun run serve-db & bun run dev",
     "build": "cd frontend && bun run build",
     "lint": "cd frontend && bun run lint",
     "preview": "cd frontend && bun run preview",
