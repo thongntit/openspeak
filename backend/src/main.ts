@@ -20,9 +20,9 @@ async function bootstrap() {
   );
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
-  const rawOrigin = config.get<string>('CORS_ORIGIN');
+  const rawOrigin = config.getOrThrow<string>('CORS_ORIGIN');
   const origin = rawOrigin.includes(',')
-    ? rawOrigin.split(',').map((o) => o.trim())
+    ? rawOrigin.split(',').map((o: string) => o.trim())
     : rawOrigin;
   app.enableCors({ origin, credentials: true });
 
