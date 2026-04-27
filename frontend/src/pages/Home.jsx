@@ -99,9 +99,13 @@ export default function Home() {
     <div className="animate-screen-fade-in">
       <header className="flex items-center justify-between px-5 pt-4 pb-3">
         <div className="flex items-center gap-2 text-[22px] font-extrabold tracking-tight text-[var(--text-1)]">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-[9px] bg-gradient-to-br from-[#137fec] to-[#0a5fb5] text-white text-sm font-extrabold shadow-[0_2px_6px_rgba(19,127,236,0.35)]">
-            P
-          </span>
+          <img
+            src="/assets/icons/icon-512.png"
+            alt=""
+            width="28"
+            height="28"
+            className="h-7 w-7 rounded-[9px] shadow-[0_2px_6px_rgba(19,127,236,0.35)]"
+          />
           <span>Pronounce</span>
         </div>
         <div className="flex gap-2">
