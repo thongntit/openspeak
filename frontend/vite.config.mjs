@@ -14,7 +14,16 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: [
+        'assets/icons/favicon-32.png',
+        'assets/icons/icon-120.png',
+        'assets/icons/icon-152.png',
+        'assets/icons/icon-180.png',
+        'assets/icons/icon-192.png',
+        'assets/icons/icon-512.png',
+        'assets/icons/icon-1024.png',
+        'assets/icons/icon-maskable-512.png',
+      ],
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
@@ -61,14 +70,20 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: '/icon-192.png',
+            src: '/assets/icons/icon-192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/icon-512.png',
+            src: '/assets/icons/icon-512.png',
             sizes: '512x512',
             type: 'image/png'
+          },
+          {
+            src: '/assets/icons/icon-maskable-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }

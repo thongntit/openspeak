@@ -28,18 +28,11 @@ export default function TabBar() {
           to={tab.to}
           end={tab.end}
           className={cn(
-            'group relative flex flex-col items-center justify-center gap-[3px]',
+            'flex flex-col items-center justify-center gap-[3px]',
             'text-[11px] font-semibold cursor-pointer text-[var(--text-2)]',
             'aria-[current=page]:text-[var(--primary-hex)]',
           )}
         >
-          <span
-            className={cn(
-              'absolute top-2 w-1 h-1 rounded-full bg-[var(--primary-hex)]',
-              'opacity-0 transition-opacity',
-              'group-aria-[current=page]:opacity-100',
-            )}
-          />
           {tab.icon}
           <span>{tab.label}</span>
         </NavLink>
