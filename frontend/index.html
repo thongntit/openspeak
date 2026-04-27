@@ -2,10 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/icons/icon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/icon-180.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/assets/icons/icon-152.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/assets/icons/icon-120.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#f6f7f8" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="OpenSpeak" />
     <title>Pronounce</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="image" href="/assets/icons/icon-512.png" fetchpriority="high" />
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
     
     <style>
@@ -53,59 +64,14 @@
         transform: scale(1.25);
       }
       
-      .logo-box {
+      .logo-img {
         position: relative;
         z-index: 10;
         width: 96px;
         height: 96px;
-        background-color: #ffffff;
-        border: 4px solid #137fec;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      }
-      
-      .logo-content {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .logo-text {
-        color: #137fec;
-        font-size: 3.75rem;
-        font-weight: 700;
-        line-height: 1;
-        font-family: 'Lexend', sans-serif;
-      }
-      
-      .soundwave {
-        position: absolute;
-        bottom: -4px;
-        display: flex;
-        align-items: flex-end;
-        gap: 2px;
-      }
-      
-      .soundwave-bar {
-        width: 4px;
-        background-color: #137fec;
-        border-radius: 9999px;
-        animation: pulse 1s ease-in-out infinite;
-      }
-      
-      .soundwave-bar:nth-child(1) { height: 12px; animation-delay: 0ms; }
-      .soundwave-bar:nth-child(2) { height: 20px; animation-delay: 100ms; }
-      .soundwave-bar:nth-child(3) { height: 28px; animation-delay: 200ms; }
-      .soundwave-bar:nth-child(4) { height: 16px; animation-delay: 300ms; }
-      .soundwave-bar:nth-child(5) { height: 24px; animation-delay: 400ms; }
-      
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+        border-radius: 22%;
+        box-shadow: 0 4px 14px rgba(19, 127, 236, 0.18), 0 1px 2px rgba(0, 0, 0, 0.05);
+        display: block;
       }
       
       .app-title {
@@ -175,11 +141,7 @@
         #splash-screen {
           background-color: #101922;
         }
-        
-        .logo-box {
-          background-color: #101922;
-        }
-        
+
         .app-title {
           color: #ffffff;
         }
@@ -200,18 +162,7 @@
       <div class="splash-content">
         <div class="logo-container">
           <div class="logo-glow"></div>
-          <div class="logo-box">
-            <div class="logo-content">
-              <span class="logo-text">A</span>
-              <div class="soundwave">
-                <div class="soundwave-bar"></div>
-                <div class="soundwave-bar"></div>
-                <div class="soundwave-bar"></div>
-                <div class="soundwave-bar"></div>
-                <div class="soundwave-bar"></div>
-              </div>
-            </div>
-          </div>
+          <img class="logo-img" src="/assets/icons/icon-512.png" width="96" height="96" alt="OpenSpeak" decoding="async" fetchpriority="high" />
         </div>
         
         <div class="app-title">Pronounce</div>

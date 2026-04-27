@@ -229,10 +229,28 @@ export default function Practice() {
   );
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (location.state?.word) loadWordByText(location.state.word);
-    else loadRandomWord();
-  }, [loadRandomWord, loadWordByText, location.state?.word]);
+    let cancelled = false;
+    const fromState = location.state?.word;
+    setIsLoadingWord(true);
+    (async () => {
+      try {
+        const word = fromState
+          ? (await searchWords(fromState, 1))[0]
+          : await getRandomWord();
+        if (cancelled) return;
+        if (!word) throw new Error(fromState ? `Word "${fromState}" not found` : 'No words available');
+        setWordData({ word: word.word, ipa: word.ipa, level: word.difficulty });
+        reset();
+      } catch (err) {
+        if (!cancelled) setError('Failed to load word: ' + err.message);
+      } finally {
+        if (!cancelled) setIsLoadingWord(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [location.state?.word, reset, setError]);
 
   useEffect(() => {
     if (state !== 'recording') return undefined;
@@ -335,6 +353,7 @@ export default function Practice() {
     : null;
 
   return (
+    <>
     <div className="animate-screen-fade-in pb-44 relative">
       <header className="flex items-center justify-between px-5 pt-4 pb-3">
         <button
@@ -464,6 +483,7 @@ export default function Practice() {
           </Card>
         </section>
       )}
+    </div>
 
       <div className="fixed bottom-[92px] left-1/2 -translate-x-1/2 w-full max-w-md flex items-center justify-center gap-7 px-6 pointer-events-none">
         <div className="pointer-events-auto">
@@ -500,7 +520,7 @@ export default function Practice() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
