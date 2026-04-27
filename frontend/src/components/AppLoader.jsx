@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getHealth } from '../services/openspeakApi'
+import { getHealth } from '@/services/openspeakApi'
 
 export default function AppLoader({ children }) {
   const [status, setStatus] = useState('loading')

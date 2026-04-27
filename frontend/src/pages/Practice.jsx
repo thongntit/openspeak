@@ -1,212 +1,517 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { usePronunciationStore } from '../stores/pronunciationStore';
-import { ArrowLeft, Mic, MicOff, RefreshCw, ChevronRight } from 'lucide-react';
-import azureSpeech from '../services/azureSpeech';
-import { getRandomWord, searchWords } from '../services/wordService';
+import {
+  ArrowLeft,
+  HelpCircle,
+  Volume2,
+  Bookmark,
+  RotateCcw,
+  ArrowRight,
+  Mic,
+  X,
+} from 'lucide-react';
+import Badge from '@/components/ui/Badge';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import PhonemeChip from '@/components/ui/PhonemeChip';
+import { usePronunciationStore } from '@/stores/pronunciationStore';
+import azureSpeech from '@/services/azureSpeech';
+import { getRandomWord, searchWords } from '@/services/wordService';
+import { bandClass, bandLabel, bandColor } from '@/lib/score';
+import { cn } from '@/lib/cn';
 
-function parseAccuracyScore(result) {
+// Dev-only: initialize Azure SDK from env vars if present. In production the
+// token + region come from a backend endpoint (separate work item).
+const AZURE_KEY = import.meta.env.VITE_AZURE_SPEECH_KEY;
+const AZURE_REGION = import.meta.env.VITE_AZURE_SPEECH_REGION;
+let azureReady = false;
+function ensureAzure() {
+  if (azureReady) return true;
+  if (!AZURE_KEY || !AZURE_REGION) return false;
+  try {
+    azureSpeech.initialize(AZURE_KEY, AZURE_REGION);
+    azureReady = true;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function parseAzureResult(result) {
   try {
     const json = JSON.parse(result.json);
-    return Math.round(json?.NBest?.[0]?.PronunciationAssessment?.AccuracyScore ?? 0);
+    const nbest = json?.NBest?.[0];
+    const accuracy = Math.round(nbest?.PronunciationAssessment?.AccuracyScore ?? 0);
+    const phonemes = (nbest?.Words ?? []).flatMap((w) =>
+      (w.Phonemes ?? []).map((p) => ({
+        p: p.Phoneme,
+        s: p.PronunciationAssessment?.AccuracyScore ?? 0,
+      })),
+    );
+    return { accuracy, phonemes };
   } catch {
-    return null;
+    return { accuracy: null, phonemes: [] };
   }
+}
+
+function speakWord(word) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(word);
+  utter.lang = 'en-US';
+  utter.rate = 0.95;
+  window.speechSynthesis.speak(utter);
+}
+
+function ScoreRing({ score }) {
+  const [animScore, setAnimScore] = useState(0);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setAnimScore(score));
+    return () => cancelAnimationFrame(id);
+  }, [score]);
+
+  const radius = 56;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - animScore / 100);
+  const color = bandColor(score);
+  const band = bandClass(score);
+  const colorClass =
+    band === 'good'
+      ? 'text-[#078838] dark:text-[#4ade80]'
+      : band === 'mid'
+        ? 'text-[#b45309] dark:text-[#fbbf24]'
+        : 'text-[#be123c] dark:text-[#fb7185]';
+
+  return (
+    <div className="text-center">
+      <div className="relative inline-flex h-[132px] w-[132px] items-center justify-center">
+        <svg width="132" height="132" className="-rotate-90">
+          <circle cx="66" cy="66" r={radius} stroke="var(--border-soft)" strokeWidth="8" fill="none" />
+          <circle
+            cx="66"
+            cy="66"
+            r={radius}
+            stroke={color}
+            strokeWidth="8"
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)' }}
+          />
+        </svg>
+        <div
+          className={cn(
+            'absolute text-4xl font-extrabold tracking-tighter leading-none',
+            colorClass,
+          )}
+        >
+          {score}
+          <span className="text-base">%</span>
+        </div>
+      </div>
+      <div className="mt-2 text-sm font-semibold text-[var(--text-2)]">{bandLabel(score)}</div>
+    </div>
+  );
+}
+
+function Waveform({ bars }) {
+  return (
+    <div className="flex h-14 items-center justify-center gap-[3px]">
+      {bars.map((h, i) => (
+        <div
+          key={i}
+          className="w-[3px] rounded-sm bg-[var(--primary-hex)] transition-[height] duration-100"
+          style={{ height: h }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function MicButton({ recording, onClick, disabled }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={recording ? 'Stop recording' : 'Start recording'}
+      className={cn(
+        'relative inline-flex h-[88px] w-[88px] items-center justify-center rounded-full border-none text-white cursor-pointer transition-all',
+        'active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed',
+        recording
+          ? 'bg-[#e11d48] shadow-[0_8px_24px_rgba(225,29,72,0.45)]'
+          : 'bg-[var(--primary-hex)] shadow-[0_8px_24px_rgba(19,127,236,0.4)]',
+      )}
+    >
+      {recording && (
+        <>
+          <span className="pointer-events-none absolute -inset-1 rounded-full border-[3px] border-[rgba(225,29,72,0.5)] animate-mic-pulse" />
+          <span
+            className="pointer-events-none absolute -inset-1 rounded-full border-[3px] border-[rgba(225,29,72,0.5)] animate-mic-pulse"
+            style={{ animationDelay: '0.8s' }}
+          />
+        </>
+      )}
+      {recording ? (
+        <span className="h-6 w-6 rounded-[5px] bg-white" />
+      ) : (
+        <Mic size={34} fill="currentColor" />
+      )}
+    </button>
+  );
+}
+
+function SideButton({ onClick, disabled, ariaLabel, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className={cn(
+        'inline-flex h-14 w-14 items-center justify-center rounded-[18px]',
+        'bg-[var(--bg-card)] border border-[var(--border-soft)] text-[var(--text-1)]',
+        'transition-transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed',
+      )}
+    >
+      {children}
+    </button>
+  );
 }
 
 export default function Practice() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isRecording, isProcessing, result, error, setRecording, setProcessing, setResult, setError, clearResult } = usePronunciationStore();
+  const { state, result, error, setState, setResult, setError, reset } =
+    usePronunciationStore();
   const [wordData, setWordData] = useState(null);
   const [isLoadingWord, setIsLoadingWord] = useState(false);
+  const [animatedBars, setAnimatedBars] = useState(Array(28).fill(6));
+  const [recordTime, setRecordTime] = useState(0);
+  const [toast, setToast] = useState(null);
+  const animRef = useRef(null);
+  const timerRef = useRef(null);
+  const toastTimerRef = useRef(null);
+
+  const bars = state === 'recording' ? animatedBars : Array(28).fill(6);
 
   const loadRandomWord = useCallback(async () => {
     setIsLoadingWord(true);
     try {
       const word = await getRandomWord();
       if (!word) throw new Error('No words available');
-      setWordData({ word: word.word, ipa: word.ipa });
-      clearResult();
-    } catch (_error) {
-      setError('Failed to load word: ' + _error.message);
+      setWordData({ word: word.word, ipa: word.ipa, level: word.difficulty });
+      reset();
+    } catch (err) {
+      setError('Failed to load word: ' + err.message);
     } finally {
       setIsLoadingWord(false);
     }
-  }, [setError, clearResult]);
+  }, [reset, setError]);
 
-  const loadWordByText = useCallback(async (text) => {
-    setIsLoadingWord(true);
-    try {
-      const results = await searchWords(text, 1);
-      const word = results[0];
-      if (!word) throw new Error(`Word "${text}" not found`);
-      setWordData({ word: word.word, ipa: word.ipa });
-      clearResult();
-    } catch (_error) {
-      setError('Failed to load word: ' + _error.message);
-    } finally {
-      setIsLoadingWord(false);
-    }
-  }, [setError, clearResult]);
-
-  // TODO: Azure credentials will come from backend
+  const loadWordByText = useCallback(
+    async (text) => {
+      setIsLoadingWord(true);
+      try {
+        const results = await searchWords(text, 1);
+        const word = results[0];
+        if (!word) throw new Error(`Word "${text}" not found`);
+        setWordData({ word: word.word, ipa: word.ipa, level: word.difficulty });
+        reset();
+      } catch (err) {
+        setError('Failed to load word: ' + err.message);
+      } finally {
+        setIsLoadingWord(false);
+      }
+    },
+    [reset, setError],
+  );
 
   useEffect(() => {
-    if (location.state?.word) {
-      loadWordByText(location.state.word);
-    } else {
-      loadRandomWord();
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (location.state?.word) loadWordByText(location.state.word);
+    else loadRandomWord();
   }, [loadRandomWord, loadWordByText, location.state?.word]);
 
-  const handleRecording = async () => {
-    if (isLoadingWord) {
-      setError('Please wait for word to load.');
-      return;
-    }
-    if (isRecording) {
-      handleStopRecording();
-    } else {
-      await handleStartRecording();
-    }
-  };
+  useEffect(() => {
+    if (state !== 'recording') return undefined;
+    const tick = () => {
+      setAnimatedBars((prev) =>
+        prev.map((_, i) => {
+          const t = Date.now() / 200 + i * 0.6;
+          return 8 + Math.abs(Math.sin(t)) * 32 + Math.random() * 12;
+        }),
+      );
+      animRef.current = requestAnimationFrame(tick);
+    };
+    animRef.current = requestAnimationFrame(tick);
+    timerRef.current = setInterval(() => setRecordTime((t) => t + 0.1), 100);
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [state]);
+
+  const parsed = result ? parseAzureResult(result) : null;
+  const accuracy = parsed?.accuracy ?? null;
+  const phonemes = parsed?.phonemes ?? [];
+
+  const showToastForScore = useCallback((score) => {
+    if (score == null) return;
+    const message =
+      score >= 80
+        ? '🎯 Great pronunciation!'
+        : score >= 60
+          ? 'Good try — keep going'
+          : 'Try again, focus on the highlighted sounds';
+    setToast(message);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(null), 2400);
+  }, []);
+
+  useEffect(() => () => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+  }, []);
 
   const handleStartRecording = async () => {
-    clearResult();
-    setRecording(true);
-    setProcessing(false);
+    if (!ensureAzure()) {
+      setError('Speech recognition is not configured. Backend token endpoint is pending.');
+      return;
+    }
+    setError(null);
+    setRecordTime(0);
+    setState('recording');
     try {
       await azureSpeech.assessPronunciation(
         wordData.word,
         (azureResult) => {
           setResult(azureResult);
-          setRecording(false);
-          setProcessing(false);
+          const { accuracy: a } = parseAzureResult(azureResult);
+          showToastForScore(a);
         },
-        (_err) => {
-          setError(_err);
-          setRecording(false);
-          setProcessing(false);
-        }
+        (err) => {
+          setError(err);
+          setState('idle');
+        },
       );
-    } catch (_err) {
-      setError('Failed to start recording: ' + _err.message);
-      setRecording(false);
-      setProcessing(false);
+    } catch (err) {
+      setError('Failed to start recording: ' + err.message);
+      setState('idle');
     }
   };
 
   const handleStopRecording = () => {
+    setState('assessing');
     azureSpeech.stopRecognition();
-    setRecording(false);
-    setProcessing(false);
   };
 
-  const accuracyScore = result ? parseAccuracyScore(result) : null;
+  const handleMic = () => {
+    if (isLoadingWord || !wordData) return;
+    if (state === 'recording') {
+      handleStopRecording();
+    } else if (state === 'idle' || state === 'result') {
+      handleStartRecording();
+    }
+  };
+
+  const handleRetry = () => {
+    if (state === 'recording') azureSpeech.stopRecognition();
+    setRecordTime(0);
+    reset();
+  };
+
+  const handleNext = () => {
+    if (state === 'recording' || state === 'assessing') return;
+    loadRandomWord();
+  };
+
+  const levelCode = wordData?.level
+    ? wordData.level === 'beginner'
+      ? 'beg'
+      : wordData.level === 'intermediate'
+        ? 'int'
+        : 'adv'
+    : null;
 
   return (
-    <div className="min-h-screen bg-[#f6f7f8] dark:bg-[#101922] flex flex-col">
-      <div className="bg-white dark:bg-[#1c2630] p-4 pb-2 flex items-center justify-between border-b border-[#dbe0e6] dark:border-gray-800">
+    <div className="animate-screen-fade-in pb-44 relative">
+      <header className="flex items-center justify-between px-5 pt-4 pb-3">
         <button
+          type="button"
           onClick={() => navigate('/')}
-          className="text-[#111418] dark:text-white flex items-center"
+          aria-label="Back"
+          className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] text-[var(--text-1)] hover:bg-black/[0.02] dark:hover:bg-white/[0.04]"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft size={18} />
         </button>
-        <h2 className="text-lg font-bold text-[#111418] dark:text-white text-center flex-1 pr-12">
-          Practice
-        </h2>
-      </div>
+        <div className="text-[13px] font-semibold text-[var(--text-2)]">Practice</div>
+        <button
+          type="button"
+          aria-label="Help"
+          className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] text-[var(--text-1)] hover:bg-black/[0.02] dark:hover:bg-white/[0.04]"
+        >
+          <HelpCircle size={18} />
+        </button>
+      </header>
 
-      <div className="flex-1 flex flex-col justify-center items-center px-4 py-8">
-        {error && (
-          <div className="w-full max-w-md mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start justify-between gap-2">
-            <p className="text-red-600 dark:text-red-400 text-sm flex-1">{error}</p>
-            <button
-              onClick={() => setError(null)}
-              className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
-            >
-              ✕
-            </button>
+      {error && (
+        <div className="mx-4 mb-3 rounded-xl border border-[rgba(190,18,60,0.25)] bg-[rgba(190,18,60,0.08)] px-3 py-2.5 text-sm text-[#be123c] flex items-start gap-2">
+          <span className="flex-1">{error}</span>
+          <button
+            type="button"
+            onClick={() => setError(null)}
+            aria-label="Dismiss error"
+            className="text-[#be123c] hover:opacity-70"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      <section className="px-5 pt-5 pb-2 text-center">
+        {levelCode && (
+          <div className="mb-3.5 flex justify-center">
+            <Badge level={levelCode} />
+          </div>
+        )}
+        <h1 className="text-[52px] font-extrabold leading-none tracking-tighter text-[var(--text-1)]">
+          {isLoadingWord || !wordData ? (
+            <span className="text-[var(--text-2)] text-3xl">Loading…</span>
+          ) : (
+            wordData.word
+          )}
+        </h1>
+        <div className="mt-2.5 font-mono text-[17px] text-[var(--text-2)]">
+          {wordData?.ipa || ' '}
+        </div>
+        <div className="mt-4 flex justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => wordData && speakWord(wordData.word)}
+            disabled={!wordData || isLoadingWord}
+          >
+            <Volume2 size={16} /> Hear it
+          </Button>
+          <Button variant="outline" size="sm" disabled={!wordData}>
+            <Bookmark size={16} /> Save
+          </Button>
+        </div>
+      </section>
+
+      <section className="px-5 pt-6 flex justify-center min-h-[180px]">
+        {state === 'idle' && (
+          <div className="text-center text-[var(--text-2)]">
+            <div className="inline-flex h-[132px] w-[132px] flex-col items-center justify-center gap-1 rounded-full border-2 border-dashed border-[var(--border-soft)]">
+              <div className="text-[28px] font-extrabold text-[var(--text-2)]">—</div>
+              <div className="text-[10px] font-bold tracking-[0.1em]">SCORE</div>
+            </div>
+            <div className="mt-3.5 text-[13px]">Tap the mic and say the word</div>
           </div>
         )}
 
-        <div className="w-full max-w-md bg-white dark:bg-[#1c2630] rounded-xl p-8 shadow-sm border border-[#dbe0e6] dark:border-gray-800 text-center mb-6">
-          <h1 className="text-[42px] font-bold leading-tight tracking-tight mb-2 text-[#111418] dark:text-white">
-            {isLoadingWord || !wordData ? (
-              <span className="text-[#617589]">Loading...</span>
-            ) : (
-              wordData.word
-            )}
-          </h1>
-          <p className="text-[#617589] dark:text-gray-400 text-lg font-normal">
-            {wordData?.ipa || '\u00A0'}
-          </p>
-        </div>
-
-        <div className="w-full max-w-md flex flex-wrap gap-4 mb-6">
-          <div className="flex-1 flex-col gap-2 rounded-xl p-6 border border-[#dbe0e6] dark:border-gray-800 bg-white dark:bg-[#1c2630]">
-            <p className="text-[#617589] dark:text-gray-400 text-sm font-medium">Accuracy Score</p>
-            <div className="flex items-baseline gap-2">
-              <p className={`tracking-light text-3xl font-bold ${
-                accuracyScore === null
-                  ? 'text-[#111418] dark:text-white'
-                  : accuracyScore >= 80
-                  ? 'text-[#078838]'
-                  : accuracyScore >= 60
-                  ? 'text-yellow-500'
-                  : 'text-red-500'
-              }`}>
-                {accuracyScore !== null ? `${accuracyScore}%` : '--%'}
-              </p>
+        {state === 'recording' && (
+          <div className="w-full text-center">
+            <Waveform bars={bars} />
+            <div className="mt-4 font-mono text-[28px] font-bold tracking-[0.05em] text-[#e11d48]">
+              {recordTime.toFixed(1)}s
+            </div>
+            <div className="mt-1 text-xs text-[var(--text-2)]">
+              Listening… tap mic to stop
             </div>
           </div>
-        </div>
+        )}
 
-        <div className="w-full max-w-md bg-white dark:bg-[#1c2630] rounded-xl p-6 pb-10 shadow-sm border border-[#dbe0e6] dark:border-gray-800">
-          <div className="flex items-center justify-center gap-12 w-full">
-            <button
-              onClick={clearResult}
-              className="flex flex-col items-center gap-1 text-[#617589] dark:text-gray-400"
-            >
-              <div className="p-3 rounded-full border border-[#dbe0e6] dark:border-gray-700">
-                <RefreshCw className="w-5 h-5" />
-              </div>
-              <span className="text-[10px] uppercase font-bold tracking-wider">Retry</span>
-            </button>
-
-            <div className="relative flex flex-col items-center gap-4">
-              <div className="absolute inset-0 bg-[#137fec]/20 rounded-full scale-125 animate-pulse pointer-events-none"></div>
-              <button
-                type="button"
-                onClick={handleRecording}
-                disabled={isProcessing || isLoadingWord || !wordData}
-                className="relative bg-[#137fec] text-white w-20 h-20 rounded-full flex items-center justify-center shadow-lg shadow-[#137fec]/30 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isRecording ? (
-                  <MicOff className="w-8 h-8" />
-                ) : isProcessing || isLoadingWord ? (
-                  <svg className="w-8 h-8 animate-spin" fill="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" strokeDasharray="31.4 31.4" />
-                  </svg>
-                ) : (
-                  <Mic className="w-8 h-8" />
-                )}
-              </button>
+        {state === 'assessing' && (
+          <div className="text-center">
+            <div className="inline-flex h-[132px] w-[132px] items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--bg-card)]">
+              <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-[var(--border-soft)] border-t-[var(--primary-hex)]" />
             </div>
-
-            <button
-              onClick={loadRandomWord}
-              disabled={isLoadingWord}
-              className="flex flex-col items-center gap-1 text-[#137fec] disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="w-5 h-5" />
-              <span className="text-[10px] uppercase font-bold tracking-wider">Next</span>
-            </button>
+            <div className="mt-3.5 text-[13px] text-[var(--text-2)]">
+              Analyzing pronunciation…
+            </div>
           </div>
+        )}
+
+        {state === 'result' && accuracy != null && <ScoreRing score={accuracy} />}
+      </section>
+
+      {state === 'result' && phonemes.length > 0 && (
+        <section className="px-5 pt-5">
+          <div className="mb-2.5 flex items-center justify-between">
+            <h2 className="text-[12px] font-bold uppercase tracking-eyebrow text-[var(--text-2)]">
+              Phoneme breakdown
+            </h2>
+            <span className="text-[11px] text-[var(--text-2)]">tap to hear</span>
+          </div>
+          <Card className="p-3.5">
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {phonemes.map((p, i) => (
+                <PhonemeChip
+                  key={i}
+                  phoneme={p.p}
+                  score={p.s}
+                  className="px-2.5 py-2 min-w-[38px]"
+                />
+              ))}
+            </div>
+            <div className="mt-3 flex justify-center gap-3.5 border-t border-[var(--border-soft)] pt-3 text-xs text-[var(--text-2)]">
+              <LegendDot color="#078838" label="≥80" />
+              <LegendDot color="#b45309" label="60–79" />
+              <LegendDot color="#be123c" label="<60" />
+            </div>
+          </Card>
+        </section>
+      )}
+
+      <div className="fixed bottom-[92px] left-1/2 -translate-x-1/2 w-full max-w-md flex items-center justify-center gap-7 px-6 pointer-events-none">
+        <div className="pointer-events-auto">
+          <SideButton
+            onClick={handleRetry}
+            disabled={state === 'idle' || state === 'recording'}
+            ariaLabel="Retry"
+          >
+            <RotateCcw size={20} />
+          </SideButton>
+        </div>
+        <div className="pointer-events-auto">
+          <MicButton
+            recording={state === 'recording'}
+            onClick={handleMic}
+            disabled={state === 'assessing' || isLoadingWord || !wordData}
+          />
+        </div>
+        <div className="pointer-events-auto">
+          <SideButton
+            onClick={handleNext}
+            disabled={state === 'recording' || state === 'assessing' || isLoadingWord}
+            ariaLabel="Next word"
+          >
+            <ArrowRight size={20} />
+          </SideButton>
         </div>
       </div>
+
+      {toast && (
+        <div className="fixed bottom-[200px] left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-40">
+          <div className="flex items-center gap-2.5 rounded-xl bg-[rgba(15,22,32,0.92)] px-3.5 py-3 text-sm font-medium text-white backdrop-blur-md">
+            <span className="flex-1">{toast}</span>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function LegendDot({ color, label }) {
+  return (
+    <span className="inline-flex items-center gap-1.5">
+      <span
+        className="inline-block h-2 w-2 rounded-full"
+        style={{ background: color }}
+      />
+      {label}
+    </span>
   );
 }

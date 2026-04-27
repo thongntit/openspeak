@@ -1,27 +1,70 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/inter/800.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-gray-50 text-gray-900 antialiased;
-  }
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222 14% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 14% 12%;
+  --muted: 220 14% 96%;
+  --muted-foreground: 220 9% 46%;
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 210 86% 50%;
+  --primary: 210 86% 50%;
+  --primary-foreground: 0 0% 100%;
+  --success: 142 76% 30%;
+  --warning: 38 92% 50%;
+  --danger: 0 84% 55%;
+  --radius: 16px;
+
+  --bg-app: #f6f7f8;
+  --bg-card: #ffffff;
+  --border-soft: #e5e8ec;
+  --text-1: #0f1620;
+  --text-2: #617589;
+  --primary-hex: #137fec;
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed;
+.dark {
+  --background: 215 32% 9%;
+  --foreground: 210 16% 96%;
+  --card: 213 28% 14%;
+  --card-foreground: 210 16% 96%;
+  --muted: 215 22% 16%;
+  --muted-foreground: 215 14% 64%;
+  --border: 215 22% 19%;
+  --input: 215 22% 19%;
+  --ring: 210 86% 56%;
+  --primary: 210 86% 56%;
+  --primary-foreground: 215 32% 9%;
+  --success: 142 70% 45%;
+
+  --bg-app: #101922;
+  --bg-card: #1c2630;
+  --border-soft: #243140;
+  --text-1: #eaf0f6;
+  --text-2: #94a3b6;
+}
+
+@layer base {
+  body {
+    background: #e9ecef;
+    color: var(--text-1);
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
-  
-  .btn-secondary {
-    @apply bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors;
-  }
-  
-  .card {
-    @apply bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800 p-4;
-  }
-  
-  .input {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none;
+  .dark body {
+    background: #0a0f15;
   }
 }

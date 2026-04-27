@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import AppShell from './components/AppShell';
 import Home from './pages/Home';
 import Practice from './pages/Practice';
-import Settings from './pages/Settings';
+import Progress from './pages/Progress';
+import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
 import { useThemeStore } from './stores/themeStore';
 
@@ -28,7 +30,6 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
 
-    // Update theme-color meta tag based on current theme
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (themeColorMeta) {
       themeColorMeta.setAttribute('content', isDark ? '#101922' : '#f6f7f8');
@@ -38,9 +39,33 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/practice" element={<PrivateRoute><Practice /></PrivateRoute>} />
-        <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+        <Route element={<AppShell />}>
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/practice"
+            element={
+              <PrivateRoute>
+                <Practice />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/progress"
+            element={
+              <PrivateRoute>
+                <Progress />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+        </Route>
       </Routes>
     </Router>
   );
