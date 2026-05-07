@@ -15,7 +15,7 @@ export default function TabBar() {
   return (
     <nav
       className={cn(
-        'absolute left-3 right-3 bottom-3 h-16 z-30',
+        'mx-3 mb-3 h-16 z-30 shrink-0',
         'bg-[var(--bg-card)] border border-[var(--border-soft)] rounded-[22px]',
         'grid grid-cols-4 backdrop-blur-md',
         'shadow-[0_8px_32px_rgba(15,22,32,0.08),0_2px_8px_rgba(15,22,32,0.04)]',
