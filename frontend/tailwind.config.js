@@ -43,14 +43,24 @@ export default {
           from: { opacity: '0', transform: 'translateY(6px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(12px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
         'mic-pulse': {
           '0%': { transform: 'scale(1)', opacity: '0.8' },
           '100%': { transform: 'scale(1.6)', opacity: '0' },
         },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
       },
       animation: {
         'screen-fade-in': 'screen-fade-in 240ms ease',
+        'fade-up': 'fade-up 420ms cubic-bezier(0.22, 1, 0.36, 1) both',
         'mic-pulse': 'mic-pulse 1.6s ease-out infinite',
+        shimmer: 'shimmer 1.6s linear infinite',
       },
     },
   },
