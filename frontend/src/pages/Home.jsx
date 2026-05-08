@@ -60,6 +60,7 @@ export default function Home() {
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useThemeStore();
   const [featuredWords, setFeaturedWords] = useState([]);
+  const [wordsLoading, setWordsLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,6 +88,8 @@ export default function Home() {
         if (!cancelled) setFeaturedWords(words);
       } catch {
         // Silently no-op if API unavailable.
+      } finally {
+        if (!cancelled) setWordsLoading(false);
       }
     }
     loadFeaturedWords();
@@ -96,8 +99,11 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="animate-screen-fade-in">
-      <header className="flex items-center justify-between px-5 pt-4 pb-3">
+    <div>
+      <header
+        className="flex items-center justify-between px-5 pt-4 pb-3 animate-fade-up"
+        style={{ animationDelay: '0ms' }}
+      >
         <div className="flex items-center gap-2 text-[22px] font-extrabold tracking-tight text-[var(--text-1)]">
           <img
             src="/assets/icons/icon-512.png"
@@ -127,7 +133,10 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="relative mx-4 mt-1 mb-3.5 flex items-center gap-3.5 overflow-hidden rounded-[18px] bg-gradient-to-br from-[#137fec] to-[#0a5fb5] px-4 py-3.5 text-white">
+      <section
+        className="relative mx-4 mt-1 mb-3.5 flex items-center gap-3.5 overflow-hidden rounded-[18px] bg-gradient-to-br from-[#137fec] to-[#0a5fb5] px-4 py-3.5 text-white animate-fade-up"
+        style={{ animationDelay: '60ms' }}
+      >
         <span className="pointer-events-none absolute -top-8 -right-8 h-[140px] w-[140px] rounded-full bg-white/10" />
         <span className="pointer-events-none absolute right-8 -bottom-12 h-[100px] w-[100px] rounded-full bg-white/[0.06]" />
         <div className="relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-[14px] bg-white/[0.18]">
@@ -154,7 +163,10 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="px-4 mb-[22px]">
+      <div
+        className="px-4 mb-[22px] animate-fade-up"
+        style={{ animationDelay: '120ms' }}
+      >
         <button
           type="button"
           onClick={() => navigate('/practice')}
@@ -172,50 +184,80 @@ export default function Home() {
         </button>
       </div>
 
-      {featuredWords.length > 0 && (
-        <>
+      {(wordsLoading || featuredWords.length > 0) && (
+        <section
+          className="animate-fade-up"
+          style={{ animationDelay: '180ms' }}
+        >
           <h2 className="px-5 mb-2.5 text-[12px] font-bold uppercase tracking-eyebrow text-[var(--text-2)]">
             Try these words
           </h2>
           <div className="px-4 mb-6">
             <Card>
-            {featuredWords.map((w, i) => (
-              <button
-                key={w.word}
-                type="button"
-                onClick={() => navigate('/practice', { state: { word: w.word } })}
-                className={cn(
-                  'flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors',
-                  'active:bg-black/[0.02] dark:active:bg-white/[0.03]',
-                  i < featuredWords.length - 1 && 'border-b border-[var(--border-soft)]',
-                )}
-              >
-                <span className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[rgba(19,127,236,0.10)] text-[var(--primary-hex)]">
-                  <Volume2 size={20} />
-                </span>
-                <span className="flex-1 min-w-0">
-                  <span className="block text-base font-bold tracking-snug text-[var(--text-1)]">
-                    {w.word}
-                  </span>
-                  {w.ipa && (
-                    <span className="block font-phonetic text-xs text-[var(--text-2)] mt-0.5">
-                      {w.ipa}
-                    </span>
-                  )}
-                </span>
-                <Badge level={toShortLevel(w.level)} />
-                <ChevronRight size={16} className="text-[var(--text-2)]" />
-              </button>
-            ))}
+              {wordsLoading
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        'flex w-full items-center gap-3 px-4 py-3.5',
+                        i < 2 && 'border-b border-[var(--border-soft)]',
+                      )}
+                      aria-hidden="true"
+                    >
+                      <span className="h-11 w-11 flex-shrink-0 rounded-xl bg-skeleton animate-shimmer" />
+                      <span className="flex-1 min-w-0 space-y-2">
+                        <span
+                          className="block h-4 rounded bg-skeleton animate-shimmer"
+                          style={{ width: `${55 + i * 10}%` }}
+                        />
+                        <span className="block h-3 w-1/3 rounded bg-skeleton animate-shimmer" />
+                      </span>
+                      <span className="h-5 w-10 rounded-full bg-skeleton animate-shimmer" />
+                    </div>
+                  ))
+                : featuredWords.map((w, i) => (
+                    <button
+                      key={w.word}
+                      type="button"
+                      onClick={() => navigate('/practice', { state: { word: w.word } })}
+                      className={cn(
+                        'flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors',
+                        'active:bg-black/[0.02] dark:active:bg-white/[0.03]',
+                        i < featuredWords.length - 1 && 'border-b border-[var(--border-soft)]',
+                      )}
+                    >
+                      <span className="inline-flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[rgba(19,127,236,0.10)] text-[var(--primary-hex)]">
+                        <Volume2 size={20} />
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-base font-bold tracking-snug text-[var(--text-1)]">
+                          {w.word}
+                        </span>
+                        {w.ipa && (
+                          <span className="block font-phonetic text-xs text-[var(--text-2)] mt-0.5">
+                            {w.ipa}
+                          </span>
+                        )}
+                      </span>
+                      <Badge level={toShortLevel(w.level)} />
+                      <ChevronRight size={16} className="text-[var(--text-2)]" />
+                    </button>
+                  ))}
             </Card>
           </div>
-        </>
+        </section>
       )}
 
-      <h2 className="px-5 mb-2.5 text-[12px] font-bold uppercase tracking-eyebrow text-[var(--text-2)]">
+      <h2
+        className="px-5 mb-2.5 text-[12px] font-bold uppercase tracking-eyebrow text-[var(--text-2)] animate-fade-up"
+        style={{ animationDelay: '240ms' }}
+      >
         Modes
       </h2>
-      <div className="px-4 mb-6 grid grid-cols-2 gap-2.5">
+      <div
+        className="px-4 mb-6 grid grid-cols-2 gap-2.5 animate-fade-up"
+        style={{ animationDelay: '240ms' }}
+      >
         {MODES.map((m) => (
           <Card
             key={m.key}
