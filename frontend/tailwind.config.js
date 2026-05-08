@@ -10,6 +10,7 @@ export default {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        phonetic: ['Gentium Plus', 'Gentium', 'serif'],
       },
       colors: {
         primary: {
