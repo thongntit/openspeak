@@ -68,6 +68,10 @@ export function getCollectionWords(id, params = {}, opts = {}) {
   });
 }
 
+export function getSpeechToken(opts = {}) {
+  return request('/speech/token', opts);
+}
+
 export function getHealth(opts = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeout ?? 5000);

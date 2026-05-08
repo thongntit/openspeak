@@ -7,16 +7,10 @@ class AzureSpeechService {
     this.recognizer = null;
   }
 
-  initialize(apiKey, region) {
-    try {
-      this.speechConfig = SpeechSDK.SpeechConfig.fromSubscription(apiKey, region);
-      this.speechConfig.speechRecognitionLanguage = 'en-US';
-      this.audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
-      return true;
-    } catch (error) {
-      console.error('Azure Speech initialization error:', error);
-      throw error;
-    }
+  initializeWithToken(token, region) {
+    this.speechConfig = SpeechSDK.SpeechConfig.fromAuthorizationToken(token, region);
+    this.speechConfig.speechRecognitionLanguage = 'en-US';
+    this.audioConfig = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
   }
 
   async assessPronunciation(text, onResult, onError) {

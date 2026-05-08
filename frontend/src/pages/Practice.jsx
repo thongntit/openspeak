@@ -16,26 +16,11 @@ import Button from '@/components/ui/Button';
 import PhonemeChip from '@/components/ui/PhonemeChip';
 import { usePronunciationStore } from '@/stores/pronunciationStore';
 import azureSpeech from '@/services/azureSpeech';
+import { getSpeechToken } from '@/services/openspeakApi';
 import { getRandomWord, searchWords } from '@/services/wordService';
 import { bandClass, bandLabel, bandColor } from '@/lib/score';
 import { cn } from '@/lib/cn';
 
-// Dev-only: initialize Azure SDK from env vars if present. In production the
-// token + region come from a backend endpoint (separate work item).
-const AZURE_KEY = import.meta.env.VITE_AZURE_SPEECH_KEY;
-const AZURE_REGION = import.meta.env.VITE_AZURE_SPEECH_REGION;
-let azureReady = false;
-function ensureAzure() {
-  if (azureReady) return true;
-  if (!AZURE_KEY || !AZURE_REGION) return false;
-  try {
-    azureSpeech.initialize(AZURE_KEY, AZURE_REGION);
-    azureReady = true;
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 function parseAzureResult(result) {
   try {
@@ -293,14 +278,12 @@ export default function Practice() {
   }, []);
 
   const handleStartRecording = async () => {
-    if (!ensureAzure()) {
-      setError('Speech recognition is not configured. Backend token endpoint is pending.');
-      return;
-    }
     setError(null);
     setRecordTime(0);
     setState('recording');
     try {
+      const { token, region } = await getSpeechToken();
+      azureSpeech.initializeWithToken(token, region);
       await azureSpeech.assessPronunciation(
         wordData.word,
         (azureResult) => {

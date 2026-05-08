@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { WordsModule } from './words/words.module';
 import { CollectionsModule } from './collections/collections.module';
+import { SpeechModule } from './speech/speech.module';
 
 @Module({
   imports: [
@@ -22,11 +23,14 @@ import { CollectionsModule } from './collections/collections.module';
           then: Joi.required(),
           otherwise: Joi.optional(),
         }),
+        AZURE_SPEECH_KEY: Joi.string().required(),
+        AZURE_SPEECH_REGION: Joi.string().required(),
       }),
     }),
     DatabaseModule,
     WordsModule,
     CollectionsModule,
+    SpeechModule,
   ],
   controllers: [AppController],
 })
@@ -36,3 +40,4 @@ export class AppModule implements NestModule {
     // Wire ClerkMiddleware here when protected endpoints are added
   }
 }
+
