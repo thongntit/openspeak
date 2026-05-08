@@ -198,7 +198,7 @@ export default function Home() {
                     {w.word}
                   </span>
                   {w.ipa && (
-                    <span className="block font-mono text-xs text-[var(--text-2)] mt-0.5">
+                    <span className="block font-phonetic text-xs text-[var(--text-2)] mt-0.5">
                       {w.ipa}
                     </span>
                   )}

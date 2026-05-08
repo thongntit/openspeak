@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn';
 import { bandClass } from '@/lib/score';
 
 const chipVariants = cva(
-  'inline-flex flex-col items-center gap-1 px-2.5 py-2 min-w-[44px] rounded-xl font-mono text-sm font-semibold border transition-transform',
+  'inline-flex flex-col items-center gap-1 px-2.5 py-2 min-w-[44px] rounded-xl font-phonetic text-sm font-semibold border transition-transform',
   {
     variants: {
       band: {

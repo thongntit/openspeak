@@ -401,7 +401,7 @@ export default function Practice() {
             wordData.word
           )}
         </h1>
-        <div className="mt-2.5 font-mono text-[17px] text-[var(--text-2)]">
+        <div className="mt-2.5 font-phonetic text-[17px] text-[var(--text-2)]">
           {wordData?.ipa || ' '}
         </div>
         <div className="mt-4 flex justify-center gap-2">
