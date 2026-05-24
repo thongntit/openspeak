@@ -196,7 +196,7 @@ export default function Profile() {
       </div>
 
       <div className="text-center text-[11px] text-[var(--text-2)] py-2 pb-4">
-        OpenSpeak · v0.5.0
+        Gramio · v0.5.0
       </div>
     </div>
   );
