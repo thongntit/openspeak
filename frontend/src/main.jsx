@@ -9,18 +9,21 @@ import DatabaseErrorBoundary from './components/DatabaseErrorBoundary'
 import OfflineIndicator from './components/OfflineIndicator'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-if (!PUBLISHABLE_KEY) throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY')
+
+const inner = (
+  <DatabaseErrorBoundary>
+    <ReloadPrompt />
+    <AppLoader>
+      <App />
+    </AppLoader>
+    <OfflineIndicator />
+  </DatabaseErrorBoundary>
+)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <DatabaseErrorBoundary>
-        <ReloadPrompt />
-        <AppLoader>
-          <App />
-        </AppLoader>
-        <OfflineIndicator />
-      </DatabaseErrorBoundary>
-    </ClerkProvider>
+    {PUBLISHABLE_KEY
+      ? <ClerkProvider publishableKey={PUBLISHABLE_KEY}>{inner}</ClerkProvider>
+      : inner}
   </StrictMode>
 )
