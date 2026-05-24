@@ -1,6 +1,5 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import TabBar from './TabBar';
-import { cn } from '@/lib/cn';
 
 export default function AppShell() {
   const { pathname } = useLocation();
@@ -17,12 +16,7 @@ export default function AppShell() {
           '[transform:translateZ(0)]',
         ].join(' ')}
       >
-        <main
-          className={cn(
-            'flex-1 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-            isReview ? 'overflow-hidden flex flex-col' : 'overflow-y-auto pb-24',
-          )}
-        >
+        <main className="flex-1 overflow-y-auto pb-24 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <Outlet />
         </main>
         {!isReview && <TabBar />}

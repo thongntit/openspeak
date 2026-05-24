@@ -15,11 +15,11 @@ export default function TabBar() {
   return (
     <nav
       className={cn(
-        'mx-3 mb-3 h-[58px] z-30 shrink-0',
-        'bg-[var(--bg-card)] border border-[var(--border-soft)] rounded-[20px]',
+        'mx-3 mb-3 h-16 z-30 shrink-0',
+        'bg-[var(--bg-card)] border border-[var(--border-soft)] rounded-[22px]',
         'grid grid-cols-4 backdrop-blur-md',
-        'shadow-[0_8px_28px_rgba(15,22,32,0.06),0_2px_8px_rgba(15,22,32,0.04)]',
-        'dark:shadow-[0_8px_28px_rgba(0,0,0,0.4)]',
+        'shadow-[0_8px_32px_rgba(15,22,32,0.08),0_2px_8px_rgba(15,22,32,0.04)]',
+        'dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]',
       )}
     >
       {TABS.map((tab) => (
@@ -29,7 +29,7 @@ export default function TabBar() {
           end={tab.end}
           className={cn(
             'flex flex-col items-center justify-center gap-[3px]',
-            'text-[10.5px] font-semibold cursor-pointer text-[var(--text-2)] leading-none',
+            'text-[11px] font-semibold cursor-pointer text-[var(--text-2)]',
             'aria-[current=page]:text-[var(--primary-hex)]',
           )}
         >
