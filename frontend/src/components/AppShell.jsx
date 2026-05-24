@@ -16,7 +16,7 @@ export default function AppShell() {
           '[transform:translateZ(0)]',
         ].join(' ')}
       >
-        <main className="flex-1 overflow-y-auto pb-24 [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <main className={`flex-1 overflow-y-auto ${isReview ? 'pb-4' : 'pb-24'} [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
           <Outlet />
         </main>
         {!isReview && <TabBar />}
