@@ -1,6 +1,6 @@
-# OpenSpeak Backend
+# Gramio Backend
 
-NestJS + TypeORM + PostgreSQL API for the OpenSpeak English pronunciation app.
+NestJS + TypeORM + PostgreSQL API for the Gramio English learning app.
 
 ## Stack
 
