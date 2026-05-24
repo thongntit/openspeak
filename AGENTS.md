@@ -1,8 +1,8 @@
-# Agent Instructions for English Pronunciation Web
+# Agent Instructions for Gramio
 
 ## Project Overview
 
-Mobile-first Progressive Web App (PWA) for English pronunciation assessment using Azure Speech Services. Built with React 19, Vite, Tailwind CSS, and Zustand.
+Mobile-first Progressive Web App (PWA) for English grammar and vocabulary practice. Built with React 19, Vite, Tailwind CSS, and Zustand.
 
 ## Commands
 
@@ -168,9 +168,8 @@ This project uses JavaScript (.jsx/.js) files. Do not add TypeScript unless expl
 - Test on both light and dark modes before submitting PRs
 
 ## Architecture Notes
-- **Speech Recognition**: Azure Speech SDK via CDN, singleton service in `services/azureSpeech.js`
 - **Routing**: React Router v7 with routes: `/`, `/practice`, `/settings`
-- **State**: Zustand stores for pronunciation, settings, loading states
+- **State**: Zustand stores for practice, settings, loading states
 - **Storage**: LocalStorage for persistence
 - **PWA**: Service worker auto-registration via vite-plugin-pwa
 
@@ -181,7 +180,5 @@ This project uses JavaScript (.jsx/.js) files. Do not add TypeScript unless expl
 - PWA installable on iOS/Android
 
 ## Development Notes
-- Microphone access requires HTTPS or localhost
-- Azure Speech API key and region stored in Settings (LocalStorage)
 - Dark mode toggle in Settings
 - Splash screen fades out after initial load

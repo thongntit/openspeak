@@ -1,7 +1,7 @@
 {
   "name": "openspeak",
   "version": "1.0.0",
-  "description": "Mobile-first PWA for English pronunciation assessment using Azure Speech Services",
+  "description": "Mobile-first PWA for English grammar and vocabulary practice",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,11 +16,11 @@
     "setup": "echo 'Installing frontend dependencies...' && cd frontend && bun install"
   },
   "keywords": [
-    "pronunciation",
+    "grammar",
+    "vocabulary",
     "english",
-    "speech-recognition",
-    "pwa",
-    "azure-speech"
+    "learning",
+    "pwa"
   ],
   "author": "",
   "license": "MIT",
