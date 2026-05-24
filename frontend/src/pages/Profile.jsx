@@ -4,7 +4,7 @@ import {
   Sun,
   Moon,
   Bell,
-  Headphones,
+  CreditCard,
   ChevronRight,
   Lock,
   HelpCircle,
@@ -15,11 +15,11 @@ import Button from '@/components/ui/Button';
 import { useThemeStore } from '@/stores/themeStore';
 import { cn } from '@/lib/cn';
 
-// TODO: backend — GET /me/stats should return { wordsPracticed, avgScore, dayStreak }.
+// TODO: backend — GET /me/stats should return { cardsReviewed, streak, retention }.
 const STATS = [
-  { value: '328', label: 'Words' },
-  { value: '84%', label: 'Avg score' },
-  { value: '7', label: 'Day streak' },
+  { value: '438', label: 'Cards' },
+  { value: '12', label: 'Day streak' },
+  { value: '87%', label: 'Retention' },
 ];
 
 function initialsOf(user) {
@@ -162,9 +162,9 @@ export default function Profile() {
             onClick={() => {}}
           />
           <ListRow
-            icon={<Headphones size={18} />}
-            title="Voice & accent"
-            subtitle="US English"
+            icon={<CreditCard size={18} />}
+            title="Daily new cards"
+            subtitle="20 per day"
             onClick={() => {}}
           />
         </Card>
@@ -196,7 +196,7 @@ export default function Profile() {
       </div>
 
       <div className="text-center text-[11px] text-[var(--text-2)] py-2 pb-4">
-        Pronounce v0.4.2 · Made with care
+        OpenSpeak · v0.5.0
       </div>
     </div>
   );
