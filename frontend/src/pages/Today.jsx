@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Flame, CreditCard, ArrowRight, Languages, BookOpen, Lightbulb, Sparkles,
@@ -6,7 +7,12 @@ import {
 import Card from '@/components/ui/Card';
 import DeckRow from '@/components/DeckRow';
 import { useThemeStore } from '@/stores/themeStore';
-import { DECKS, totalDue, totalNew, dueByType } from '@/data/srsData';
+import { DECKS } from '@/data/srsData';
+import {
+  selectDueCardIds,
+  selectDueSummary,
+  useReviewStore,
+} from '@/stores/reviewStore';
 
 const STREAK_DAYS = 12;
 const STREAK_LAST7 = [1, 1, 1, 1, 1, 1, 0];
@@ -18,11 +24,22 @@ const TODAY_LABEL = new Date().toLocaleDateString('en-US', {
 export default function Today() {
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useThemeStore();
-
-  const due = totalDue();
-  const newCount = totalNew();
-  const byType = dueByType();
-  const dueDecks = DECKS.filter((d) => d.due > 0).slice(0, 4);
+  const reviewByCardId = useReviewStore((state) => state.reviewByCardId);
+  const dueCardIds = useMemo(
+    () => selectDueCardIds({ reviewByCardId }),
+    [reviewByCardId],
+  );
+  const summary = useMemo(
+    () => selectDueSummary({ reviewByCardId }),
+    [reviewByCardId],
+  );
+  const due = summary.total;
+  const newCount = summary.learning;
+  const byType = summary.byType;
+  const dueDecks = DECKS
+    .filter((deck) => summary.byDeck[deck.id] > 0)
+    .map((deck) => ({ ...deck, due: summary.byDeck[deck.id] }))
+    .slice(0, 4);
 
   return (
     <div className="animate-screen-fade-in">
@@ -58,7 +75,9 @@ export default function Today() {
             {STREAK_DAYS}-day streak
           </div>
           <div className="text-[13px] opacity-85 mt-0.5">
-            Keep it up — review {due} cards to extend
+            {due > 0
+              ? `Keep it up — review ${due} cards to extend`
+              : "You're all caught up for today"}
           </div>
         </div>
         <div className="relative z-10 flex gap-1">
@@ -111,36 +130,46 @@ export default function Today() {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate('/review')}
-            className="flex w-full h-[52px] items-center justify-between rounded-xl bg-[var(--primary-hex)] px-[18px] text-white font-semibold text-[15px] active:scale-[0.98] transition-transform"
-          >
-            <span className="flex items-center gap-2.5">
-              <CreditCard size={18} strokeWidth={1.8} /> Start review session
-            </span>
-            <ArrowRight size={18} strokeWidth={2} />
-          </button>
+          {due > 0 ? (
+            <button
+              type="button"
+              onClick={() => navigate('/review', { state: { queueIds: dueCardIds } })}
+              className="flex w-full h-[52px] items-center justify-between rounded-xl bg-[var(--primary-hex)] px-[18px] text-white font-semibold text-[15px] active:scale-[0.98] transition-transform"
+            >
+              <span className="flex items-center gap-2.5">
+                <CreditCard size={18} strokeWidth={1.8} /> Start review session
+              </span>
+              <ArrowRight size={18} strokeWidth={2} />
+            </button>
+          ) : (
+            <div className="flex h-[52px] w-full items-center justify-center gap-2 rounded-xl border border-[rgba(7,136,56,.25)] bg-[rgba(7,136,56,.08)] text-[15px] font-semibold text-[#078838] dark:text-[#4ade80]">
+              <Sparkles size={18} strokeWidth={1.8} /> All caught up
+            </div>
+          )}
         </Card>
       </div>
 
       {/* Decks with due */}
-      <div className="flex items-center justify-between px-5 mb-2.5">
-        <span className="text-[12px] font-bold uppercase tracking-eyebrow text-[var(--text-2)]">
-          Decks with due cards
-        </span>
-      </div>
-      <div className="px-4 mb-[22px]">
-        <Card className="overflow-hidden">
-          {dueDecks.map((d) => (
-            <DeckRow
-              key={d.id}
-              deck={d}
-              onClick={() => navigate('/library', { state: { openDeckId: d.id } })}
-            />
-          ))}
-        </Card>
-      </div>
+      {dueDecks.length > 0 && (
+        <>
+          <div className="flex items-center justify-between px-5 mb-2.5">
+            <span className="text-[12px] font-bold uppercase tracking-eyebrow text-[var(--text-2)]">
+              Decks with due cards
+            </span>
+          </div>
+          <div className="px-4 mb-[22px]">
+            <Card className="overflow-hidden">
+              {dueDecks.map((d) => (
+                <DeckRow
+                  key={d.id}
+                  deck={d}
+                  onClick={() => navigate('/library', { state: { openDeckId: d.id } })}
+                />
+              ))}
+            </Card>
+          </div>
+        </>
+      )}
 
       {/* Tip of the day */}
       <div className="px-4 pb-4">

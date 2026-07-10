@@ -3,14 +3,24 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { X, Bookmark, Check } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import TypeChip from '@/components/ui/TypeChip';
-import { CARD_TYPE, SRS_BUTTONS, getDueCards } from '@/data/srsData';
+import { CARDS, SRS_BUTTONS } from '@/data/srsData';
+import { selectDueCardIds, useReviewStore } from '@/stores/reviewStore';
 
 export default function Review() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const [queue] = useState(() =>
-    state?.queue?.length ? state.queue : getDueCards(),
-  );
+  const reviewByCardId = useReviewStore((store) => store.reviewByCardId);
+  const rateCard = useReviewStore((store) => store.rateCard);
+  const [queue] = useState(() => {
+    const fallbackIds = selectDueCardIds({ reviewByCardId });
+    const queueIds = state?.queueIds?.length
+      ? state.queueIds
+      : state?.queue?.length
+        ? state.queue.map((card) => card.id)
+        : fallbackIds;
+    const cardsById = new Map(CARDS.map((card) => [card.id, card]));
+    return queueIds.map((id) => cardsById.get(id)).filter(Boolean);
+  });
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [picked, setPicked] = useState(null);
@@ -21,7 +31,7 @@ export default function Review() {
   const card = queue[idx];
   const progressPct = Math.min(100, Math.round((idx / Math.max(1, total)) * 100));
 
-  const onExit = () => navigate(-1);
+  const onExit = () => navigate('/');
 
   if (!card || finished) {
     return <ReviewDone counts={counts} total={total} onExit={onExit} />;
@@ -32,6 +42,7 @@ export default function Review() {
   const reveal = () => setRevealed(true);
 
   const rate = (id) => {
+    rateCard(card.id, id);
     setCounts((c) => ({ ...c, [id]: c[id] + 1 }));
     if (idx + 1 >= total) {
       setFinished(true);
@@ -87,7 +98,7 @@ export default function Review() {
           {/* Active card */}
           <div
             key={card.id}
-            className="relative w-full min-h-full rounded-[22px] bg-[var(--bg-card)] border border-[var(--border-soft)] p-7 flex flex-col shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]"
+            className="relative w-full h-full overflow-y-auto rounded-[22px] bg-[var(--bg-card)] border border-[var(--border-soft)] p-7 flex flex-col shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <div className="flex items-center justify-between mb-4">
               <TypeChip type={card.type} />
