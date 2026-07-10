@@ -42,3 +42,6 @@ session-*.md
 
 # Dev dist
 dev-dist
+
+# Isolated development worktrees
+.worktrees/
