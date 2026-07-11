@@ -1,4 +1,4 @@
-const DEFAULT_BASE = 'https://openspeak-api.thongnt.dev/api';
+const DEFAULT_BASE = 'https://gramio-api.thongnt.dev/api';
 
 function apiBase() {
   const env = import.meta.env.VITE_OPENSPEAK_API_URL;
