@@ -68,3 +68,22 @@ Baseline commit: `286b4b8b5530c9ca474f27641e25e1ce30aa03d9`
 - Previous workflow hook: `COOLIFY_WEBHOOK_URL`, managed as a GitHub secret
 
 No secret values, database URLs, tokens, or webhook URLs are stored in this document.
+
+## Dev Environment Result
+
+Configured: 2026-07-11
+
+- Service: `gramio-api-dev` (`kjduvgi7sin5hmly73l8za2f`)
+- API subresource: `rf10704u24crbps0x0ffghjj`
+- Database subresource preserved: `dqpidnvhytlgof51riuosvts`
+- Storage preserved: `rpjgsyfvsfgkrz8298ksh9a0`
+- Volume preserved: `kjduvgi7sin5hmly73l8za2f_openspeak-pg`
+- Image pinned to: `ghcr.io/thongntit/openspeak-backend:dev`
+- Dev domain: `https://gramio-api-dev.thongnt.dev`
+- Temporary rollback alias: `https://openspeak-api.thongnt.dev`
+- CORS origin: `https://openspeak-git-dev-thongntit-team.vercel.app`
+- Configuration hash: `361359ddbd1d7224afe38150f661a17d`
+- Health verification: both the dev domain and rollback alias returned `status=ok` and `db=up`
+- Immutable image digest: not available because the host has no Docker client and Coolify does not expose the pulled digest through its service API
+
+The dev domain is provided by an explicit Traefik Compose label because Coolify 4.1.2 does not expose domain updates for Compose subresources through its public API. The legacy domain remains available until end-to-end verification is complete.
