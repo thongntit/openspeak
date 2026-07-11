@@ -8,6 +8,7 @@ import { LoggingInterceptor } from '../src/common/interceptors/logging.intercept
 import { Word } from '../src/words/word.entity';
 import { Collection } from '../src/collections/collection.entity';
 import { CollectionWord } from '../src/collections/collection-word.entity';
+import { ClerkAuthGuard } from '../src/auth/clerk-auth.guard';
 
 describe('API (e2e)', () => {
   let app: INestApplication;
@@ -60,7 +61,10 @@ describe('API (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(ClerkAuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api');
