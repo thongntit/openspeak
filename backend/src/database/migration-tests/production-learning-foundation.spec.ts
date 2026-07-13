@@ -1,5 +1,5 @@
 import { QueryRunner } from 'typeorm';
-import { ProductionLearningFoundation1783746000000 } from './1783746000000-ProductionLearningFoundation';
+import { ProductionLearningFoundation1783746000000 } from '../migrations/1783746000000-ProductionLearningFoundation';
 
 function queryRunnerStub() {
   return {
