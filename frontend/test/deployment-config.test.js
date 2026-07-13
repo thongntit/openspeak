@@ -1,11 +1,23 @@
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const workflow = readFileSync(
-  new URL('../../.github/workflows/ci-backend.yml', import.meta.url),
-  'utf8',
+const combinedWorkflowPath = new URL(
+  '../../.github/workflows/ci-backend.yml',
+  import.meta.url,
 );
+const prWorkflowPath = new URL(
+  '../../.github/workflows/ci-backend-pr.yml',
+  import.meta.url,
+);
+const deployWorkflowPath = new URL(
+  '../../.github/workflows/deploy-backend.yml',
+  import.meta.url,
+);
+const readWorkflow = (path) =>
+  existsSync(path) ? readFileSync(path, 'utf8') : '';
+const prWorkflow = readWorkflow(prWorkflowPath);
+const deployWorkflow = readWorkflow(deployWorkflowPath);
 const apiService = readFileSync(
   new URL('../src/services/openspeakApi.js', import.meta.url),
   'utf8',
@@ -22,32 +34,41 @@ const migrationFiles = readdirSync(
 );
 
 test('backend workflow has isolated branch deployment hooks', () => {
-  assert.match(workflow, /COOLIFY_DEV_WEBHOOK_URL/);
-  assert.match(workflow, /COOLIFY_PROD_WEBHOOK_URL/);
-  assert.match(workflow, /github\.ref == 'refs\/heads\/dev'/);
-  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/);
-  assert.doesNotMatch(workflow, /secrets\.COOLIFY_WEBHOOK_URL/);
+  assert.match(deployWorkflow, /COOLIFY_DEV_WEBHOOK_URL/);
+  assert.match(deployWorkflow, /COOLIFY_PROD_WEBHOOK_URL/);
+  assert.match(deployWorkflow, /github\.ref == 'refs\/heads\/dev'/);
+  assert.match(deployWorkflow, /github\.ref == 'refs\/heads\/main'/);
+  assert.doesNotMatch(deployWorkflow, /secrets\.COOLIFY_WEBHOOK_URL/);
 });
 
-test('backend CI validates pull requests without blocking push deployments', () => {
-  assert.match(workflow, /POSTGRES_DB: openspeak_test/);
+test('backend PR workflow contains validation only', () => {
+  assert.equal(existsSync(combinedWorkflowPath), false);
+  assert.equal(existsSync(prWorkflowPath), true);
+  assert.match(prWorkflow, /pull_request:/);
+  assert.doesNotMatch(prWorkflow, /\n {2}push:/);
+  assert.match(prWorkflow, /POSTGRES_DB: openspeak_test/);
   assert.match(
-    workflow,
-    /backend:[\s\S]*if: github\.event_name == 'pull_request'/,
-  );
-  assert.match(
-    workflow,
+    prWorkflow,
     /name: Run migrations on ephemeral CI database\s+run: npm run migration:run/,
   );
-  assert.doesNotMatch(workflow, /run: npm run migration:run:prod/);
-  assert.doesNotMatch(workflow, /run: npm run build$/m);
+  assert.doesNotMatch(prWorkflow, /run: npm run migration:run:prod/);
+  assert.doesNotMatch(prWorkflow, /run: npm run build$/m);
+  assert.doesNotMatch(prWorkflow, /docker\/build-push-action/);
+  assert.doesNotMatch(prWorkflow, /COOLIFY_/);
+});
 
-  const publishJob = workflow.match(
-    /publish-backend-image:[\s\S]*?(?=\n  deploy-dev:)/,
+test('backend deploy workflow builds and deploys pushes only', () => {
+  assert.equal(existsSync(deployWorkflowPath), true);
+  assert.match(deployWorkflow, /push:/);
+  assert.doesNotMatch(deployWorkflow, /pull_request:/);
+
+  const publishJob = deployWorkflow.match(
+    /publish-backend-image:[\s\S]*?(?=\n {2}deploy-dev:)/,
   )?.[0];
   assert.ok(publishJob);
-  assert.doesNotMatch(publishJob, /needs: \[backend\]/);
   assert.match(publishJob, /docker\/build-push-action@v5/);
+  assert.doesNotMatch(deployWorkflow, /POSTGRES_DB:/);
+  assert.doesNotMatch(deployWorkflow, /npm run (lint|test|migration)/);
 });
 
 test('TypeORM migration directory contains migration files only', () => {
