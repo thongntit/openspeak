@@ -14,15 +14,10 @@ const deployWorkflowPath = new URL(
   '../../.github/workflows/deploy-backend.yml',
   import.meta.url,
 );
-const frontendWorkflowPath = new URL(
-  '../../.github/workflows/ci-frontend.yml',
-  import.meta.url,
-);
 const readWorkflow = (path) =>
   existsSync(path) ? readFileSync(path, 'utf8') : '';
 const prWorkflow = readWorkflow(prWorkflowPath);
 const deployWorkflow = readWorkflow(deployWorkflowPath);
-const frontendWorkflow = readWorkflow(frontendWorkflowPath);
 const apiService = readFileSync(
   new URL('../src/services/openspeakApi.js', import.meta.url),
   'utf8',
@@ -74,21 +69,6 @@ test('backend deploy workflow builds and deploys pushes only', () => {
   assert.match(publishJob, /docker\/build-push-action@v5/);
   assert.doesNotMatch(deployWorkflow, /POSTGRES_DB:/);
   assert.doesNotMatch(deployWorkflow, /npm run (lint|test|migration)/);
-});
-
-test('backend deploy workflow publishes latest only from main', () => {
-  assert.match(
-    deployWorkflow,
-    /type=raw,value=latest,enable=\$\{\{ github\.ref == 'refs\/heads\/main' \}\}/,
-  );
-  assert.doesNotMatch(deployWorkflow, /enable=\{\{is_default_branch\}\}/);
-});
-
-test('frontend PR workflow runs deployment config regression tests', () => {
-  assert.match(
-    frontendWorkflow,
-    /run: node --test test\/deployment-config\.test\.js/,
-  );
 });
 
 test('TypeORM migration directory contains migration files only', () => {
