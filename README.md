@@ -1,6 +1,6 @@
-# English Pronunciation Coach - PWA MVP
+# Gramio - English Grammar & Vocabulary Practice
 
-Mobile-first Progressive Web App for English pronunciation assessment with Azure Speech Services.
+Mobile-first Progressive Web App for English grammar and vocabulary practice.
 
 ## Monorepo Structure
 
@@ -41,7 +41,6 @@ openspeak/
 - **Styling:** Tailwind CSS (mobile-first)
 - **State Management:** Zustand
 - **PWA:** vite-plugin-pwa (auto service worker)
-- **Speech:** Azure Speech SDK v1.40+ (CDN)
 - **Storage:** LocalStorage
 
 ### Build Tools
@@ -50,15 +49,7 @@ openspeak/
 
 ## Quick Start
 
-### 1. Get Azure Speech Service Key (Free Tier)
-
-1. Visit [Azure Portal](https://portal.azure.com/)
-2. Create account → **"Create a resource"** → Search **"Speech Service"**
-3. Select **Free (F0)** tier (5 hours/month free)
-4. Go to **"Keys and Endpoint"**
-5. Copy **Key 1** and **Region** (e.g., `southeastasia`)
-
-### 2. Install Dependencies
+### 1. Install Dependencies
 
 ```bash
 cd frontend
@@ -89,8 +80,6 @@ bun run dev:local
 
 Open browser: **http://localhost:5173**
 
-> **Why localhost?** Browser requires HTTPS or localhost for microphone access.
-
 ### 4. Build for Production
 
 ```bash
@@ -106,12 +95,10 @@ bun run preview  # Preview production build
 ## MVP Features
 
 ### Core Features
-- ✅ **Single Word Practice** - Input word, record, get instant feedback
-- ✅ **Phrase Practice** - Short sentences (3-5 words)
-- ✅ **Scoring System** - 0-100 accuracy + prosody score
-- ✅ **Visual Feedback** - Color-coded word/phoneme breakdown
+- ✅ **Grammar Exercises** - Practice common grammar patterns
+- ✅ **Vocabulary Practice** - Learn and review words
 - ✅ **Progress Tracking** - LocalStorage for practice history
-- ✅ **Word Suggestions** - Pre-built list of common words
+- ✅ **Word Database** - Pre-built list of common words
 
 ### PWA Essentials
 - ✅ **Installable** - Add to home screen on iOS & Android
@@ -119,22 +106,6 @@ bun run preview  # Preview production build
 - ✅ **Mobile-First** - Optimized for touch and small screens
 - ✅ **Responsive Design** - Works on all devices
 - ✅ **Fast Loading** - Optimized bundles with Vite
-
-## Pricing & Usage
-
-### Azure Speech Service Costs
-
-| API Type | Price/Hour | Current |
-|----------|------------|---------|
-| **Real-time (SDK)** | $1.30/hr | ✅ Using |
-
-**Realistic Usage Cost (30 min/day):**
-- ~4 min/day of actual audio recording
-- 2 hours/month × $1.30/hr = **$2.60/month**
-
-**With Free Tier:**
-- First 5 hours/month: **FREE**
-- Covers 2.5 months of normal usage ✅
 
 ## Development
 
@@ -181,17 +152,11 @@ frontend/
 │   ├── App.jsx            # Main app component
 │   ├── index.css          # Tailwind imports
 │   ├── components/        # React components
-│   │   ├── PronunciationForm.jsx
-│   │   ├── ScoreDisplay.jsx
-│   │   └── WordSuggestions.jsx
 │   ├── stores/            # Zustand stores
-│   │   ├── pronunciationStore.js
 │   │   └── settingsStore.js
 │   ├── services/          # API & services
-│   │   ├── azureSpeech.js
 │   │   └── storage.js
 │   └── utils/             # Helpers
-│       ├── audio.js
 │       └── formatting.js
 ├── public/                # Static assets
 │   └── icons/             # PWA icons
@@ -207,14 +172,13 @@ frontend/
 │  │  React App (Vite)                                     ││
 │  │  ├─ Components (mobile-optimized)                     ││
 │  │  ├─ Zustand Stores (state)                            ││
-│  │  ├─ Services (Azure Speech)                           ││
+│  │  ├─ Services (API)                                    ││
 │  │  └─ Service Worker (offline cache)                    ││
 │  └─────────────────────────────────────────────────────┘│
 │                         │                                 │
 │                         │ HTTPS                           │
 │                         ▼                                 │
-│              Azure Speech Service API                    │
-│              (Pronunciation Assessment)                  │
+│                   Backend API                            │
 └─────────────────────────────────────────────────────────┘
                     │
                     ▼
@@ -223,30 +187,21 @@ frontend/
 
 ## Development Roadmap
 
-### Week 1: Core Features
-- [ ] Set up project structure
-- [ ] Implement single-word assessment
-- [ ] Create pronunciation store (Zustand)
-- [ ] Add progress tracking (LocalStorage)
-- [ ] Create word suggestion system
+### Phase 1: Core Features
+- [ ] Grammar exercise system
+- [ ] Vocabulary practice features
+- [ ] Progress tracking (LocalStorage)
+- [ ] Word database integration
 
-### Week 2: PWA & UX
+### Phase 2: PWA & UX
 - [ ] Verify PWA installation flow
 - [ ] Create mobile-optimized components
 - [ ] Implement install prompt UI
-- [ ] Add visual feedback (waveform, animations)
 
-### Week 3: Polish & Testing
-- [ ] Add phrase practice (3-5 words)
-- [ ] Implement retry mechanism
+### Phase 3: Polish & Testing
 - [ ] Test on multiple mobile devices
 - [ ] Performance optimization
-
-### Week 4: Launch Prep
-- [ ] Final UX polish (animations, transitions)
-- [ ] Write user guide/help section
-- [ ] Test PWA installation flow
-- [ ] Deploy to hosting (Vercel/Netlify)
+- [ ] Deploy to hosting
 
 ## Word Database
 
@@ -282,22 +237,6 @@ See [docs/database/](./docs/database/) for detailed integration documentation.
 
 ## Troubleshooting
 
-### Microphone Issues
-
-**"Microphone not allowed"**
-- Click lock icon in browser → Allow microphone
-- Must use HTTPS or localhost
-
-**"No audio detected"**
-- Check microphone permissions
-- Speak louder/closer to mic
-
-### API Issues
-
-**"Invalid API key"**
-- Verify Key and Region match Azure Portal
-- Check Speech Service resource is active
-
 ### Development Issues
 
 **Tailwind not working**
@@ -315,7 +254,7 @@ This is an MVP. Contributions welcome for:
 - [ ] Add more word categories
 - [ ] Improve mobile UI/UX
 - [ ] Add gamification features
-- [ ] Offline mode with browser Speech API
+- [ ] Add grammar exercise types
 - [ ] Add TypeScript support
 
 ## License

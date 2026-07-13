@@ -1,32 +1,32 @@
-# OpenSpeak Master Plan
+# Gramio Master Plan
 
 ## Vision
 
-A mobile-first Progressive Web App for English pronunciation improvement through AI-powered speaking practice, backed by a managed backend service.
+A mobile-first Progressive Web App for English grammar and vocabulary practice, backed by a managed backend service.
 
 ---
 
 ## Current Architecture
 
 ```
-┌─────────────────────────────────┐
-│   Frontend (React PWA)          │
-│   Vite + Tailwind + Zustand     │
-│   React Router DOM 7            │
-└────────────┬────────────────────┘
+┌─────────────────────────────────────┐
+│   Frontend (React PWA)              │
+│   Vite + Tailwind + Zustand         │
+│   React Router DOM 7                │
+└────────────┬────────────────────────┘
              │ HTTPS
              ▼
-┌─────────────────────────────────┐
-│   Backend (NestJS)              │
-│   openspeak-api.thongnt.dev     │
-│   Deployed via Coolify          │
-└────────────┬────────────────────┘
+┌─────────────────────────────────────┐
+│   Backend (NestJS)                  │
+│   openspeak-api.thongnt.dev         │
+│   Deployed via Coolify              │
+└────────────┬────────────────────────┘
              │
              ▼
-┌─────────────────────────────────┐
-│   PostgreSQL                    │
-│   3,000 words + IPA data        │
-└─────────────────────────────────┘
+┌─────────────────────────────────────┐
+│   PostgreSQL                        │
+│   3,000 words + IPA data            │
+└─────────────────────────────────────┘
 ```
 
 ### Infrastructure
@@ -42,7 +42,6 @@ A mobile-first Progressive Web App for English pronunciation improvement through
 ### Frontend
 - React 19, Vite, Tailwind CSS, Zustand, React Router DOM 7
 - PWA (vite-plugin-pwa)
-- Microsoft Azure Speech SDK (client-side, to be moved to backend)
 
 ### Backend
 - NestJS 11, TypeORM, PostgreSQL
@@ -58,7 +57,6 @@ A mobile-first Progressive Web App for English pronunciation improvement through
 | Backend framework | **NestJS** | Structured, TypeScript-native, good module system |
 | Deployment | **Coolify** | Self-hosted PaaS, Docker-based, webhook deploys |
 | Word database | **PostgreSQL** | 3,000 words with IPA, seeded via migrations |
-| Azure Speech | Moving to backend | API keys must not be user-supplied; protect as paid service |
 
 ---
 
@@ -67,7 +65,6 @@ A mobile-first Progressive Web App for English pronunciation improvement through
 ### Done
 - ✅ Word database (3,000 words, IPA, difficulty levels)
 - ✅ REST API — `/words`, `/collections`, `/health`
-- ✅ Practice page — record pronunciation, get accuracy score (client-side Azure)
 - ✅ Home page — featured words by difficulty
 - ✅ Dark mode, PWA install, offline indicator
 - ✅ CI/CD — GitHub Actions + Coolify auto-deploy
@@ -76,62 +73,66 @@ A mobile-first Progressive Web App for English pronunciation improvement through
 - 🔄 Authentication (Clerk)
 
 ### Planned
-- ⬜ Move Azure Speech assessment to backend (protect as paid feature)
+- ⬜ Grammar exercises (fill-in-the-blank, sentence correction, etc.)
+- ⬜ Vocabulary practice (flashcards, quizzes, spaced repetition)
 - ⬜ User practice history & progress tracking
-- ⬜ Shadowing mode (listen to native TTS, repeat, compare)
-- ⬜ Minimal pairs training (ship/sheep, think/sink, etc.)
-- ⬜ AI Coach (conversational practice with feedback)
-- ⬜ Intonation & rhythm training
-- ⬜ Scenario-based practice (interviews, ordering, small talk)
+- ⬜ AI-powered grammar explanations
+- ⬜ Context-based vocabulary learning
 
 ---
 
-## Phase 1: Auth + Protected Services (Current)
+## Phase 1: Auth + Core Features (Current)
 
 ### Goal
-Gate pronunciation assessment behind login so Azure costs are controlled.
+Set up authentication and build core grammar/vocabulary practice features.
 
 ### Tasks
 1. Integrate Clerk on frontend — `ClerkProvider`, `<SignIn>`, protected routes
 2. Integrate Clerk on backend — verify JWT on protected endpoints
-3. Move Azure Speech assessment to a backend endpoint (`POST /pronunciation/assess`)
-4. Remove Azure API key from frontend entirely
+3. Build grammar exercise system
+4. Build vocabulary practice features
 
 ### Environment Variables Needed
 - Frontend: `VITE_CLERK_PUBLISHABLE_KEY`
-- Backend: `CLERK_SECRET_KEY`, `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`
+- Backend: `CLERK_SECRET_KEY`
 
 ---
 
-## Phase 2: Practice Features
+## Phase 2: Grammar Practice Features
 
-### Shadowing Mode
-- Play native Azure TTS pronunciation of a word/phrase
-- User repeats and records
-- Side-by-side score comparison
+### Grammar Exercises
+- Fill-in-the-blank exercises
+- Sentence correction (identify and fix errors)
+- Multiple choice grammar questions
+- Tense practice (past, present, future)
+- Article usage (a, an, the)
 
-### Minimal Pairs
-- Focus on confusing sound pairs (i/ee, th/s, l/r, etc.)
-- Visual phonetic notation
-- Track which sounds the user struggles with
+### Grammar Tracking
+- Track which grammar topics user struggles with
+- Personalized practice recommendations
 
 ---
 
-## Phase 3: AI Coach
+## Phase 3: Vocabulary Practice Features
 
-- Conversational practice with an LLM
-- AI responds naturally, corrects gently
-- Context-aware to the user's weak phonemes
-- Costs covered by backend (protected behind auth/subscription)
+### Vocabulary Building
+- Flashcard system with spaced repetition
+- Context sentences for each word
+- Word family exploration (noun, verb, adjective forms)
+- Synonym and antonym practice
+
+### Vocabulary Tracking
+- Words learned over time
+- Review schedule based on retention
 
 ---
 
 ## Phase 4: Progress & Engagement
 
 - Practice history per user
-- Phoneme-level accuracy tracking over time
+- Grammar and vocabulary accuracy tracking over time
 - Daily streaks and goals
-- Before/after playback comparisons
+- Achievement badges
 
 ---
 
@@ -144,4 +145,4 @@ Gate pronunciation assessment behind login so Azure costs are controlled.
 
 ---
 
-*Last Updated: April 2026*
+*Last Updated: May 2026*

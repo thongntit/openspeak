@@ -1,10 +1,13 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { WordsModule } from './words/words.module';
 import { CollectionsModule } from './collections/collections.module';
+import { AuthModule } from './auth/auth.module';
+import { LearningDataModule } from './learning/learning-data.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,12 +30,10 @@ import { CollectionsModule } from './collections/collections.module';
     DatabaseModule,
     WordsModule,
     CollectionsModule,
+    UsersModule,
+    LearningDataModule,
+    AuthModule,
   ],
   controllers: [AppController],
 })
-export class AppModule implements NestModule {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  configure(_consumer: MiddlewareConsumer) {
-    // Wire ClerkMiddleware here when protected endpoints are added
-  }
-}
+export class AppModule {}

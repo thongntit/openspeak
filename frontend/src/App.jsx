@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AppShell from './components/AppShell';
-import Home from './pages/Home';
-import Practice from './pages/Practice';
-import Progress from './pages/Progress';
+import Today from './pages/Today';
+import Review from './pages/Review';
+import Library from './pages/Library';
 import Profile from './pages/Profile';
 import PrivateRoute from './components/PrivateRoute';
 import { useThemeStore } from './stores/themeStore';
@@ -40,23 +40,9 @@ function App() {
     <Router>
       <Routes>
         <Route element={<AppShell />}>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/practice"
-            element={
-              <PrivateRoute>
-                <Practice />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/progress"
-            element={
-              <PrivateRoute>
-                <Progress />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/" element={<Today />} />
+          <Route path="/review" element={<Review />} />
+          <Route path="/library" element={<Library />} />
           <Route
             path="/profile"
             element={
