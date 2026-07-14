@@ -282,6 +282,23 @@ describe('validateLearningContent', () => {
       }),
     );
   });
+
+  it('aggregates malformed card shapes without throwing a raw TypeError', () => {
+    const content = cloneValidContent();
+    content.decks[0].cards[0] =
+      null as unknown as (typeof content.decks)[number]['cards'][number];
+    content.decks[1].slug = content.decks[2].slug;
+
+    expect(() =>
+      validateLearningContent(content.manifest, content.decks),
+    ).toThrow(
+      expect.objectContaining({
+        message: expect.stringMatching(
+          /deckDocuments\[0\][\s\S]*cards\[0\][\s\S]*must be of type object[\s\S]*duplicate deck slug/,
+        ),
+      }),
+    );
+  });
 });
 
 describe('loadLearningContent', () => {

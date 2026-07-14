@@ -5,6 +5,7 @@ import {
   learningDeckSourceSchema,
 } from './learning-content.schema';
 import {
+  LearningCardSource,
   LearningContentBundle,
   LearningContentManifest,
   LearningContentType,
@@ -57,6 +58,10 @@ function isLearningDeckSource(value: unknown): value is LearningDeckSource {
   return typeof value === 'object' && value !== null;
 }
 
+function isLearningCardSource(value: unknown): value is LearningCardSource {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 function collectBundleErrors(
   manifest: LearningContentManifest,
   decks: LearningDeckSource[],
@@ -98,16 +103,14 @@ function collectBundleErrors(
     if (!Array.isArray(deck.cards)) {
       continue;
     }
+    const cards = deck.cards.filter(isLearningCardSource);
 
-    for (const contentKey of findDuplicates(
-      deck.cards,
-      (card) => card.contentKey,
-    )) {
+    for (const contentKey of findDuplicates(cards, (card) => card.contentKey)) {
       messages.push(
         `duplicate card contentKey "${contentKey}" in deck "${deck.slug}"`,
       );
     }
-    for (const front of findDuplicates(deck.cards, (card) =>
+    for (const front of findDuplicates(cards, (card) =>
       typeof card.front === 'string'
         ? normalizePrompt(card.front)
         : String(card.front),
@@ -116,11 +119,11 @@ function collectBundleErrors(
         `duplicate normalized card front "${front}" in deck "${deck.slug}"`,
       );
     }
-    for (const order of findDuplicates(deck.cards, (card) => card.sortOrder)) {
+    for (const order of findDuplicates(cards, (card) => card.sortOrder)) {
       messages.push(`duplicate card sortOrder ${order} in deck "${deck.slug}"`);
     }
 
-    deck.cards.forEach((card, index) => {
+    cards.forEach((card, index) => {
       if (Array.isArray(card.options) && !card.options.includes(card.answer)) {
         messages.push(
           `deck "${deck.slug}" card ${index + 1} options must contain the exact answer`,
