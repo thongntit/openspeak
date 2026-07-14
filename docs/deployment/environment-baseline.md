@@ -87,3 +87,29 @@ Configured: 2026-07-11
 - Immutable image digest: not available because the host has no Docker client and Coolify does not expose the pulled digest through its service API
 
 The dev domain is provided by an explicit Traefik Compose label because Coolify 4.1.2 does not expose domain updates for Compose subresources through its public API. The legacy domain remains available until end-to-end verification is complete.
+
+## Learning Content Release Readiness
+
+Updated locally: 2026-07-14
+
+The dev-first one-time execution, verification queries, recovery constraints,
+production approval gate, and evidence format are defined in the
+[learning content release runbook](./learning-content-release.md).
+
+- Content version: `starter@2026.07.1`
+- Expected converged state: six published decks and 120 active cards with zero
+  duplicate deck slugs or per-deck card content keys
+- Dev target: Coolify service `gramio-api-dev`, container/service `api`, using
+  `npm run db:prepare:prod` twice before aggregate and health verification
+- Production target: Coolify service `gramio-api-production`, container/service
+  `api`, gated on the dev evidence, matching image/source/assets, masked
+  production environment checks, recovery posture, and explicit user approval
+- Dev health URL: `https://gramio-api-dev.thongnt.dev/api/health`
+- Production health URL: `https://gramio-api.thongnt.dev/api/health`
+
+Local documentation does not establish runtime evidence. PostgreSQL PR CI,
+merge to `dev`, image publication, Coolify dev deployment, both dev one-time
+executions, dev aggregate/health checks, the live recovery rehearsal, all
+production gates, and production execution remain pending. No Coolify,
+deployment, production, or issue-tracker operation was performed for this
+update.

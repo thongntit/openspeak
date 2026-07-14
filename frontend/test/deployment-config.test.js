@@ -33,6 +33,61 @@ const migrationFiles = readdirSync(
   new URL('../../backend/src/database/migrations/', import.meta.url),
 );
 
+function extractYamlBlock(source, key, indentation) {
+  const lines = source.split('\n');
+  const prefix = ' '.repeat(indentation);
+  const start = lines.findIndex((line) => line === `${prefix}${key}:`);
+  assert.notEqual(start, -1, `Missing ${key} YAML block`);
+
+  let end = start + 1;
+  while (end < lines.length) {
+    const line = lines[end];
+    if (line.trim() !== '' && line.match(/^ */)[0].length <= indentation) {
+      break;
+    }
+    end += 1;
+  }
+
+  return lines.slice(start + 1, end).join('\n');
+}
+
+function parseNamedWorkflowSteps(stepsBlock) {
+  const lines = stepsBlock.split('\n');
+  const steps = [];
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const nameMatch = lines[index].match(/^ {6}- name: (.+)$/);
+    if (!nameMatch) {
+      continue;
+    }
+
+    let end = index + 1;
+    while (end < lines.length && !/^ {6}- /.test(lines[end])) {
+      end += 1;
+    }
+    const stepLines = lines.slice(index + 1, end);
+    const runIndex = stepLines.findIndex((line) => /^ {8}run: /.test(line));
+    assert.notEqual(runIndex, -1, `Missing run command for ${nameMatch[1]}`);
+    const runValue = stepLines[runIndex].slice('        run: '.length);
+    const run =
+      runValue === '|'
+        ? stepLines
+            .slice(runIndex + 1)
+            .filter((line) => line.trim() !== '')
+            .map((line) => {
+              assert.match(line, /^ {10}\S/);
+              return line.slice(10);
+            })
+            .join('\n')
+        : runValue;
+
+    steps.push({ name: nameMatch[1], run });
+    index = end - 1;
+  }
+
+  return steps;
+}
+
 test('backend workflow has isolated branch deployment hooks', () => {
   assert.match(deployWorkflow, /COOLIFY_DEV_WEBHOOK_URL/);
   assert.match(deployWorkflow, /COOLIFY_PROD_WEBHOOK_URL/);
@@ -46,15 +101,66 @@ test('backend PR workflow contains validation only', () => {
   assert.equal(existsSync(prWorkflowPath), true);
   assert.match(prWorkflow, /pull_request:/);
   assert.doesNotMatch(prWorkflow, /\n {2}push:/);
-  assert.match(prWorkflow, /POSTGRES_DB: openspeak_test/);
-  assert.match(
-    prWorkflow,
-    /name: Run migrations on ephemeral CI database\s+run: npm run migration:run/,
+  const jobsBlock = extractYamlBlock(prWorkflow, 'jobs', 0);
+  const backendJob = extractYamlBlock(jobsBlock, 'backend', 2);
+  const backendStepsBlock = extractYamlBlock(backendJob, 'steps', 4);
+  const backendSteps = parseNamedWorkflowSteps(backendStepsBlock);
+  const unitTestsIndex = backendSteps.findIndex(
+    (step) => step.name === 'Unit tests',
   );
-  assert.doesNotMatch(prWorkflow, /run: npm run migration:run:prod/);
-  assert.doesNotMatch(prWorkflow, /run: npm run build$/m);
-  assert.doesNotMatch(prWorkflow, /docker\/build-push-action/);
-  assert.doesNotMatch(prWorkflow, /COOLIFY_/);
+
+  assert.match(backendJob, /^ {10}POSTGRES_DB: openspeak_test$/m);
+  assert.match(backendJob, /^ {6}ALLOW_DESTRUCTIVE_DB_TESTS: "true"$/m);
+  assert.notEqual(unitTestsIndex, -1);
+  assert.deepEqual(backendSteps.slice(unitTestsIndex), [
+    { name: 'Unit tests', run: 'npm test -- --ci' },
+    { name: 'Build production backend', run: 'npm run build' },
+    {
+      name: 'Rehearse production migrations on ephemeral CI database',
+      run: 'npm run migration:run:prod',
+    },
+    {
+      name: 'Rehearse learning content seed twice',
+      run: 'npm run seed:learning:prod\nnpm run seed:learning:prod',
+    },
+    {
+      name: 'Verify learning content integration',
+      run: 'npm run test:e2e -- --runInBand learning-content-seed.e2e-spec.ts',
+    },
+    { name: 'E2E tests', run: 'npm run test:e2e -- --ci' },
+  ]);
+  assert.doesNotMatch(backendStepsBlock, /docker\/build-push-action/);
+  assert.doesNotMatch(backendJob, /COOLIFY_/);
+});
+
+test('workflow step parser ignores other jobs and block scalar text', () => {
+  const workflow = `jobs:
+  decoy:
+    steps:
+      - name: Build production backend
+        run: npm run build
+  backend:
+    steps:
+      - name: Unit tests
+        run: |
+          name: Build production backend
+          run: npm run build
+      - name: E2E tests
+        run: npm run test:e2e -- --ci
+`;
+  const jobsBlock = extractYamlBlock(workflow, 'jobs', 0);
+  const backendJob = extractYamlBlock(jobsBlock, 'backend', 2);
+
+  assert.deepEqual(
+    parseNamedWorkflowSteps(extractYamlBlock(backendJob, 'steps', 4)),
+    [
+      {
+        name: 'Unit tests',
+        run: 'name: Build production backend\nrun: npm run build',
+      },
+      { name: 'E2E tests', run: 'npm run test:e2e -- --ci' },
+    ],
+  );
 });
 
 test('backend deploy workflow builds and deploys pushes only', () => {
@@ -68,6 +174,7 @@ test('backend deploy workflow builds and deploys pushes only', () => {
   assert.ok(publishJob);
   assert.match(publishJob, /docker\/build-push-action@v5/);
   assert.doesNotMatch(deployWorkflow, /POSTGRES_DB:/);
+  assert.doesNotMatch(deployWorkflow, /ALLOW_DESTRUCTIVE_DB_TESTS/);
   assert.doesNotMatch(deployWorkflow, /npm run (lint|test|migration)/);
 });
 

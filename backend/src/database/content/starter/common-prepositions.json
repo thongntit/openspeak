@@ -1,0 +1,301 @@
+{
+  "slug": "common-prepositions",
+  "name": "Common Prepositions",
+  "description": "Practice common prepositions for time, place, movement, method, tools, and duration in clear everyday contexts.",
+  "type": "grammar",
+  "level": "beginner",
+  "sortOrder": 50,
+  "isPublished": true,
+  "cards": [
+    {
+      "contentKey": "prepositions-001",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The meeting begins at the exact clock time 8:30. Complete: The meeting starts ___ 8:30.",
+      "answer": "The meeting starts at 8:30.",
+      "explanation": "Use “at” with an exact clock time.",
+      "example": "The film ends at 9:45.",
+      "options": [
+        "The meeting starts at 8:30.",
+        "The meeting starts on 8:30.",
+        "The meeting starts in 8:30."
+      ],
+      "sortOrder": 1
+    },
+    {
+      "contentKey": "prepositions-002",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The appointment is scheduled for Tuesday. Complete: My appointment is ___ Tuesday.",
+      "answer": "My appointment is on Tuesday.",
+      "explanation": "Use “on” with a day of the week.",
+      "example": "We have a team lunch on Friday.",
+      "options": [
+        "My appointment is on Tuesday.",
+        "My appointment is at Tuesday.",
+        "My appointment is in Tuesday."
+      ],
+      "sortOrder": 2
+    },
+    {
+      "contentKey": "prepositions-003",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The course begins during the month of July. Complete: The course begins ___ July.",
+      "answer": "The course begins in July.",
+      "explanation": "Use “in” with a month.",
+      "example": "The new semester starts in September.",
+      "options": [
+        "The course begins in July.",
+        "The course begins on July.",
+        "The course begins at July."
+      ],
+      "sortOrder": 3
+    },
+    {
+      "contentKey": "prepositions-004",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The keys are resting on the top surface of the desk. Complete: The keys are ___ the desk.",
+      "answer": "The keys are on the desk.",
+      "explanation": "Use “on” when something touches a surface.",
+      "example": "Your notebook is on the kitchen table.",
+      "options": [
+        "The keys are on the desk.",
+        "The keys are in the desk.",
+        "The keys are under the desk."
+      ],
+      "sortOrder": 4
+    },
+    {
+      "contentKey": "prepositions-005",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The receipt is inside a closed drawer. Complete: The receipt is ___ the drawer.",
+      "answer": "The receipt is in the drawer.",
+      "explanation": "Use “in” when something is inside an enclosed space.",
+      "example": "There is some fruit in the bowl.",
+      "options": [
+        "The receipt is in the drawer.",
+        "The receipt is on the drawer.",
+        "The receipt is beside the drawer."
+      ],
+      "sortOrder": 5
+    },
+    {
+      "contentKey": "prepositions-006",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Kai is waiting where everyone agreed to meet: the building’s entrance. Complete: Kai is waiting ___ the entrance.",
+      "answer": "Kai is waiting at the entrance.",
+      "explanation": "Use “at” for a specific point or meeting place.",
+      "example": "I will meet you at the front desk.",
+      "options": [
+        "Kai is waiting at the entrance.",
+        "Kai is waiting on the entrance."
+      ],
+      "sortOrder": 6
+    },
+    {
+      "contentKey": "prepositions-007",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The bakery is directly beside the pharmacy. Complete: The bakery is ___ the pharmacy.",
+      "answer": "The bakery is next to the pharmacy.",
+      "explanation": "“Next to” means directly beside something or someone.",
+      "example": "A small park is next to the library.",
+      "options": [
+        "The bakery is next to the pharmacy.",
+        "The bakery is across from the pharmacy.",
+        "The bakery is behind the pharmacy."
+      ],
+      "sortOrder": 7
+    },
+    {
+      "contentKey": "prepositions-008",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The café has the bank on one side and the post office on the other. Complete: The café is ___ the bank and the post office.",
+      "answer": "The café is between the bank and the post office.",
+      "explanation": "Use “between” for something in the middle of two distinct people, places, or things.",
+      "example": "The lamp stands between the two chairs.",
+      "options": [
+        "The café is between the bank and the post office.",
+        "The café is among the bank and the post office."
+      ],
+      "sortOrder": 8
+    },
+    {
+      "contentKey": "prepositions-009",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The bag is on the floor below the chair. Complete: The bag is ___ the chair.",
+      "answer": "The bag is under the chair.",
+      "explanation": "Use “under” when something is lower than another object and directly below it.",
+      "example": "The cat is sleeping under the table.",
+      "options": ["The bag is under the chair.", "The bag is above the chair."],
+      "sortOrder": 9
+    },
+    {
+      "contentKey": "prepositions-010",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "A picture hangs higher than the sofa without touching it. Complete: The picture is ___ the sofa.",
+      "answer": "The picture is above the sofa.",
+      "explanation": "Use “above” when something is at a higher position than something else.",
+      "example": "A clock hangs above the doorway.",
+      "options": [
+        "The picture is above the sofa.",
+        "The picture is below the sofa."
+      ],
+      "sortOrder": 10
+    },
+    {
+      "contentKey": "prepositions-011",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The library is our destination. Complete: We are walking ___ the library.",
+      "answer": "We are walking to the library.",
+      "explanation": "Use “to” for movement toward a destination.",
+      "example": "Emi cycled to the market after work.",
+      "options": [
+        "We are walking to the library.",
+        "We are walking from the library.",
+        "We are walking at the library."
+      ],
+      "sortOrder": 11
+    },
+    {
+      "contentKey": "prepositions-012",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The airport is the starting point of this bus route. Complete: This bus comes ___ the airport.",
+      "answer": "This bus comes from the airport.",
+      "explanation": "Use “from” to identify the origin or starting point of movement.",
+      "example": "The package came from a warehouse nearby.",
+      "options": [
+        "This bus comes from the airport.",
+        "This bus comes to the airport."
+      ],
+      "sortOrder": 12
+    },
+    {
+      "contentKey": "prepositions-013",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The child moved from the hallway to the inside of the room. Complete: The child walked ___ the room.",
+      "answer": "The child walked into the room.",
+      "explanation": "Use “into” for movement from outside to inside a place.",
+      "example": "A bird flew into the open garage.",
+      "options": [
+        "The child walked into the room.",
+        "The child walked out of the room."
+      ],
+      "sortOrder": 13
+    },
+    {
+      "contentKey": "prepositions-014",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The workers moved from inside the building to the street. Complete: The workers came ___ the building.",
+      "answer": "The workers came out of the building.",
+      "explanation": "Use “out of” for movement from inside a place to outside it.",
+      "example": "Steam came out of the kettle.",
+      "options": [
+        "The workers came out of the building.",
+        "The workers came into the building.",
+        "The workers came under the building."
+      ],
+      "sortOrder": 14
+    },
+    {
+      "contentKey": "prepositions-015",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "They walked from one side of the street to the other. Complete: They walked ___ the street at the crossing.",
+      "answer": "They walked across the street at the crossing.",
+      "explanation": "Use “across” for movement from one side of a surface or area to the other.",
+      "example": "We ran across the field before the rain started.",
+      "options": [
+        "They walked across the street at the crossing.",
+        "They walked along the street at the crossing."
+      ],
+      "sortOrder": 15
+    },
+    {
+      "contentKey": "prepositions-016",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The train entered one end of the tunnel and exited the other. Complete: The train went ___ the tunnel.",
+      "answer": "The train went through the tunnel.",
+      "explanation": "Use “through” for movement within an enclosed space from one side to another.",
+      "example": "Sunlight came through the window.",
+      "options": [
+        "The train went through the tunnel.",
+        "The train went across the tunnel.",
+        "The train went beside the tunnel."
+      ],
+      "sortOrder": 16
+    },
+    {
+      "contentKey": "prepositions-017",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "A train was the method of transport for our trip. Complete: We traveled ___ train.",
+      "answer": "We traveled by train.",
+      "explanation": "Use “by” before a transport method when no article or possessive comes before the vehicle.",
+      "example": "The group traveled by bus.",
+      "options": [
+        "We traveled by train.",
+        "We traveled on train.",
+        "We traveled with train."
+      ],
+      "sortOrder": 17
+    },
+    {
+      "contentKey": "prepositions-018",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "No vehicle was used; I walked home. Complete: I went home ___ foot.",
+      "answer": "I went home on foot.",
+      "explanation": "“On foot” is the fixed expression for traveling by walking.",
+      "example": "The station is close enough to reach on foot.",
+      "options": [
+        "I went home on foot.",
+        "I went home by foot.",
+        "I went home at foot."
+      ],
+      "sortOrder": 18
+    },
+    {
+      "contentKey": "prepositions-019",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Scissors were the tool used to open the package. Complete: I opened the package ___ scissors.",
+      "answer": "I opened the package with scissors.",
+      "explanation": "Use “with” to name the tool used to perform an action.",
+      "example": "She stirred the soup with a wooden spoon.",
+      "options": [
+        "I opened the package with scissors.",
+        "I opened the package by scissors.",
+        "I opened the package from scissors."
+      ],
+      "sortOrder": 19
+    },
+    {
+      "contentKey": "prepositions-020",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "The study session lasted two hours. Complete: We studied ___ two hours.",
+      "answer": "We studied for two hours.",
+      "explanation": "Use “for” to state the duration of an action or situation.",
+      "example": "We waited for twenty minutes.",
+      "options": [
+        "We studied for two hours.",
+        "We studied at two hours.",
+        "We studied from two hours."
+      ],
+      "sortOrder": 20
+    }
+  ]
+}
