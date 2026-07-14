@@ -299,6 +299,22 @@ describe('validateLearningContent', () => {
       }),
     );
   });
+
+  it('aggregates non-string manifest filenames without a raw TypeError', () => {
+    const content = cloneValidContent();
+    content.manifest.deckFiles[0] = null as unknown as string;
+    content.decks[1].slug = content.decks[2].slug;
+
+    expect(() =>
+      validateLearningContent(content.manifest, content.decks),
+    ).toThrow(
+      expect.objectContaining({
+        message: expect.stringMatching(
+          /manifest:[\s\S]*deckFiles\[0\][\s\S]*must be a string[\s\S]*duplicate deck slug/,
+        ),
+      }),
+    );
+  });
 });
 
 describe('loadLearningContent', () => {

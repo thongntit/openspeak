@@ -198,8 +198,9 @@ function readJsonFile(contentDirectory: string, filename: string): unknown {
   return parseJson(source, filename);
 }
 
-function isSafeDeckFilename(filename: string) {
+function isSafeDeckFilename(filename: unknown): boolean {
   return (
+    typeof filename === 'string' &&
     filename.length > 0 &&
     !path.isAbsolute(filename) &&
     path.basename(filename) === filename &&
