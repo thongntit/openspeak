@@ -92,6 +92,8 @@ function createBundle(): LearningContentBundle {
 
 function createPersistenceHarness(options?: {
   bundle?: LearningContentBundle;
+  existingDecks?: Deck[];
+  existingCards?: Card[];
   presentCardsAffected?: number;
   retiredCardsAffected?: number;
   retiredDecksAffected?: number;
@@ -108,17 +110,24 @@ function createPersistenceHarness(options?: {
     options?.retiredCardsAffected ?? 3,
   );
 
+  const persistedDecks = bundle.decks.map(
+    (deck, index) =>
+      ({
+        id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
+        slug: deck.slug,
+        content_version: bundle.databaseContentVersion,
+      }) as Deck,
+  );
+  const deckUpsert = jest.fn().mockResolvedValue(undefined);
   const deckRepository = {
-    upsert: jest.fn().mockResolvedValue(undefined),
-    findBy: jest.fn().mockResolvedValue(
-      bundle.decks.map(
-        (deck, index) =>
-          ({
-            id: `00000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`,
-            slug: deck.slug,
-          }) as Deck,
+    upsert: deckUpsert,
+    findBy: jest
+      .fn()
+      .mockImplementation(() =>
+        deckUpsert.mock.calls.length === 0
+          ? (options?.existingDecks ?? [])
+          : persistedDecks,
       ),
-    ),
     createQueryBuilder: jest
       .fn()
       .mockReturnValueOnce(managedDeckQuery)
@@ -129,6 +138,7 @@ function createPersistenceHarness(options?: {
 
   const cardRepository = {
     upsert: jest.fn().mockResolvedValue(undefined),
+    findBy: jest.fn().mockResolvedValue(options?.existingCards ?? []),
     createQueryBuilder: jest.fn(),
     delete: jest.fn(),
     remove: jest.fn(),
@@ -250,6 +260,53 @@ describe('seedLearningContent', () => {
       decksUnpublished: 4,
       cardsDeactivated: 5,
     });
+  });
+
+  it('rejects an incoming deck slug owned by non-starter content before upsert', async () => {
+    const foreignDeck = {
+      id: '10000000-0000-4000-8000-000000000001',
+      slug: 'daily-basics',
+      content_version: 'admin@1',
+    } as Deck;
+    const harness = createPersistenceHarness({
+      existingDecks: [foreignDeck],
+    });
+
+    await expect(
+      seedLearningContent(harness.dataSource, harness.bundle),
+    ).rejects.toThrow(
+      'Cannot seed starter deck "daily-basics": slug is owned by content version "admin@1"',
+    );
+
+    expect(harness.transaction).toHaveBeenCalledTimes(1);
+    expect(harness.deckRepository.upsert).not.toHaveBeenCalled();
+    expect(harness.cardRepository.upsert).not.toHaveBeenCalled();
+    expect(harness.deckRepository.createQueryBuilder).not.toHaveBeenCalled();
+    expect(harness.cardRepository.createQueryBuilder).not.toHaveBeenCalled();
+  });
+
+  it('rejects an incoming card key owned by non-starter content before card upsert', async () => {
+    const foreignCard = {
+      id: '20000000-0000-4000-8000-000000000001',
+      deck_id: '00000000-0000-4000-8000-000000000001',
+      content_key: 'hello',
+      content_version: 'admin@1',
+    } as Card;
+    const harness = createPersistenceHarness({
+      existingCards: [foreignCard],
+    });
+
+    await expect(
+      seedLearningContent(harness.dataSource, harness.bundle),
+    ).rejects.toThrow(
+      'Cannot seed starter card "hello" in deck "daily-basics": key is owned by content version "admin@1"',
+    );
+
+    expect(harness.transaction).toHaveBeenCalledTimes(1);
+    expect(harness.deckRepository.upsert).toHaveBeenCalledTimes(1);
+    expect(harness.cardRepository.upsert).not.toHaveBeenCalled();
+    expect(harness.deckRepository.createQueryBuilder).not.toHaveBeenCalled();
+    expect(harness.cardRepository.createQueryBuilder).not.toHaveBeenCalled();
   });
 
   it('deactivates every managed card in a present deck when its source card list is empty', async () => {

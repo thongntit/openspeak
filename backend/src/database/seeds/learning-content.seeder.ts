@@ -3,7 +3,8 @@ import { LearningContentBundle } from '../content/learning-content.types';
 import { Card } from '../../learning/entities/card.entity';
 import { Deck, DeckType } from '../../learning/entities/deck.entity';
 
-const MANAGED_CONTENT_VERSION = 'starter@%';
+const MANAGED_CONTENT_VERSION_PREFIX = 'starter@';
+const MANAGED_CONTENT_VERSION = `${MANAGED_CONTENT_VERSION_PREFIX}%`;
 
 export interface LearningContentSeedSummary {
   contentVersion: string;
@@ -21,6 +22,20 @@ export async function seedLearningContent(
     const deckRepository = manager.getRepository(Deck);
     const cardRepository = manager.getRepository(Card);
     const sourceSlugs = bundle.decks.map((deck) => deck.slug);
+
+    const existingDecks =
+      sourceSlugs.length > 0
+        ? await deckRepository.findBy({ slug: In(sourceSlugs) })
+        : [];
+    const foreignDeck = existingDecks.find(
+      (deck) =>
+        !deck.content_version.startsWith(MANAGED_CONTENT_VERSION_PREFIX),
+    );
+    if (foreignDeck) {
+      throw new Error(
+        `Cannot seed starter deck "${foreignDeck.slug}": slug is owned by content version "${foreignDeck.content_version}"`,
+      );
+    }
 
     if (bundle.decks.length > 0) {
       await deckRepository.upsert(
@@ -45,6 +60,31 @@ export async function seedLearningContent(
     const deckIdsBySlug = new Map(
       persistedDecks.map((deck) => [deck.slug, deck.id]),
     );
+    for (const sourceDeck of bundle.decks) {
+      const deckId = deckIdsBySlug.get(sourceDeck.slug);
+      if (!deckId) {
+        throw new Error(`Deck "${sourceDeck.slug}" was not found after upsert`);
+      }
+      const sourceContentKeys = sourceDeck.cards.map((card) => card.contentKey);
+      if (sourceContentKeys.length === 0) {
+        continue;
+      }
+
+      const existingCards = await cardRepository.findBy({
+        deck_id: deckId,
+        content_key: In(sourceContentKeys),
+      });
+      const foreignCard = existingCards.find(
+        (card) =>
+          !card.content_version.startsWith(MANAGED_CONTENT_VERSION_PREFIX),
+      );
+      if (foreignCard) {
+        throw new Error(
+          `Cannot seed starter card "${foreignCard.content_key}" in deck "${sourceDeck.slug}": key is owned by content version "${foreignCard.content_version}"`,
+        );
+      }
+    }
+
     const cards = bundle.decks.flatMap((deck) => {
       const deckId = deckIdsBySlug.get(deck.slug);
       if (!deckId) {
