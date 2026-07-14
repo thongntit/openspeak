@@ -17,13 +17,21 @@ interface PrepareLearningDatabaseDependencies {
   ) => Promise<LearningContentSeedSummary>;
 }
 
+export function createLearningContentCommandDataSource(
+  configuredDataSource: DataSource,
+): DataSource {
+  return new DataSource({
+    ...configuredDataSource.options,
+    logging: false,
+  });
+}
+
 export async function prepareLearningDatabase({
   load,
   dataSource,
   seed,
 }: PrepareLearningDatabaseDependencies): Promise<LearningContentSeedSummary> {
   const bundle = load();
-  dataSource.setOptions({ logging: false });
   await dataSource.initialize();
 
   try {
@@ -37,7 +45,7 @@ export async function prepareLearningDatabase({
 if (require.main === module) {
   void prepareLearningDatabase({
     load: loadLearningContent,
-    dataSource,
+    dataSource: createLearningContentCommandDataSource(dataSource),
     seed: seedLearningContent,
   })
     .then((summary) => {

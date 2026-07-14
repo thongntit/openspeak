@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import dataSource from '../../data-source';
 import { loadLearningContent } from '../content/learning-content.loader';
 import { LearningContentBundle } from '../content/learning-content.types';
+import { createLearningContentCommandDataSource } from '../prepare-learning-database';
 import {
   LearningContentSeedSummary,
   seedLearningContent,
@@ -23,7 +24,6 @@ export async function seedLearningContentDatabase({
   seed,
 }: SeedLearningContentDatabaseDependencies): Promise<LearningContentSeedSummary> {
   const bundle = load();
-  dataSource.setOptions({ logging: false });
   await dataSource.initialize();
 
   try {
@@ -36,7 +36,7 @@ export async function seedLearningContentDatabase({
 if (require.main === module) {
   void seedLearningContentDatabase({
     load: loadLearningContent,
-    dataSource,
+    dataSource: createLearningContentCommandDataSource(dataSource),
     seed: seedLearningContent,
   })
     .then((summary) => {

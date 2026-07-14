@@ -1,7 +1,10 @@
 import { DataSource } from 'typeorm';
 import { LearningContentBundle } from './content/learning-content.types';
 import { LearningContentSeedSummary } from './seeds/learning-content.seeder';
-import { prepareLearningDatabase } from './prepare-learning-database';
+import {
+  createLearningContentCommandDataSource,
+  prepareLearningDatabase,
+} from './prepare-learning-database';
 import { seedLearningContentDatabase } from './seeds/seed-learning-content';
 
 jest.mock('../data-source', () => ({
@@ -32,7 +35,6 @@ function createHarness() {
     return bundle;
   });
   const dataSource = {} as DataSource;
-  const setOptions = jest.fn(() => dataSource);
   const initialize = jest.fn(() => {
     callOrder.push('initialize');
     return Promise.resolve(dataSource);
@@ -46,7 +48,6 @@ function createHarness() {
     return Promise.resolve();
   });
   Object.assign(dataSource, {
-    setOptions,
     initialize,
     runMigrations,
     destroy,
@@ -60,7 +61,6 @@ function createHarness() {
     callOrder,
     load,
     dataSource,
-    setOptions,
     initialize,
     runMigrations,
     destroy,
@@ -82,7 +82,6 @@ describe('prepareLearningDatabase', () => {
       'destroy',
     ]);
     expect(harness.seed).toHaveBeenCalledWith(harness.dataSource, bundle);
-    expect(harness.setOptions).toHaveBeenCalledWith({ logging: false });
   });
 
   it('does not connect when content is invalid', async () => {
@@ -96,7 +95,6 @@ describe('prepareLearningDatabase', () => {
     );
 
     expect(harness.initialize).not.toHaveBeenCalled();
-    expect(harness.setOptions).not.toHaveBeenCalled();
     expect(harness.destroy).not.toHaveBeenCalled();
   });
 
@@ -139,6 +137,45 @@ describe('prepareLearningDatabase', () => {
       'destroy',
     ]);
   });
+
+  it('executes with a fresh DataSource that does not log query parameters', async () => {
+    const configuredDataSource = new DataSource({
+      type: 'postgres',
+      url: 'postgresql://test:test@localhost:5432/test',
+      entities: [],
+      migrations: [],
+      logging: true,
+    });
+    const commandDataSource =
+      createLearningContentCommandDataSource(configuredDataSource);
+    jest
+      .spyOn(commandDataSource, 'initialize')
+      .mockResolvedValue(commandDataSource);
+    jest.spyOn(commandDataSource, 'runMigrations').mockResolvedValue([]);
+    jest.spyOn(commandDataSource, 'destroy').mockResolvedValue();
+    const consoleLog = jest.spyOn(console, 'log').mockImplementation();
+    const seed = jest.fn((executedDataSource: DataSource) => {
+      executedDataSource.logger.logQuery('SELECT $1', [
+        'private learning content',
+      ]);
+      return Promise.resolve(summary);
+    });
+
+    try {
+      await prepareLearningDatabase({
+        load: () => bundle,
+        dataSource: commandDataSource,
+        seed,
+      });
+
+      expect(commandDataSource).not.toBe(configuredDataSource);
+      expect(commandDataSource.options.logging).toBe(false);
+      expect(seed).toHaveBeenCalledWith(commandDataSource, bundle);
+      expect(consoleLog).not.toHaveBeenCalled();
+    } finally {
+      consoleLog.mockRestore();
+    }
+  });
 });
 
 describe('seedLearningContentDatabase', () => {
@@ -155,7 +192,6 @@ describe('seedLearningContentDatabase', () => {
       'seed-content',
       'destroy',
     ]);
-    expect(harness.setOptions).toHaveBeenCalledWith({ logging: false });
   });
 
   it('does not connect when content is invalid', async () => {
@@ -169,7 +205,6 @@ describe('seedLearningContentDatabase', () => {
     );
 
     expect(harness.initialize).not.toHaveBeenCalled();
-    expect(harness.setOptions).not.toHaveBeenCalled();
     expect(harness.destroy).not.toHaveBeenCalled();
   });
 

@@ -109,8 +109,11 @@ Or run the full stack in containers:
 
 ```bash
 docker compose up --build
-# then inside the api container, or from host against localhost:
+# From a source checkout, against the compose Postgres service:
 npm run db:prepare
+
+# Inside the built API runtime container/image (dist + production deps only):
+npm run db:prepare:prod
 ```
 
 Production startup deliberately does not run migrations or seed content. Run
