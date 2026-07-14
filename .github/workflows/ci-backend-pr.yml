@@ -32,6 +32,7 @@ jobs:
       DATABASE_URL: postgresql://openspeak:openspeak@localhost:5432/openspeak_test
       PORT: "3001"
       NODE_ENV: test
+      ALLOW_DESTRUCTIVE_DB_TESTS: "true"
       CORS_ORIGIN: http://localhost:5173
 
     defaults:
