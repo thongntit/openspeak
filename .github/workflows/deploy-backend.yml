@@ -79,5 +79,5 @@ jobs:
       - name: Trigger production Coolify redeploy
         run: |
           curl --fail-with-body --silent --show-error \
-            -X GET "${{ secrets.COOLIFY_PROD_WEBHOOK_URL }}" \
+            -X GET "https://coolify.thongnt.dev/api/v1/deploy?uuid=ea2xn2x5i6y6gvs0bmpzdp4a&force=false" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
