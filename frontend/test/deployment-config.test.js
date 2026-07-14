@@ -49,10 +49,45 @@ test('backend PR workflow contains validation only', () => {
   assert.match(prWorkflow, /POSTGRES_DB: openspeak_test/);
   assert.match(
     prWorkflow,
-    /name: Run migrations on ephemeral CI database\s+run: npm run migration:run/,
+    /name: Build production backend\s+run: npm run build/,
   );
-  assert.doesNotMatch(prWorkflow, /run: npm run migration:run:prod/);
-  assert.doesNotMatch(prWorkflow, /run: npm run build$/m);
+  assert.match(
+    prWorkflow,
+    /name: Rehearse production migrations on ephemeral CI database\s+run: npm run migration:run:prod/,
+  );
+  assert.match(
+    prWorkflow,
+    /name: Verify learning content integration\s+run: npm run test:e2e -- --runInBand learning-content-seed\.e2e-spec\.ts/,
+  );
+
+  const unitTestsIndex = prWorkflow.indexOf('name: Unit tests');
+  const buildIndex = prWorkflow.indexOf('name: Build production backend');
+  const migrationIndex = prWorkflow.indexOf(
+    'name: Rehearse production migrations on ephemeral CI database',
+  );
+  const seedIndex = prWorkflow.indexOf(
+    'name: Rehearse learning content seed twice',
+  );
+  const integrationIndex = prWorkflow.indexOf(
+    'name: Verify learning content integration',
+  );
+  const generalE2eIndex = prWorkflow.indexOf('name: E2E tests');
+  assert.ok(unitTestsIndex >= 0);
+  assert.ok(unitTestsIndex < buildIndex);
+  assert.ok(buildIndex < migrationIndex);
+  assert.ok(migrationIndex < seedIndex);
+  assert.ok(seedIndex < integrationIndex);
+  assert.ok(integrationIndex < generalE2eIndex);
+
+  const seedRehearsal = prWorkflow.match(
+    /name: Rehearse learning content seed twice\s+run: \|([\s\S]*?)(?=\n {6}- name:)/,
+  )?.[1];
+  assert.ok(seedRehearsal);
+  assert.equal(
+    seedRehearsal.match(/npm run seed:learning:prod/g)?.length,
+    2,
+  );
+  assert.doesNotMatch(prWorkflow, /run: npm run migration:run$/m);
   assert.doesNotMatch(prWorkflow, /docker\/build-push-action/);
   assert.doesNotMatch(prWorkflow, /COOLIFY_/);
 });
