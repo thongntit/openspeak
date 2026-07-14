@@ -51,7 +51,7 @@
       "contentKey": "tip-005",
       "type": "tip",
       "level": "beginner",
-      "front": "Make the command “Help me with this form” into a polite request using “Could you” and “please.”",
+      "front": "Put the command “Help me with this form” into the exact polite frame “Could you ___, please?”",
       "answer": "Could you help me with this form, please?",
       "explanation": "“Could you …, please?” makes a request courteous without changing what help is needed.",
       "example": "Could you check this address, please?",
@@ -85,14 +85,14 @@
       "contentKey": "tip-008",
       "type": "tip",
       "level": "beginner",
-      "front": "Complete the common collocation for pausing work: Let’s ___ for ten minutes.",
-      "answer": "Let’s take a break for ten minutes.",
-      "explanation": "“Take a break” is the natural expression for stopping an activity briefly to rest.",
-      "example": "We took a short break after the first exercise.",
+      "front": "Use the natural verb with “attention”: Please ___ to the safety instructions.",
+      "answer": "Please pay attention to the safety instructions.",
+      "explanation": "“Pay attention” is the standard collocation for watching, listening, or thinking carefully.",
+      "example": "Rina paid attention while the guide explained the route.",
       "options": [
-        "Let’s take a break for ten minutes.",
-        "Let’s make a break for ten minutes.",
-        "Let’s do a break for ten minutes."
+        "Please pay attention to the safety instructions.",
+        "Please make attention to the safety instructions.",
+        "Please do attention to the safety instructions."
       ],
       "sortOrder": 8
     },
@@ -100,14 +100,14 @@
       "contentKey": "tip-009",
       "type": "tip",
       "level": "beginner",
-      "front": "Use the natural verb for eating the morning meal: I usually ___ at seven.",
-      "answer": "I usually have breakfast at seven.",
-      "explanation": "“Have breakfast” is a common collocation for eating the first meal of the day.",
-      "example": "They had breakfast before catching the early bus.",
+      "front": "Choose the usual adjective with “rain”: The event was canceled because of ___.",
+      "answer": "The event was canceled because of heavy rain.",
+      "explanation": "“Heavy rain” is the standard collocation for a large amount of rain; English does not normally use “strong rain.”",
+      "example": "Heavy rain flooded several roads.",
       "options": [
-        "I usually have breakfast at seven.",
-        "I usually make breakfast at seven.",
-        "I usually take breakfast at seven."
+        "The event was canceled because of heavy rain.",
+        "The event was canceled because of strong rain.",
+        "The event was canceled because of powerful rain."
       ],
       "sortOrder": 9
     },
@@ -192,7 +192,7 @@
       "contentKey": "tip-016",
       "type": "tip",
       "level": "beginner",
-      "front": "Accept the suggestion “How about meeting at ten?” by completing the concise response: That ___ good.",
+      "front": "Accept the suggestion “How about meeting at ten?” by using the present-tense form of “sound”: That ___ good.",
       "answer": "That sounds good.",
       "explanation": "“That sounds good” is a concise, natural way to show that you accept a suggestion.",
       "example": "“Let’s take the earlier train.” “That sounds good.”",

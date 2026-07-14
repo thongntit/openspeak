@@ -17,7 +17,10 @@ corrected. After the manual pass, an automated catalog check confirmed exact
 deck and card metadata, 120 globally unique normalized prompts, 120 unique
 normalized examples, two to four unique choices on every multiple-choice card,
 the exact answer in every options array, and seven JSON source files. The final
-catalog contains 72 multiple-choice cards and no pronunciation coaching.
+catalog contains 72 multiple-choice cards and no pronunciation coaching. A
+follow-up review also compared lesson targets across all six decks for semantic
+near-duplicates and re-checked guided free-recall prompts for other standard
+answers that their wording might allow.
 
 ## Essential Everyday Vocabulary
 
@@ -165,21 +168,30 @@ Completed gates:
 - Review changes: Converted `tip-004` through `tip-006` from low-value multiple
   choice to guided free recall, made their required polite-request patterns
   explicit, removed implausible extra distractors from `tip-007` and `tip-010`,
-  and converted `tip-016` to guided free recall because its prompt already fixes
-  the concise response pattern.
+  and converted `tip-016` to guided free recall. Follow-up review constrained
+  `tip-005` to the exact “Could you \_\_\_, please?” frame and
+  `tip-016` to the present-tense form of “sound.” It also replaced the repeated
+  “take a break” and “have breakfast” targets in `tip-008` and `tip-009` with
+  distinct “pay attention” and “heavy rain” collocations.
 
 Completed gates:
 
 - [x] Correctness: contractions, polite requests, collocations, short responses,
       and corrections all use standard natural English.
-- [x] Unique answer support: rewrite prompts provide the required form or pattern,
-      while collocation prompts supply a context that selects one answer.
+- [x] Unique answer support: rewrite prompts provide the required form or exact
+      pattern; specifically, `tip-005` fixes the placement of “please” through
+      its exact sentence frame and `tip-016` requires the present-tense form of
+      “sound.” Collocation prompts supply a context that selects one answer.
 - [x] Explanation consistency: explanations state why the answer is more natural
       without introducing a conflicting alternative.
 - [x] Natural examples: examples model concise, original conversational English.
 - [x] Level consistency: tips use beginner-friendly wording and immediately useful
       situations.
-- [x] Duplicate scan: all 20 normalized prompts and examples are unique.
+- [x] Duplicate scan: all 20 normalized prompts and examples are unique. A
+      semantic target scan across all six decks confirmed that the routines deck
+      alone teaches “take a break” and “have breakfast”; the tips deck instead
+      teaches “pay attention” and “heavy rain.” No other repeated lesson target
+      was found.
 - [x] Option/answer consistency: each remaining options array has two or three
       unique, pedagogically relevant choices and contains the complete exact answer;
       guided rewrites omit options.
