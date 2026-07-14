@@ -1,0 +1,211 @@
+{
+  "slug": "work-and-daily-routines",
+  "name": "Work and Daily Routines",
+  "description": "Learn practical words and phrases for workdays, schedules, and regular home activities.",
+  "type": "vocab",
+  "level": "beginner",
+  "sortOrder": 20,
+  "isPublished": true,
+  "cards": [
+    {
+      "contentKey": "routine-001",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “schedule” mean in “My schedule is busy on Thursday”?",
+      "answer": "A plan that shows when activities or tasks will happen.",
+      "explanation": "A schedule organizes events, work, or appointments by time.",
+      "example": "I checked my schedule before accepting the meeting.",
+      "sortOrder": 1
+    },
+    {
+      "contentKey": "routine-002",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “shift” mean in “My shift starts at eight”?",
+      "answer": "A scheduled period of work.",
+      "explanation": "A work shift has a set starting time and finishing time.",
+      "example": "Rosa works the morning shift this week.",
+      "sortOrder": 2
+    },
+    {
+      "contentKey": "routine-003",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “commute” mean in “He commutes by train”?",
+      "answer": "Travel regularly between your home and workplace or school.",
+      "explanation": "To “commute” is to make the regular journey to and from a workplace or school.",
+      "example": "I commute to the office three days a week.",
+      "sortOrder": 3
+    },
+    {
+      "contentKey": "routine-004",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What is a “deadline” in “The deadline is Friday afternoon”?",
+      "answer": "The latest time when something must be finished.",
+      "explanation": "A deadline sets the final date or time for completing a task.",
+      "example": "We finished the project two days before the deadline.",
+      "sortOrder": 4
+    },
+    {
+      "contentKey": "routine-005",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “task” mean in “This is my first task today”?",
+      "answer": "A piece of work that needs to be done.",
+      "explanation": "A task is a specific job or activity, often one part of a larger project.",
+      "example": "Updating the contact list was a quick task.",
+      "sortOrder": 5
+    },
+    {
+      "contentKey": "routine-006",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "Who is a “colleague” in “I asked a colleague for help”?",
+      "answer": "A person you work with.",
+      "explanation": "A colleague works in the same organization or profession as you.",
+      "example": "My colleagues shared their ideas during lunch.",
+      "sortOrder": 6
+    },
+    {
+      "contentKey": "routine-007",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What is a “meeting” in “We have a team meeting at two”?",
+      "answer": "A planned time when people come together to discuss something.",
+      "explanation": "A meeting brings people together in person or online for a shared purpose.",
+      "example": "The meeting ended after we agreed on the next steps.",
+      "sortOrder": 7
+    },
+    {
+      "contentKey": "routine-008",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “break” mean in “Let’s take a short break”?",
+      "answer": "A short period of rest between activities.",
+      "explanation": "A break is time when you pause work or another activity before continuing.",
+      "example": "I went outside during my afternoon break.",
+      "sortOrder": 8
+    },
+    {
+      "contentKey": "routine-009",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “wake up” mean in “I wake up at seven”?",
+      "answer": "Become awake after sleeping.",
+      "explanation": "“Wake up” describes the change from sleeping to being awake.",
+      "example": "She woke up before her alarm rang.",
+      "sortOrder": 9
+    },
+    {
+      "contentKey": "routine-010",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “get dressed” mean in “I get dressed after breakfast”?",
+      "answer": "Put on clothes.",
+      "explanation": "To “get dressed” is to put on the clothes you plan to wear.",
+      "example": "The children got dressed for school.",
+      "sortOrder": 10
+    },
+    {
+      "contentKey": "routine-011",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “have breakfast” mean in “We have breakfast at home”?",
+      "answer": "Eat the first meal of the day.",
+      "explanation": "“Have breakfast” is a common way to say that someone eats their morning meal.",
+      "example": "I had breakfast before the early meeting.",
+      "sortOrder": 11
+    },
+    {
+      "contentKey": "routine-012",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “leave for work” mean in “They leave for work at 8:30”?",
+      "answer": "Depart in order to go to your workplace.",
+      "explanation": "To “leave for work” is to depart from where you are in order to go to work.",
+      "example": "Nora leaves for work just after breakfast.",
+      "sortOrder": 12
+    },
+    {
+      "contentKey": "routine-013",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “check email” mean in “I check my email after I arrive”?",
+      "answer": "Open and review email messages.",
+      "explanation": "To “check email” is to look for and read new or important messages.",
+      "example": "He checked his email before the first call.",
+      "sortOrder": 13
+    },
+    {
+      "contentKey": "routine-014",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “start work” mean in “I start work at nine”?",
+      "answer": "Begin doing your job for the day.",
+      "explanation": "To “start work” means to begin your work activities.",
+      "example": "We started work as soon as the equipment arrived.",
+      "sortOrder": 14
+    },
+    {
+      "contentKey": "routine-015",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “take notes” mean in “Please take notes during the call”?",
+      "answer": "Write down important information.",
+      "explanation": "To “take notes” is to record key details so you can remember or use them later.",
+      "example": "I took notes while the trainer explained the process.",
+      "sortOrder": 15
+    },
+    {
+      "contentKey": "routine-016",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “finish work” mean in “She finishes work at five”?",
+      "answer": "Stop doing your job for the day.",
+      "explanation": "To “finish work” means to complete or stop your work activities at the end of a work period.",
+      "example": "I finished work early and went for a walk.",
+      "sortOrder": 16
+    },
+    {
+      "contentKey": "routine-017",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “submit a report” mean in “I need to submit the report today”?",
+      "answer": "Send or give a completed report to the person or system that needs it.",
+      "explanation": "To “submit” work is to formally hand it in for review, approval, or use.",
+      "example": "The team submitted its final report online.",
+      "sortOrder": 17
+    },
+    {
+      "contentKey": "routine-018",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “tidy up” mean in “I tidy up my desk before leaving”?",
+      "answer": "Make a place clean and organized.",
+      "explanation": "To “tidy up” is to put things in order and remove unnecessary mess.",
+      "example": "We tidied up the kitchen after dinner.",
+      "sortOrder": 18
+    },
+    {
+      "contentKey": "routine-019",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “do the laundry” mean in “I do the laundry on Wednesday”?",
+      "answer": "Wash and usually dry clothes and other washable items.",
+      "explanation": "“Do the laundry” refers to the routine of cleaning clothes, towels, or similar items.",
+      "example": "Kai did the laundry while working from home.",
+      "sortOrder": 19
+    },
+    {
+      "contentKey": "routine-020",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “go to bed” mean in “I usually go to bed before eleven”?",
+      "answer": "Get into bed with the intention of sleeping.",
+      "explanation": "To “go to bed” means to end your waking activities and prepare to sleep.",
+      "example": "She went to bed after reading for a few minutes.",
+      "sortOrder": 20
+    }
+  ]
+}

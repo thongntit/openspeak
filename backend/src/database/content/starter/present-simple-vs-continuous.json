@@ -1,0 +1,282 @@
+{
+  "slug": "present-simple-vs-continuous",
+  "name": "Present Simple vs. Present Continuous",
+  "description": "Choose between routines and facts in the present simple and actions or temporary situations in the present continuous.",
+  "type": "grammar",
+  "level": "intermediate",
+  "sortOrder": 40,
+  "isPublished": true,
+  "cards": [
+    {
+      "contentKey": "present-tense-001",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "Mia has the same Monday task every week. Complete the sentence: Mia ___ the sales report before lunch every Monday.",
+      "answer": "Mia sends the sales report before lunch every Monday.",
+      "explanation": "Use the present simple for a repeated routine. The third-person singular subject “Mia” takes “sends.”",
+      "example": "Jon checks the inventory every Friday.",
+      "options": [
+        "Mia sends the sales report before lunch every Monday.",
+        "Mia is sending the sales report before lunch every Monday."
+      ],
+      "sortOrder": 1
+    },
+    {
+      "contentKey": "present-tense-002",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "You are composing an email at this moment. Complete the sentence: I ___ an email to the landlord right now.",
+      "answer": "I am writing an email to the landlord right now.",
+      "explanation": "Use the present continuous for an action in progress at the moment of speaking.",
+      "example": "I am waiting for the bus right now.",
+      "options": [
+        "I write an email to the landlord right now.",
+        "I am writing an email to the landlord right now."
+      ],
+      "sortOrder": 2
+    },
+    {
+      "contentKey": "present-tense-003",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "Their apartment is being repaired, so this arrangement lasts only two weeks. Complete: They ___ with friends for two weeks.",
+      "answer": "They are staying with friends for two weeks.",
+      "explanation": "Use the present continuous for a temporary situation around the present time.",
+      "example": "Ravi is working from the library while his internet is down.",
+      "options": [
+        "They stay with friends for two weeks.",
+        "They are staying with friends for two weeks."
+      ],
+      "sortOrder": 3
+    },
+    {
+      "contentKey": "present-tense-004",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "According to the printed timetable, the last train departs at 10:15 tonight. Complete: The last train ___ at 10:15 tonight.",
+      "answer": "The last train leaves at 10:15 tonight.",
+      "explanation": "Use the present simple for a fixed timetable, even when it refers to the future.",
+      "example": "The museum opens at nine tomorrow morning.",
+      "options": [
+        "The last train leaves at 10:15 tonight.",
+        "The last train is leaving at 10:15 tonight."
+      ],
+      "sortOrder": 4
+    },
+    {
+      "contentKey": "present-tense-005",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "You and Priya already arranged a lunch for Friday. Complete: Priya and I ___ for lunch on Friday.",
+      "answer": "Priya and I are meeting for lunch on Friday.",
+      "explanation": "Use the present continuous for a personal future arrangement that has already been made.",
+      "example": "We are visiting the new office next Tuesday.",
+      "options": [
+        "Priya and I meet for lunch on Friday.",
+        "Priya and I are meeting for lunch on Friday."
+      ],
+      "sortOrder": 5
+    },
+    {
+      "contentKey": "present-tense-006",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "You have no information about the answer. Complete: I ___ the answer.",
+      "answer": "I do not know the answer.",
+      "explanation": "“Know” describes a state, so it normally uses the present simple rather than the continuous form.",
+      "example": "Sam understands the instructions now.",
+      "options": ["I do not know the answer.", "I am not knowing the answer."],
+      "sortOrder": 6
+    },
+    {
+      "contentKey": "present-tense-007",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "Ask about the regular frequency of Leo’s gym visits. Complete the question: How often ___ to the gym?",
+      "answer": "How often does Leo go to the gym?",
+      "explanation": "Use “does” plus the base verb to ask about the frequency of a third-person routine.",
+      "example": "How often does your team meet in person?",
+      "options": [
+        "How often does Leo go to the gym?",
+        "How often is Leo going to the gym?"
+      ],
+      "sortOrder": 7
+    },
+    {
+      "contentKey": "present-tense-008",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "The printer is idle at this moment. Complete: No one ___ the printer right now.",
+      "answer": "No one is using the printer right now.",
+      "explanation": "Use the present continuous to describe what is or is not happening now.",
+      "example": "The children are not watching television at the moment.",
+      "options": [
+        "No one uses the printer right now.",
+        "No one is using the printer right now."
+      ],
+      "sortOrder": 8
+    },
+    {
+      "contentKey": "present-tense-009",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "Teaching mathematics is Maya’s permanent job. Complete: Maya ___ mathematics at a secondary school.",
+      "answer": "Maya teaches mathematics at a secondary school.",
+      "explanation": "Use the present simple for a stable job or long-term situation.",
+      "example": "My neighbor manages a small grocery store.",
+      "options": [
+        "Maya teaches mathematics at a secondary school.",
+        "Maya is teaching mathematics at a secondary school."
+      ],
+      "sortOrder": 9
+    },
+    {
+      "contentKey": "present-tense-010",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "The number of people using the service is gradually increasing. Use the present continuous to emphasize this developing trend: More people ___ the service each month.",
+      "answer": "More people are using the service each month.",
+      "explanation": "Use the present continuous for a changing trend that is developing around the present.",
+      "example": "Winters are becoming warmer in this region.",
+      "options": [
+        "More people use the service each month.",
+        "More people are using the service each month."
+      ],
+      "sortOrder": 10
+    },
+    {
+      "contentKey": "present-tense-011",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "Describe both a usual commute and this week’s temporary change: I usually ___ the bus, but this week I ___ to work.",
+      "answer": "I usually take the bus, but this week I am cycling to work.",
+      "explanation": "The present simple describes the usual commute; the present continuous describes the temporary change this week.",
+      "example": "Nina normally cooks at home, but this week she is eating at the office café.",
+      "options": [
+        "I usually take the bus, but this week I am cycling to work.",
+        "I am usually taking the bus, but this week I cycle to work."
+      ],
+      "sortOrder": 11
+    },
+    {
+      "contentKey": "present-tense-012",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "State the scientific fact using the correct present tense: Water ___ at 100°C at sea level.",
+      "answer": "Water boils at 100°C at sea level.",
+      "explanation": "Use the present simple for a general scientific fact.",
+      "example": "Ice melts when its temperature rises above 0°C.",
+      "options": [
+        "Water boils at 100°C at sea level.",
+        "Water is boiling at 100°C at sea level."
+      ],
+      "sortOrder": 12
+    },
+    {
+      "contentKey": "present-tense-013",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "A colleague is editing a document now. Ask about that current task: What ___ on?",
+      "answer": "What are you working on?",
+      "explanation": "Use the present continuous in a question about an action happening now.",
+      "example": "Why are you looking at the schedule?",
+      "options": ["What do you work on?", "What are you working on?"],
+      "sortOrder": 13
+    },
+    {
+      "contentKey": "present-tense-014",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "The usual manager is away, and Ana has this responsibility only this week. Complete: Ana ___ the morning meeting this week.",
+      "answer": "Ana is leading the morning meeting this week.",
+      "explanation": "Use the present continuous for a temporary responsibility during a limited period.",
+      "example": "I am covering the front desk until Friday.",
+      "options": [
+        "Ana leads the morning meeting this week.",
+        "Ana is leading the morning meeting this week."
+      ],
+      "sortOrder": 14
+    },
+    {
+      "contentKey": "present-tense-015",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "Nora normally drives, but her car is at the garage today. Complete both parts: Nora usually ___ to work, but today she ___ the train.",
+      "answer": "Nora usually drives to work, but today she is taking the train.",
+      "explanation": "Use the present simple for Nora’s normal habit and the present continuous for today’s temporary action.",
+      "example": "We usually eat indoors, but today we are sitting outside.",
+      "options": [
+        "Nora usually drives to work, but today she is taking the train.",
+        "Nora is usually driving to work, but today she takes the train."
+      ],
+      "sortOrder": 15
+    },
+    {
+      "contentKey": "present-tense-016",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "You hear repeated knocks at the door at this moment. Complete: Listen! Someone ___ at the door.",
+      "answer": "Listen! Someone is knocking at the door.",
+      "explanation": "“Listen!” directs attention to an action happening now, so use the present continuous.",
+      "example": "Look! A cyclist is crossing the bridge.",
+      "options": [
+        "Listen! Someone knocks at the door.",
+        "Listen! Someone is knocking at the door."
+      ],
+      "sortOrder": 16
+    },
+    {
+      "contentKey": "present-tense-017",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "The shop’s regular schedule says it is closed every Sunday. Complete: The shop ___ on Sundays.",
+      "answer": "The shop does not open on Sundays.",
+      "explanation": "Use the present simple negative for a regular schedule, with “does not” plus the base verb.",
+      "example": "The clinic does not accept walk-ins on weekends.",
+      "options": [
+        "The shop does not open on Sundays.",
+        "The shop is not opening on Sundays."
+      ],
+      "sortOrder": 17
+    },
+    {
+      "contentKey": "present-tense-018",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "Your friend has a heavy coat on now, although the room is warm. Ask about the current choice: Why ___ a coat?",
+      "answer": "Why are you wearing a coat?",
+      "explanation": "Use the present continuous to ask about something the person is doing at this moment.",
+      "example": "Why is Ella carrying two umbrellas?",
+      "options": ["Why do you wear a coat?", "Why are you wearing a coat?"],
+      "sortOrder": 18
+    },
+    {
+      "contentKey": "present-tense-019",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "The blue jacket is Sam’s property. Complete: This blue jacket ___ to Sam.",
+      "answer": "This blue jacket belongs to Sam.",
+      "explanation": "“Belong” describes possession, a state, so it normally uses the present simple.",
+      "example": "These keys belong to the building manager.",
+      "options": [
+        "This blue jacket belongs to Sam.",
+        "This blue jacket is belonging to Sam."
+      ],
+      "sortOrder": 19
+    },
+    {
+      "contentKey": "present-tense-020",
+      "type": "grammar",
+      "level": "intermediate",
+      "front": "The café normally closes at six, but it has a special late event today. Complete both parts: The café usually ___ at six, but today it ___ open until nine.",
+      "answer": "The café usually closes at six, but today it is staying open until nine.",
+      "explanation": "Use the present simple for the normal closing time and the present continuous for today’s temporary exception.",
+      "example": "The library usually shuts at five, but tonight it is closing at eight.",
+      "options": [
+        "The café usually closes at six, but today it is staying open until nine.",
+        "The café is usually closing at six, but today it stays open until nine."
+      ],
+      "sortOrder": 20
+    }
+  ]
+}

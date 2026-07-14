@@ -1,0 +1,211 @@
+{
+  "slug": "essential-everyday-vocabulary",
+  "name": "Essential Everyday Vocabulary",
+  "description": "Build confidence with common words for everyday places, plans, and practical needs.",
+  "type": "vocab",
+  "level": "beginner",
+  "sortOrder": 10,
+  "isPublished": true,
+  "cards": [
+    {
+      "contentKey": "everyday-001",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “available” mean in “Is this seat available?”",
+      "answer": "Free to use or not occupied.",
+      "explanation": "“Available” describes something that can be used, obtained, or chosen.",
+      "example": "The meeting room is available after 2 p.m.",
+      "sortOrder": 1
+    },
+    {
+      "contentKey": "everyday-002",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “borrow” mean in “Can I borrow your pen?”",
+      "answer": "Use something for a time and then return it.",
+      "explanation": "When you borrow something, it belongs to someone else and you plan to give it back.",
+      "example": "I borrowed a charger from my neighbor.",
+      "sortOrder": 2
+    },
+    {
+      "contentKey": "everyday-003",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “return” mean in “Please return the key before you leave”?",
+      "answer": "Bring or give something back.",
+      "explanation": "In this context, “return” means to put something back in the place or with the person it came from.",
+      "example": "She returned the library book on Monday.",
+      "sortOrder": 3
+    },
+    {
+      "contentKey": "everyday-004",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “nearby” mean in “Is there a pharmacy nearby?”",
+      "answer": "Not far away.",
+      "explanation": "“Nearby” describes a person, place, or thing that is close to the current location.",
+      "example": "We found a nearby café for lunch.",
+      "sortOrder": 4
+    },
+    {
+      "contentKey": "everyday-005",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “enough” mean in “We have enough chairs for everyone”?",
+      "answer": "As much or as many as needed.",
+      "explanation": "“Enough” means the amount or number meets a particular need.",
+      "example": "There is enough water for the trip.",
+      "sortOrder": 5
+    },
+    {
+      "contentKey": "everyday-006",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “choose” mean in “You can choose one dessert”?",
+      "answer": "Decide which option you want.",
+      "explanation": "To “choose” is to make a decision between two or more possibilities.",
+      "example": "He chose the blue backpack.",
+      "sortOrder": 6
+    },
+    {
+      "contentKey": "everyday-007",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “arrive” mean in “The train will arrive at noon”?",
+      "answer": "Reach a place.",
+      "explanation": "“Arrive” describes getting to a destination.",
+      "example": "We arrived at the hotel before dinner.",
+      "sortOrder": 7
+    },
+    {
+      "contentKey": "everyday-008",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “leave” mean in “I need to leave the office now”?",
+      "answer": "Go away from a place.",
+      "explanation": "In this context, “leave” means to depart from where you are.",
+      "example": "They left the restaurant at nine.",
+      "sortOrder": 8
+    },
+    {
+      "contentKey": "everyday-009",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “busy” mean in “I am busy this afternoon”?",
+      "answer": "Having a lot to do.",
+      "explanation": "A busy person is occupied with tasks or activities and has little free time.",
+      "example": "The shop is busy on Friday evenings.",
+      "sortOrder": 9
+    },
+    {
+      "contentKey": "everyday-010",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “quiet” mean in “This street is quiet at night”?",
+      "answer": "Making little or no noise.",
+      "explanation": "“Quiet” describes a place, person, or activity with very little sound.",
+      "example": "We studied in a quiet corner of the library.",
+      "sortOrder": 10
+    },
+    {
+      "contentKey": "everyday-011",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “early” mean in “Mina came early for her appointment”?",
+      "answer": "Before the expected or planned time.",
+      "explanation": "“Early” means something happens sooner than the usual or arranged time.",
+      "example": "I took an early bus to avoid traffic.",
+      "sortOrder": 11
+    },
+    {
+      "contentKey": "everyday-012",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “late” mean in “The delivery was twenty minutes late”?",
+      "answer": "After the expected or planned time.",
+      "explanation": "“Late” means something happens after the time when it should or was expected to happen.",
+      "example": "Our flight left late because of the weather.",
+      "sortOrder": 12
+    },
+    {
+      "contentKey": "everyday-013",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “empty” mean in “The bottle is empty”?",
+      "answer": "Containing nothing.",
+      "explanation": "An empty container or space has nothing inside it.",
+      "example": "The room was empty when I entered.",
+      "sortOrder": 13
+    },
+    {
+      "contentKey": "everyday-014",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “full” mean in “The bus is full”?",
+      "answer": "Containing as much as possible, with no more space.",
+      "explanation": "“Full” describes a container or place that cannot hold more people or things.",
+      "example": "Her bag was full of groceries.",
+      "sortOrder": 14
+    },
+    {
+      "contentKey": "everyday-015",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What is a “receipt” in “Keep the receipt after you pay”?",
+      "answer": "A written or electronic record that shows you paid for something.",
+      "explanation": "A receipt lists a purchase and confirms that payment was made.",
+      "example": "The cashier emailed me a receipt.",
+      "sortOrder": 15
+    },
+    {
+      "contentKey": "everyday-016",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What is an “appointment” in “I have a dentist appointment at ten”?",
+      "answer": "An arranged time to meet someone.",
+      "explanation": "An appointment is a planned meeting at a particular time, often for a service or professional visit.",
+      "example": "She made an appointment with the bank adviser.",
+      "sortOrder": 16
+    },
+    {
+      "contentKey": "everyday-017",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “address” mean in “Please send me the hotel address”?",
+      "answer": "Information that shows where a place is located.",
+      "explanation": "An address identifies the location of a home, business, or other place.",
+      "example": "I wrote the delivery address on the form.",
+      "sortOrder": 17
+    },
+    {
+      "contentKey": "everyday-018",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “price” mean in “The price includes breakfast”?",
+      "answer": "The amount of money something costs.",
+      "explanation": "A price tells you how much money you must pay for a product or service.",
+      "example": "The price of the ticket is on the website.",
+      "sortOrder": 18
+    },
+    {
+      "contentKey": "everyday-019",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “invite” mean in “Let’s invite Leo to dinner”?",
+      "answer": "Ask someone to come to an event or join an activity.",
+      "explanation": "To “invite” someone is to ask them to spend time with you or attend something.",
+      "example": "They invited their new neighbors for coffee.",
+      "sortOrder": 19
+    },
+    {
+      "contentKey": "everyday-020",
+      "type": "vocab",
+      "level": "beginner",
+      "front": "What does “repair” mean in “Can you repair this lamp?”",
+      "answer": "Fix something that is damaged or broken.",
+      "explanation": "To “repair” something is to make it work properly again.",
+      "example": "The technician repaired my laptop yesterday.",
+      "sortOrder": 20
+    }
+  ]
+}

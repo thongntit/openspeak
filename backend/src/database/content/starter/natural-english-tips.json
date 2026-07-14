@@ -1,0 +1,253 @@
+{
+  "slug": "natural-english-tips",
+  "name": "Natural English Tips",
+  "description": "Use contractions, polite requests, common collocations, and concise responses to make everyday English sound natural.",
+  "type": "tip",
+  "level": "beginner",
+  "sortOrder": 60,
+  "isPublished": true,
+  "cards": [
+    {
+      "contentKey": "tip-001",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Rewrite “I am tired” with the standard conversational contraction.",
+      "answer": "I’m tired.",
+      "explanation": "In conversation and informal writing, “I’m” is the usual contraction of “I am.”",
+      "example": "I’m ready to leave when you are.",
+      "sortOrder": 1
+    },
+    {
+      "contentKey": "tip-002",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Rewrite “She does not work here” with the standard conversational contraction.",
+      "answer": "She doesn’t work here.",
+      "explanation": "“Doesn’t” is the common contraction of “does not” after a third-person singular subject.",
+      "example": "He doesn’t need a ride today.",
+      "sortOrder": 2
+    },
+    {
+      "contentKey": "tip-003",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Rewrite “I cannot come tonight” with the standard conversational contraction.",
+      "answer": "I can’t come tonight.",
+      "explanation": "“Can’t” is the usual contraction of “cannot” in everyday speech and informal writing.",
+      "example": "We can’t stay after the meeting.",
+      "sortOrder": 3
+    },
+    {
+      "contentKey": "tip-004",
+      "type": "tip",
+      "level": "beginner",
+      "front": "At a café, replace the direct statement “I want a glass of water” with a polite request using “I’d like” and “please.”",
+      "answer": "I’d like a glass of water, please.",
+      "explanation": "“I’d like …, please” is a polite way to request food, drinks, or services.",
+      "example": "I’d like a table near the window, please.",
+      "sortOrder": 4
+    },
+    {
+      "contentKey": "tip-005",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Make the command “Help me with this form” into a polite request using “Could you” and “please.”",
+      "answer": "Could you help me with this form, please?",
+      "explanation": "“Could you …, please?” makes a request courteous without changing what help is needed.",
+      "example": "Could you check this address, please?",
+      "sortOrder": 5
+    },
+    {
+      "contentKey": "tip-006",
+      "type": "tip",
+      "level": "beginner",
+      "front": "At a restaurant, make “Give me the bill” polite by using “Could I have” and “please.”",
+      "answer": "Could I have the bill, please?",
+      "explanation": "“Could I have …, please?” is a polite pattern for asking someone to bring or give you something.",
+      "example": "Could I have another napkin, please?",
+      "sortOrder": 6
+    },
+    {
+      "contentKey": "tip-007",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Use the natural verb with “decision”: We need to ___ before Friday.",
+      "answer": "We need to make a decision before Friday.",
+      "explanation": "English uses the collocation “make a decision,” not “do a decision.”",
+      "example": "The team made a decision after reviewing the costs.",
+      "options": [
+        "We need to make a decision before Friday.",
+        "We need to do a decision before Friday."
+      ],
+      "sortOrder": 7
+    },
+    {
+      "contentKey": "tip-008",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Complete the common collocation for pausing work: Let’s ___ for ten minutes.",
+      "answer": "Let’s take a break for ten minutes.",
+      "explanation": "“Take a break” is the natural expression for stopping an activity briefly to rest.",
+      "example": "We took a short break after the first exercise.",
+      "options": [
+        "Let’s take a break for ten minutes.",
+        "Let’s make a break for ten minutes.",
+        "Let’s do a break for ten minutes."
+      ],
+      "sortOrder": 8
+    },
+    {
+      "contentKey": "tip-009",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Use the natural verb for eating the morning meal: I usually ___ at seven.",
+      "answer": "I usually have breakfast at seven.",
+      "explanation": "“Have breakfast” is a common collocation for eating the first meal of the day.",
+      "example": "They had breakfast before catching the early bus.",
+      "options": [
+        "I usually have breakfast at seven.",
+        "I usually make breakfast at seven.",
+        "I usually take breakfast at seven."
+      ],
+      "sortOrder": 9
+    },
+    {
+      "contentKey": "tip-010",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Choose the standard verb with “homework”: Nico ___ after dinner.",
+      "answer": "Nico does his homework after dinner.",
+      "explanation": "English normally uses “do homework,” not “make homework.”",
+      "example": "I do my homework at the library on Thursdays.",
+      "options": [
+        "Nico does his homework after dinner.",
+        "Nico makes his homework after dinner."
+      ],
+      "sortOrder": 10
+    },
+    {
+      "contentKey": "tip-011",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Replace the unnatural phrase in “I usually arrive to home at six” with the common expression using “get.”",
+      "answer": "I usually get home at six.",
+      "explanation": "Use “get home” without “to” for arriving at your home in everyday English.",
+      "example": "What time did you get home last night?",
+      "options": [
+        "I usually get home at six.",
+        "I usually get to home at six.",
+        "I usually get at home at six."
+      ],
+      "sortOrder": 11
+    },
+    {
+      "contentKey": "tip-012",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Complete the fixed verb-and-preposition combination: The picnic plan ___ the weather.",
+      "answer": "The picnic plan depends on the weather.",
+      "explanation": "“Depend on” is the standard combination for saying that one thing is affected or decided by another.",
+      "example": "The delivery time depends on traffic.",
+      "options": [
+        "The picnic plan depends on the weather.",
+        "The picnic plan depends of the weather.",
+        "The picnic plan depends at the weather."
+      ],
+      "sortOrder": 12
+    },
+    {
+      "contentKey": "tip-013",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Give the standard short positive answer to “Do you work from home?”",
+      "answer": "Yes, I do.",
+      "explanation": "A short answer to a present-simple question with “do” repeats the auxiliary rather than the main verb.",
+      "example": "“Do they know the address?” “Yes, they do.”",
+      "options": ["Yes, I do.", "Yes, I work.", "Yes, I am."],
+      "sortOrder": 13
+    },
+    {
+      "contentKey": "tip-014",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Give the standard short negative answer to “Can you swim?”",
+      "answer": "No, I can’t.",
+      "explanation": "A short answer to a question with “can” repeats “can” or “can’t” instead of the main verb.",
+      "example": "“Can Mira join us?” “No, she can’t.”",
+      "options": ["No, I can’t.", "No, I don’t.", "No, I am not."],
+      "sortOrder": 14
+    },
+    {
+      "contentKey": "tip-015",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Complete this standard polite exchange: “Thank you for your help.” “You’re ___.”",
+      "answer": "You’re welcome.",
+      "explanation": "“You’re welcome” is a standard polite response when someone thanks you.",
+      "example": "“Thanks for carrying that box.” “You’re welcome.”",
+      "options": ["You’re welcome.", "You’re welcomed.", "You welcome."],
+      "sortOrder": 15
+    },
+    {
+      "contentKey": "tip-016",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Accept the suggestion “How about meeting at ten?” by completing the concise response: That ___ good.",
+      "answer": "That sounds good.",
+      "explanation": "“That sounds good” is a concise, natural way to show that you accept a suggestion.",
+      "example": "“Let’s take the earlier train.” “That sounds good.”",
+      "sortOrder": 16
+    },
+    {
+      "contentKey": "tip-017",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Make “The soup is very delicious” more natural by removing only the unnecessary word.",
+      "answer": "The soup is delicious.",
+      "explanation": "“Delicious” already has a strong meaning, so “very delicious” is usually unnecessary in natural everyday English.",
+      "example": "The bread from that bakery is delicious.",
+      "sortOrder": 17
+    },
+    {
+      "contentKey": "tip-018",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Correct the word-for-word error in “I am agree with you.”",
+      "answer": "I agree with you.",
+      "explanation": "“Agree” is a verb in English, so it does not take “am” in the present simple.",
+      "example": "We agree that the first option is clearer.",
+      "options": [
+        "I agree with you.",
+        "I am agree with you.",
+        "I agreeing with you."
+      ],
+      "sortOrder": 18
+    },
+    {
+      "contentKey": "tip-019",
+      "type": "tip",
+      "level": "beginner",
+      "front": "Correct “I have 25 years” by writing the full English sentence with “years old.”",
+      "answer": "I am 25 years old.",
+      "explanation": "English uses the verb “be,” not “have,” to state a person’s age.",
+      "example": "My brother is 30 years old.",
+      "options": [
+        "I am 25 years old.",
+        "I have 25 years old.",
+        "I am having 25 years."
+      ],
+      "sortOrder": 19
+    },
+    {
+      "contentKey": "tip-020",
+      "type": "tip",
+      "level": "beginner",
+      "front": "You arrived after the bus left. Correct the word choice in “I lost the bus.”",
+      "answer": "I missed the bus.",
+      "explanation": "Use “miss” when you arrive too late for transport; “lose” means you cannot find something you had.",
+      "example": "We missed the last train and took a taxi home.",
+      "options": ["I missed the bus.", "I lost the bus.", "I forgot the bus."],
+      "sortOrder": 20
+    }
+  ]
+}

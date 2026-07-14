@@ -318,6 +318,22 @@ describe('validateLearningContent', () => {
 });
 
 describe('loadLearningContent', () => {
+  it('loads the curated starter production bundle', () => {
+    const bundle = loadLearningContent();
+
+    expect(bundle.databaseContentVersion).toBe('starter@2026.07.1');
+    expect(bundle.decks.map((deck) => deck.slug)).toEqual([
+      'essential-everyday-vocabulary',
+      'work-and-daily-routines',
+      'articles-a-an-the',
+      'present-simple-vs-continuous',
+      'common-prepositions',
+      'natural-english-tips',
+    ]);
+    expect(bundle.decks.every((deck) => deck.cards.length === 20)).toBe(true);
+    expect(bundle.decks.flatMap((deck) => deck.cards)).toHaveLength(120);
+  });
+
   it('loads exactly the manifest-listed deck documents', () => {
     const { manifest, decks } = createValidContent();
     const directory = writeContentDirectory(manifest, decks);
