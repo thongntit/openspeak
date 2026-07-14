@@ -308,6 +308,21 @@ curl --fail --silent --show-error --output /dev/null --write-out '%{http_code}\n
 Expected output: `200`. A production failure stops the release; it does not
 authorize a migration revert.
 
+## Issue #38 evidence and checklist closeout
+
+Keep [Issue #38](https://github.com/thongntit/gramio/issues/38) open until
+every required release gate has observed evidence. After each authorized gate,
+attach or link the relevant PR CI evidence and dev or production evidence to
+the issue. Update only the checklist item(s) supported by that observed proof;
+leave production, recovery, or any other blocked or pending item unchecked.
+Do not treat this runbook, expected values, or a planned command as evidence of
+completion.
+
+For every issue update, record the issue reference/status, the evidence links
+or attachments, and the checklist items completed and still pending in the
+evidence template below. Before closing the issue, confirm that all required
+CI, dev, recovery, approval, and production gates have concrete evidence.
+
 ## Evidence template
 
 Copy this template for each environment. Keep every unexecuted field marked
@@ -319,7 +334,11 @@ Learning content release evidence
 Environment: dev | production
 Target service: gramio-api-dev | gramio-api-production
 Container/service: api
-Execution timestamp (UTC): PENDING
+Issue #38 update status/reference: PENDING
+Issue #38 PR CI evidence link/attachment: PENDING
+Issue #38 dev/production evidence link/attachment: PENDING
+Issue #38 checklist items completed with observed proof: PENDING
+Issue #38 checklist items pending/blocked: PENDING
 Reviewed Git commit: PENDING
 Published image tag: PENDING
 Deployed immutable image digest/SHA: PENDING
@@ -330,6 +349,7 @@ Asset checksum/equivalence result: PENDING
 
 One-time command run 1:
   command: npm run db:prepare:prod
+  timestamp (UTC): PENDING
   exit status: PENDING
   contentVersion: PENDING
   decksUpserted: PENDING
@@ -339,6 +359,7 @@ One-time command run 1:
 
 One-time command run 2 (required for dev):
   command: npm run db:prepare:prod
+  timestamp (UTC): PENDING
   exit status: PENDING
   contentVersion: PENDING
   decksUpserted: PENDING
@@ -347,6 +368,7 @@ One-time command run 2 (required for dev):
   cardsDeactivated: PENDING
 
 Aggregate verification:
+  timestamp (UTC): PENDING
   published decks (expected 6): PENDING
   active cards (expected 120): PENDING
   published other starter versions (expected 0): PENDING
@@ -355,6 +377,7 @@ Aggregate verification:
   duplicate card identities (expected 0): PENDING
 
 Recovery evidence:
+  timestamp (UTC): PENDING
   automated pre-connection regression/CI: PENDING
   live invalid-asset dev rehearsal: PENDING - no safe CLI injection interface
   valid rerun and unchanged-state result: PENDING
@@ -372,6 +395,6 @@ Production only:
   masked production variable-presence check: PENDING
   explicit user approval reference: PENDING
 
-Secrets or content answers included: no
+Secrets/content-answer redaction review and operator signoff: PENDING
 Operator notes: PENDING
 ```
