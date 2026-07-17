@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { LearningDataModule } from './learning/learning-data.module';
 import { LearningContentModule } from './learning-content/learning-content.module';
 import { UsersModule } from './users/users.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UsersModule } from './users/users.module';
     LearningDataModule,
     LearningContentModule,
     AuthModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
 })
