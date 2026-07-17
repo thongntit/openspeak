@@ -7,6 +7,7 @@ import { WordsModule } from './words/words.module';
 import { CollectionsModule } from './collections/collections.module';
 import { AuthModule } from './auth/auth.module';
 import { LearningDataModule } from './learning/learning-data.module';
+import { LearningContentModule } from './learning-content/learning-content.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module';
     CollectionsModule,
     UsersModule,
     LearningDataModule,
+    LearningContentModule,
     AuthModule,
   ],
   controllers: [AppController],

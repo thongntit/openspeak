@@ -1,10 +1,11 @@
 import { MODULE_METADATA } from '@nestjs/common/constants';
 import { AuthModule } from './auth/auth.module';
 import { LearningDataModule } from './learning/learning-data.module';
+import { LearningContentModule } from './learning-content/learning-content.module';
 import { UsersModule } from './users/users.module';
 
 describe('AppModule production foundation', () => {
-  it('loads authentication, users, and learning data modules', () => {
+  it('loads authentication, users, learning data, and learning content modules', () => {
     process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
     process.env.CORS_ORIGIN = 'http://localhost:5173';
     const { AppModule } =
@@ -14,7 +15,12 @@ describe('AppModule production foundation', () => {
       | undefined;
 
     expect(imports).toEqual(
-      expect.arrayContaining([AuthModule, UsersModule, LearningDataModule]),
+      expect.arrayContaining([
+        AuthModule,
+        UsersModule,
+        LearningDataModule,
+        LearningContentModule,
+      ]),
     );
   });
 });

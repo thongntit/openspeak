@@ -68,6 +68,17 @@ export function getCollectionWords(id, params = {}, opts = {}) {
   });
 }
 
+export function getContentDecks(params = {}, opts = {}) {
+  return request('/content/decks', { params, ...opts });
+}
+
+export function getContentDeckCards(slug, params = {}, opts = {}) {
+  return request(`/content/decks/${encodeURIComponent(slug)}/cards`, {
+    params,
+    ...opts,
+  });
+}
+
 export function getHealth(opts = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts.timeout ?? 5000);
