@@ -42,7 +42,14 @@ function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<Today />} />
           <Route path="/review" element={<Review />} />
-          <Route path="/library" element={<Library />} />
+          <Route
+            path="/library"
+            element={
+              <PrivateRoute>
+                <Library />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/profile"
             element={

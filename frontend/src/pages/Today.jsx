@@ -136,7 +136,7 @@ export default function Today() {
             <DeckRow
               key={d.id}
               deck={d}
-              onClick={() => navigate('/library', { state: { openDeckId: d.id } })}
+              onClick={() => navigate('/library')}
             />
           ))}
         </Card>
