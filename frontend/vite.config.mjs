@@ -61,9 +61,9 @@ export default defineConfig({
         enabled: true
       },
       manifest: {
-        name: 'Pronounce',
-        short_name: 'Pronounce',
-        description: 'Practice English pronunciation with AI-powered feedback',
+        name: 'Gramio',
+        short_name: 'Gramio',
+        description: 'Practice English grammar and vocabulary.',
         theme_color: '#f6f7f8',
         background_color: '#f6f7f8',
         display: 'standalone',

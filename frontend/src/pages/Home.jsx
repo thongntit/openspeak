@@ -112,7 +112,7 @@ export default function Home() {
             height="28"
             className="h-7 w-7 rounded-[9px] shadow-[0_2px_6px_rgba(19,127,236,0.35)]"
           />
-          <span>Pronounce</span>
+          <span>Gramio</span>
         </div>
         <div className="flex gap-2">
           <button
