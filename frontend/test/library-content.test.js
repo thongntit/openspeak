@@ -38,6 +38,29 @@ test('loadAllContentDecks rejects a non-advancing next page', async () => {
   );
 });
 
+test('loadAllContentDecks rejects a zero page limit that cannot advance', async () => {
+  let requests = 0;
+
+  await assert.rejects(
+    loadAllContentDecks(async () => {
+      requests += 1;
+      if (requests > 1) {
+        throw new Error('A non-advancing page must not be fetched twice');
+      }
+
+      return {
+        data: [{ id: 'deck-0' }],
+        total: 1,
+        limit: 0,
+        offset: 0,
+        hasNext: true,
+        hasPrev: false,
+      };
+    }),
+    /Content deck pagination did not advance/,
+  );
+});
+
 test('filterLibraryDecks supports all content types', () => {
   const decks = [
     { id: 'v', type: 'vocab' },

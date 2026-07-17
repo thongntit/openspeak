@@ -18,11 +18,16 @@ export async function loadAllContentDecks(fetchPage) {
     });
     decks.push(...page.data);
     hasNext = page.hasNext;
-    offset += page.limit;
+    const nextOffset = offset + page.limit;
 
-    if (hasNext && page.data.length === 0) {
+    if (
+      hasNext
+      && (page.data.length === 0 || !Number.isFinite(nextOffset) || nextOffset <= offset)
+    ) {
       throw new Error('Content deck pagination did not advance');
     }
+
+    offset = nextOffset;
   }
 
   return decks;
