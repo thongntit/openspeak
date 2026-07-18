@@ -1,5 +1,5 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -10,8 +10,11 @@ import {
 import { useLearningStore } from '@/stores/learningStore';
 import Review from '@/pages/Review';
 
+const clerk = vi.hoisted(() => ({ signOut: vi.fn() }));
+
 vi.mock('@clerk/clerk-react', () => ({
   useAuth: () => ({ getToken: () => Promise.resolve('fresh-token') }),
+  useClerk: () => ({ signOut: clerk.signOut }),
 }));
 
 vi.mock('@/services/openspeakApi', async (importOriginal) => {
@@ -150,6 +153,27 @@ describe('Review', () => {
     expect(screen.queryByText(CARD.front)).not.toBeInTheDocument();
   });
 
+  it('records only the rating whose single in-flight submit is accepted', async () => {
+    const user = userEvent.setup();
+    const request = deferred();
+    submitReview.mockReturnValue(request.promise);
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+    await user.click(screen.getByRole('button', { name: /show answer/i }));
+    const good = screen.getByRole('button', { name: /^good/i });
+    const easy = screen.getByRole('button', { name: /^easy/i });
+
+    act(() => {
+      good.click();
+      easy.click();
+    });
+    await vi.waitFor(() => expect(submitReview).toHaveBeenCalled());
+    request.resolve({ duplicate: false, today: CAUGHT_UP });
+
+    expect(await screen.findByText(/you reviewed 1 cards/i)).toBeInTheDocument();
+    expect(submitReview).toHaveBeenCalledOnce();
+  });
+
   it('retries a transient failure with the identical request and completes', async () => {
     const user = userEvent.setup();
     useLearningStore.getState().replaceToday(TODAY);
@@ -176,6 +200,19 @@ describe('Review', () => {
     expect(screen.getByText(/loading review session/i)).toBeInTheDocument();
     expect(await screen.findByText(CARD.front)).toBeInTheDocument();
     expect(getToday).toHaveBeenCalledOnce();
+  });
+
+  it('offers a real reauthentication action when loading returns 401', async () => {
+    const user = userEvent.setup();
+    getToday.mockRejectedValue(
+      new ApiError(401, { message: 'Authentication required' }, '/today'),
+    );
+
+    renderReview();
+
+    expect(await screen.findByText(/session expired/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /sign in again/i }));
+    expect(clerk.signOut).toHaveBeenCalledWith({ redirectUrl: '/' });
   });
 
   it('refreshes Today once after a submitted card returns 404', async () => {
@@ -219,3 +256,11 @@ describe('Review', () => {
     expect(screen.getByText('Today route')).toBeInTheDocument();
   });
 });
+
+function deferred() {
+  let resolve;
+  const promise = new Promise((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
+}

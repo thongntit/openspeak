@@ -15,6 +15,7 @@ import {
   TriangleAlert,
 } from 'lucide-react';
 import Card from '@/components/ui/Card';
+import ReauthenticateButton from '@/components/ReauthenticateButton';
 import { useLearningStore } from '@/stores/learningStore';
 import { useThemeStore } from '@/stores/themeStore';
 
@@ -142,7 +143,9 @@ function TodayError({ error, onRetry }) {
         <div className="mt-1 text-[13px] leading-relaxed text-[var(--text-2)]">
           {copy.detail}
         </div>
-        {status !== 401 && (
+        {status === 401 ? (
+          <ReauthenticateButton className="mt-5 h-12 w-full rounded-xl bg-[var(--primary-hex)] px-4 text-[15px] font-semibold text-white active:scale-[0.98]" />
+        ) : (
           <button
             type="button"
             onClick={onRetry}

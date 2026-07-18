@@ -6,6 +6,7 @@ import {
 } from '@/services/openspeakApi';
 
 const INITIAL_STATE = {
+  sessionEpoch: 0,
   today: null,
   loadStatus: 'idle',
   loadError: null,
@@ -41,14 +42,19 @@ export const useLearningStore = create((set, get) => ({
   ...INITIAL_STATE,
 
   loadToday: async (getToken, { signal } = {}) => {
+    const requestEpoch = get().sessionEpoch;
+    const isCurrentSession = () => get().sessionEpoch === requestEpoch;
     set({ loadStatus: 'loading', loadError: null });
     try {
       const token = await requireToken(getToken);
+      if (!isCurrentSession()) return null;
       const opts = signal ? { token, signal } : { token };
       const today = await getToday(opts);
+      if (!isCurrentSession()) return null;
       set({ today, loadStatus: 'ready', loadError: null });
       return today;
     } catch (error) {
+      if (!isCurrentSession()) return null;
       if (error?.name === 'AbortError') {
         set((state) => ({
           loadStatus: state.today ? 'ready' : 'idle',
@@ -57,8 +63,17 @@ export const useLearningStore = create((set, get) => ({
         return null;
       }
       const loadError = toStatusError(error);
+      if (error?.status === 401) {
+        set((state) => ({
+          ...INITIAL_STATE,
+          sessionEpoch: state.sessionEpoch + 1,
+          loadStatus: 'error',
+          loadError,
+        }));
+        return null;
+      }
       set({
-        today: error?.status === 401 ? null : get().today,
+        today: get().today,
         loadStatus: 'error',
         loadError,
       });
@@ -97,8 +112,11 @@ export const useLearningStore = create((set, get) => ({
   },
 
   submitPendingReview: async (getToken) => {
-    const { pendingReview, today } = get();
+    const { pendingReview, reviewStatus, today } = get();
     if (!pendingReview) return null;
+    if (reviewStatus === 'submitting') return null;
+    const requestEpoch = get().sessionEpoch;
+    const isCurrentSession = () => get().sessionEpoch === requestEpoch;
 
     if (today?.queue?.[0]?.card?.id !== pendingReview.cardId) {
       const reviewError = {
@@ -116,7 +134,9 @@ export const useLearningStore = create((set, get) => ({
     set({ reviewStatus: 'submitting', reviewError: null });
     try {
       const token = await requireToken(getToken);
+      if (!isCurrentSession()) return null;
       const response = await submitReview(pendingReview, { token });
+      if (!isCurrentSession()) return null;
       set({
         today: response.today,
         loadStatus: 'ready',
@@ -127,15 +147,17 @@ export const useLearningStore = create((set, get) => ({
       });
       return response;
     } catch (error) {
+      if (!isCurrentSession()) return null;
       const reviewError = toStatusError(error);
       if (error?.status === 401) {
-        set({
+        set((state) => ({
           ...INITIAL_STATE,
+          sessionEpoch: state.sessionEpoch + 1,
           loadStatus: 'error',
           loadError: reviewError,
           reviewStatus: 'error',
           reviewError,
-        });
+        }));
       } else if (isRetryable(error)) {
         set({
           reviewStatus: 'retryable-error',
@@ -157,5 +179,8 @@ export const useLearningStore = create((set, get) => ({
 
   clearReviewError: () => set({ reviewError: null }),
 
-  resetLearning: () => set({ ...INITIAL_STATE }),
+  resetLearning: () => set((state) => ({
+    ...INITIAL_STATE,
+    sessionEpoch: state.sessionEpoch + 1,
+  })),
 }));

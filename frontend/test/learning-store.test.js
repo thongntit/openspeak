@@ -64,12 +64,118 @@ const CAUGHT_UP = {
   serverTimestamp: '2026-07-18T00:01:00.000Z',
 };
 
+function deferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, resolve, reject };
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   useLearningStore.getState().resetLearning();
 });
 
 describe('learning store', () => {
+  it('ignores a stale Today success after the learning session resets', async () => {
+    const request = deferred();
+    getToday.mockReturnValue(request.promise);
+
+    const load = useLearningStore.getState().loadToday(
+      () => Promise.resolve('user-a-token'),
+    );
+    await vi.waitFor(() => expect(getToday).toHaveBeenCalledOnce());
+
+    useLearningStore.getState().resetLearning();
+    request.resolve(TODAY);
+    await load;
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: null,
+      loadStatus: 'idle',
+      loadError: null,
+      reviewStatus: 'idle',
+      reviewError: null,
+      pendingReview: null,
+    });
+  });
+
+  it('ignores a stale Today failure after the learning session resets', async () => {
+    const request = deferred();
+    getToday.mockReturnValue(request.promise);
+
+    const load = useLearningStore.getState().loadToday(
+      () => Promise.resolve('user-a-token'),
+    );
+    await vi.waitFor(() => expect(getToday).toHaveBeenCalledOnce());
+
+    useLearningStore.getState().resetLearning();
+    request.reject(new ApiError(500, { message: 'User A failed' }, '/today'));
+    await load;
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: null,
+      loadStatus: 'idle',
+      loadError: null,
+      reviewStatus: 'idle',
+      reviewError: null,
+      pendingReview: null,
+    });
+  });
+
+  it('ignores a stale review success after the learning session resets', async () => {
+    const request = deferred();
+    submitReview.mockReturnValue(request.promise);
+    useLearningStore.getState().replaceToday(TODAY);
+    useLearningStore.getState().beginReview(CARD.id, 'good');
+
+    const submit = useLearningStore.getState().submitPendingReview(
+      () => Promise.resolve('user-a-token'),
+    );
+    await vi.waitFor(() => expect(submitReview).toHaveBeenCalledOnce());
+
+    useLearningStore.getState().resetLearning();
+    request.resolve({ duplicate: false, today: CAUGHT_UP });
+    await submit;
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: null,
+      loadStatus: 'idle',
+      loadError: null,
+      reviewStatus: 'idle',
+      reviewError: null,
+      pendingReview: null,
+    });
+  });
+
+  it('ignores a stale review failure after the learning session resets', async () => {
+    const request = deferred();
+    submitReview.mockReturnValue(request.promise);
+    useLearningStore.getState().replaceToday(TODAY);
+    useLearningStore.getState().beginReview(CARD.id, 'hard');
+
+    const submit = useLearningStore.getState().submitPendingReview(
+      () => Promise.resolve('user-a-token'),
+    );
+    await vi.waitFor(() => expect(submitReview).toHaveBeenCalledOnce());
+
+    useLearningStore.getState().resetLearning();
+    request.reject(new ApiError(0, { message: 'User A failed' }, '/reviews'));
+    await submit;
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: null,
+      loadStatus: 'idle',
+      loadError: null,
+      reviewStatus: 'idle',
+      reviewError: null,
+      pendingReview: null,
+    });
+  });
+
   it('loads a fresh token and replaces the whole Today snapshot', async () => {
     getToday.mockResolvedValue(TODAY);
 
@@ -128,6 +234,30 @@ describe('learning store', () => {
     });
   });
 
+  it('accepts only one in-flight submit for the pending review', async () => {
+    const request = deferred();
+    const response = { duplicate: false, today: CAUGHT_UP };
+    submitReview.mockReturnValue(request.promise);
+    useLearningStore.getState().replaceToday(TODAY);
+    useLearningStore.getState().beginReview(CARD.id, 'good');
+    const getToken = vi.fn().mockResolvedValue('fresh-token');
+
+    const first = useLearningStore.getState().submitPendingReview(getToken);
+    const second = useLearningStore.getState().submitPendingReview(getToken);
+    await vi.waitFor(() => expect(submitReview).toHaveBeenCalled());
+    request.resolve(response);
+
+    const [firstResult, secondResult] = await Promise.all([first, second]);
+    expect(submitReview).toHaveBeenCalledOnce();
+    expect(firstResult).toBe(response);
+    expect(secondResult).toBeNull();
+    expect(useLearningStore.getState()).toMatchObject({
+      today: CAUGHT_UP,
+      pendingReview: null,
+      reviewStatus: 'idle',
+    });
+  });
+
   it('does not create a new UUID when the same failed rating is begun again', () => {
     useLearningStore.getState().replaceToday(TODAY);
     const randomUUID = vi.spyOn(crypto, 'randomUUID').mockReturnValue(
@@ -168,8 +298,15 @@ describe('learning store', () => {
     });
   });
 
-  it('resets cached learning data while preserving a 401 load error', async () => {
+  it('resets the whole learning session while preserving a 401 load error', async () => {
     useLearningStore.getState().replaceToday(TODAY);
+    useLearningStore.getState().beginReview(CARD.id, 'hard');
+    submitReview.mockRejectedValueOnce(
+      new ApiError(0, { message: 'Network error' }, '/reviews'),
+    );
+    await useLearningStore.getState().submitPendingReview(
+      () => Promise.resolve('expired'),
+    );
     getToday.mockRejectedValue(
       new ApiError(401, { message: 'Authentication required' }, '/today'),
     );
@@ -185,6 +322,9 @@ describe('learning store', () => {
         status: 401,
         message: 'Authentication required',
       },
+      reviewStatus: 'idle',
+      reviewError: null,
+      pendingReview: null,
     });
   });
 

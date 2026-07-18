@@ -6,8 +6,11 @@ import { ApiError, getToday } from '@/services/openspeakApi';
 import { useLearningStore } from '@/stores/learningStore';
 import Today from '@/pages/Today';
 
+const clerk = vi.hoisted(() => ({ signOut: vi.fn() }));
+
 vi.mock('@clerk/clerk-react', () => ({
   useAuth: () => ({ getToken: () => Promise.resolve('fresh-token') }),
+  useClerk: () => ({ signOut: clerk.signOut }),
 }));
 
 vi.mock('@/services/openspeakApi', async (importOriginal) => {
@@ -109,6 +112,7 @@ describe('Today', () => {
   });
 
   it('renders an explicit reauthentication state for 401', async () => {
+    const user = userEvent.setup();
     getToday.mockRejectedValue(
       new ApiError(401, { message: 'Authentication required' }, '/today'),
     );
@@ -116,6 +120,8 @@ describe('Today', () => {
     renderToday();
 
     expect(await screen.findByText(/session expired/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /sign in again/i }));
+    expect(clerk.signOut).toHaveBeenCalledWith({ redirectUrl: '/' });
     expect(screen.queryByText(/caught up/i)).not.toBeInTheDocument();
   });
 

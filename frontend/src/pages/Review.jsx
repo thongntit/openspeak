@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import TypeChip from '@/components/ui/TypeChip';
+import ReauthenticateButton from '@/components/ReauthenticateButton';
 import { useLearningStore } from '@/stores/learningStore';
 
 const REVIEW_BUTTONS = [
@@ -326,7 +327,9 @@ function ReviewLoadError({ error, onRetry }) {
             ? 'Sign in again before reviewing cards.'
             : 'Your queue could not be loaded.'}
         </div>
-        {status !== 401 && (
+        {status === 401 ? (
+          <ReauthenticateButton className="mt-5 h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white" />
+        ) : (
           <button
             type="button"
             onClick={onRetry}
