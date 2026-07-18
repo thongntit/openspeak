@@ -1,161 +1,233 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { X, Bookmark, Check } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Check,
+  RefreshCw,
+  TriangleAlert,
+  X,
+} from 'lucide-react';
 import { cn } from '@/lib/cn';
 import TypeChip from '@/components/ui/TypeChip';
-import { CARD_TYPE, SRS_BUTTONS, getDueCards } from '@/data/srsData';
+import { useLearningStore } from '@/stores/learningStore';
+
+const REVIEW_BUTTONS = [
+  { id: 'again', label: 'Again', color: '#be123c' },
+  { id: 'hard', label: 'Hard', color: '#b45309' },
+  { id: 'good', label: 'Good', color: '#078838' },
+  { id: 'easy', label: 'Easy', color: '#137fec' },
+];
+
+const EMPTY_COUNTS = { again: 0, hard: 0, good: 0, easy: 0 };
 
 export default function Review() {
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const [queue] = useState(() =>
-    state?.queue?.length ? state.queue : getDueCards(),
-  );
-  const [idx, setIdx] = useState(0);
-  const [revealed, setRevealed] = useState(false);
-  const [picked, setPicked] = useState(null);
-  const [counts, setCounts] = useState({ again: 0, hard: 0, good: 0, easy: 0 });
-  const [finished, setFinished] = useState(false);
+  const { getToken } = useAuth();
+  const today = useLearningStore((state) => state.today);
+  const loadStatus = useLearningStore((state) => state.loadStatus);
+  const loadError = useLearningStore((state) => state.loadError);
+  const reviewStatus = useLearningStore((state) => state.reviewStatus);
+  const reviewError = useLearningStore((state) => state.reviewError);
+  const pendingReview = useLearningStore((state) => state.pendingReview);
+  const loadToday = useLearningStore((state) => state.loadToday);
+  const beginReview = useLearningStore((state) => state.beginReview);
+  const submitPendingReview = useLearningStore((state) => state.submitPendingReview);
+  const retryPendingReview = useLearningStore((state) => state.retryPendingReview);
+  const clearReviewError = useLearningStore((state) => state.clearReviewError);
+  const [cardUi, setCardUi] = useState({
+    cardId: null,
+    revealed: false,
+    picked: null,
+  });
+  const [counts, setCounts] = useState(EMPTY_COUNTS);
+  const [reviewedCount, setReviewedCount] = useState(0);
+  const refreshedMissingCard = useRef(null);
 
-  const total = queue.length;
-  const card = queue[idx];
-  const progressPct = Math.min(100, Math.round((idx / Math.max(1, total)) * 100));
+  const card = today?.queue?.[0]?.card ?? null;
+  const isSubmitting = reviewStatus === 'submitting';
+  const currentCardUi = cardUi.cardId === card?.id
+    ? cardUi
+    : { cardId: card?.id ?? null, revealed: false, picked: null };
+  const { revealed, picked } = currentCardUi;
 
-  const onExit = () => navigate(-1);
-
-  if (!card || finished) {
-    return <ReviewDone counts={counts} total={total} onExit={onExit} />;
-  }
-
-  const hasMCQ = Array.isArray(card.options);
-
-  const reveal = () => setRevealed(true);
-
-  const rate = (id) => {
-    setCounts((c) => ({ ...c, [id]: c[id] + 1 }));
-    if (idx + 1 >= total) {
-      setFinished(true);
-    } else {
-      setIdx(idx + 1);
-      setRevealed(false);
-      setPicked(null);
+  useEffect(() => {
+    if (loadStatus === 'idle') {
+      void loadToday(getToken);
     }
+  }, [getToken, loadStatus, loadToday]);
+
+  useEffect(() => {
+    if (reviewError?.status !== 404) return;
+    const refreshKey = `${card?.id ?? 'empty'}:${reviewError.message}`;
+    if (refreshedMissingCard.current === refreshKey) return;
+    refreshedMissingCard.current = refreshKey;
+
+    clearReviewError();
+    void loadToday(getToken);
+  }, [card?.id, clearReviewError, getToken, loadToday, reviewError]);
+
+  const exitReview = () => {
+    if (!isSubmitting) navigate('/', { replace: true });
   };
 
-  const pick = (opt) => {
-    if (picked) return;
-    setPicked(opt);
-    setTimeout(() => setRevealed(true), 350);
+  const submitRating = async (rating) => {
+    if (!card || isSubmitting) return;
+    beginReview(card.id, rating);
+    const response = await submitPendingReview(getToken);
+    if (response) recordAcceptedRating(rating);
+  };
+
+  const retryReview = async () => {
+    const rating = pendingReview?.rating;
+    if (!rating || isSubmitting) return;
+    const response = await retryPendingReview(getToken);
+    if (response) recordAcceptedRating(rating);
+  };
+
+  const recordAcceptedRating = (rating) => {
+    setCounts((current) => ({
+      ...current,
+      [rating]: current[rating] + 1,
+    }));
+    setReviewedCount((current) => current + 1);
+  };
+
+  const refreshSession = async () => {
+    await loadToday(getToken);
+    clearReviewError();
+  };
+
+  if (loadStatus === 'idle' || loadStatus === 'loading') {
+    return <ReviewLoading />;
+  }
+
+  if (loadStatus === 'error') {
+    return <ReviewLoadError error={loadError} onRetry={refreshSession} />;
+  }
+
+  if (!today || today.caughtUp || today.queue.length === 0) {
+    return (
+      <ReviewDone
+        counts={counts}
+        total={reviewedCount}
+        onExit={() => navigate('/', { replace: true })}
+      />
+    );
+  }
+
+  const total = reviewedCount + today.totalDue;
+  const progressPct = Math.min(
+    100,
+    Math.round((reviewedCount / Math.max(1, total)) * 100),
+  );
+  const hasMCQ = Array.isArray(card.options) && card.options.length > 0;
+
+  const pick = (option) => {
+    if (picked || isSubmitting) return;
+    setCardUi({ cardId: card.id, revealed: false, picked: option });
+    setTimeout(() => {
+      setCardUi((current) => current.cardId === card.id
+        ? { ...current, revealed: true }
+        : current);
+    }, 350);
   };
 
   return (
-    <div className="flex flex-col h-full animate-screen-fade-in">
-      {/* Header with progress */}
-      <div className="flex items-center gap-3 px-4 py-3 flex-shrink-0">
+    <div className="flex h-full flex-col animate-screen-fade-in">
+      <div className="flex flex-shrink-0 items-center gap-3 px-4 py-3">
         <button
           type="button"
-          onClick={onExit}
+          onClick={exitReview}
+          disabled={isSubmitting}
           aria-label="Exit review"
-          className="inline-flex h-[38px] w-[38px] items-center justify-center rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] text-[var(--text-1)]"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border-soft)] bg-[var(--bg-card)] text-[var(--text-1)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <X size={18} strokeWidth={2} />
         </button>
-        <div className="flex-1 h-1.5 rounded-full bg-[var(--border-soft)] overflow-hidden">
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--border-soft)]">
           <div
             className="h-full rounded-full bg-[var(--primary-hex)] transition-[width] duration-500"
-            style={{ width: progressPct + '%' }}
+            style={{ width: `${progressPct}%` }}
           />
         </div>
-        <div className="font-mono text-[12px] font-semibold text-[var(--text-2)] min-w-[36px] text-right">
-          {idx + 1}/{total}
+        <div className="min-w-[42px] text-right font-mono text-[12px] font-semibold text-[var(--text-2)]">
+          {Math.min(reviewedCount + 1, total)}/{total}
         </div>
       </div>
 
-      {/* Flashcard area */}
-      <div className="flex-1 px-4 pb-3 min-h-0">
-        <div className="relative w-full h-full">
-          {/* Stack bg layers */}
+      <div className="min-h-0 flex-1 px-4 pb-3">
+        <div className="relative h-full w-full">
           <div
-            className="absolute left-0 right-0 rounded-[22px] bg-[var(--bg-card)] border border-[var(--border-soft)] pointer-events-none"
-            style={{ top: 16, bottom: -16, transform: 'scale(0.92)', opacity: 0.35 }}
+            className="pointer-events-none absolute bottom-[-16px] left-0 right-0 rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] opacity-35"
+            style={{ top: 16, transform: 'scale(0.92)' }}
           />
           <div
-            className="absolute left-0 right-0 rounded-[22px] bg-[var(--bg-card)] border border-[var(--border-soft)] pointer-events-none"
-            style={{ top: 8, bottom: -8, transform: 'scale(0.96)', opacity: 0.6 }}
+            className="pointer-events-none absolute bottom-[-8px] left-0 right-0 rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] opacity-60"
+            style={{ top: 8, transform: 'scale(0.96)' }}
           />
 
-          {/* Active card */}
           <div
             key={card.id}
-            className="relative w-full min-h-full rounded-[22px] bg-[var(--bg-card)] border border-[var(--border-soft)] p-7 flex flex-col shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]"
+            className="relative flex min-h-full w-full flex-col rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]"
           >
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <TypeChip type={card.type} />
-              <button
-                type="button"
-                aria-label="Bookmark"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-2)]"
-              >
-                <Bookmark size={15} strokeWidth={1.8} />
-              </button>
+              <span className="font-mono text-[11px] font-semibold uppercase text-[var(--text-2)]">
+                {card.level}
+              </span>
             </div>
 
-            <div className="text-[30px] font-bold tracking-tight leading-[1.2] text-center whitespace-pre-wrap text-[var(--text-1)]">
+            <div className="whitespace-pre-wrap text-center text-[30px] font-bold leading-[1.2] tracking-tight text-[var(--text-1)]">
               {card.front}
             </div>
 
-            {card.pos && (
-              <div className="font-mono text-[13px] text-[var(--text-2)] text-center mt-2">
-                {card.pos}{card.ipa ? ` · ${card.ipa}` : ''}
-              </div>
-            )}
-
             {hasMCQ && (
-              <div className="flex flex-col gap-2 mt-4">
-                {card.options.map((opt, i) => {
-                  const correct = revealed && opt === card.answer;
-                  const wrong = revealed && picked === opt && opt !== card.answer;
+              <div className="mt-5 flex flex-col gap-2">
+                {card.options.map((option, index) => {
+                  const correct = revealed && option === card.answer;
+                  const wrong = revealed && picked === option && option !== card.answer;
                   return (
                     <button
-                      key={i}
+                      key={option}
                       type="button"
-                      disabled={!!picked}
-                      onClick={() => pick(opt)}
+                      disabled={Boolean(picked) || isSubmitting}
+                      onClick={() => pick(option)}
                       className={cn(
-                        'flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-[15px] font-medium text-left transition-all',
-                        'bg-[var(--bg-app)] border border-[var(--border-soft)]',
+                        'flex min-h-11 items-center gap-2.5 rounded-xl border px-3.5 py-3 text-left text-[15px] font-medium transition-all',
+                        'border-[var(--border-soft)] bg-[var(--bg-app)]',
                         !picked && 'hover:border-[var(--primary-hex)]',
-                        correct && 'bg-[rgba(7,136,56,.08)] border-[rgba(7,136,56,.4)] text-[#078838]',
-                        wrong && 'bg-[rgba(190,18,60,.08)] border-[rgba(190,18,60,.4)] text-[#be123c]',
+                        correct && 'border-[rgba(7,136,56,.4)] bg-[rgba(7,136,56,.08)] text-[#078838]',
+                        wrong && 'border-[rgba(190,18,60,.4)] bg-[rgba(190,18,60,.08)] text-[#be123c]',
                         picked && !correct && !wrong && 'opacity-60',
                       )}
                     >
-                      <span className={cn(
-                        'inline-flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-md',
-                        'bg-[var(--bg-card)] border border-[var(--border-soft)]',
-                        'font-mono text-[11px] font-bold',
-                      )}>
-                        {String.fromCharCode(65 + i)}
+                      <span className="inline-flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-md border border-[var(--border-soft)] bg-[var(--bg-card)] font-mono text-[11px] font-bold">
+                        {String.fromCharCode(65 + index)}
                       </span>
-                      <span className="flex-1">{opt}</span>
-                      {correct && <Check size={16} strokeWidth={2.5} className="ml-auto flex-shrink-0" />}
+                      <span className="flex-1">{option}</span>
+                      {correct && <Check size={16} strokeWidth={2.5} />}
                     </button>
                   );
                 })}
               </div>
             )}
 
-            {/* Back reveal */}
             {revealed && (
-              <div className="mt-5 pt-4 border-t border-[var(--border-soft)] animate-screen-fade-in">
-                <div className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-2)] mb-2">
+              <div className="mt-5 animate-screen-fade-in border-t border-[var(--border-soft)] pt-4">
+                <div className="text-[11px] font-bold uppercase tracking-[0.08em] text-[var(--text-2)]">
                   Answer
                 </div>
-                <div className="text-[17px] font-semibold leading-[1.4] tracking-snug text-[var(--text-1)]">
-                  {card.back}
+                <div
+                  aria-label="Correct answer"
+                  className="mt-2 text-[18px] font-bold leading-[1.4] text-[var(--text-1)]"
+                >
+                  {card.answer}
+                </div>
+                <div className="mt-2 text-[14px] leading-relaxed text-[var(--text-2)]">
+                  {card.explanation}
                 </div>
                 {card.example && (
-                  <div className="mt-3.5 p-3 rounded-xl bg-[var(--bg-app)] text-[13px] text-[var(--text-2)] leading-relaxed whitespace-pre-wrap italic">
+                  <div className="mt-3.5 whitespace-pre-wrap rounded-xl bg-[var(--bg-app)] p-3 text-[13px] italic leading-relaxed text-[var(--text-2)]">
                     {card.example}
                   </div>
                 )}
@@ -165,34 +237,48 @@ export default function Review() {
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="px-4 pb-6 flex-shrink-0">
+      <div className="flex-shrink-0 px-4 pb-6">
+        {reviewError && reviewError.status !== 404 && (
+          <ReviewError
+            error={reviewError}
+            retryable={reviewStatus === 'retryable-error'}
+            submitting={isSubmitting}
+            onRetry={retryReview}
+            onRefresh={refreshSession}
+          />
+        )}
+
         {!revealed ? (
           <button
             type="button"
-            onClick={reveal}
-            className="w-full h-[52px] rounded-xl bg-[var(--primary-hex)] text-white font-semibold text-[15px] active:scale-[0.98] transition-transform"
+            onClick={() => setCardUi({
+              cardId: card.id,
+              revealed: true,
+              picked: null,
+            })}
+            disabled={isSubmitting}
+            className="h-[52px] w-full rounded-xl bg-[var(--primary-hex)] text-[15px] font-semibold text-white transition-transform active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Show answer
           </button>
         ) : (
           <div className="grid grid-cols-4 gap-2">
-            {SRS_BUTTONS.map((b) => (
+            {REVIEW_BUTTONS.map((button) => (
               <button
-                key={b.id}
+                key={button.id}
                 type="button"
-                onClick={() => rate(b.id)}
+                aria-label={button.label}
+                disabled={isSubmitting || Boolean(reviewError)}
+                onClick={() => submitRating(button.id)}
                 className={cn(
-                  'flex flex-col items-center gap-0.5 py-2.5 px-1 rounded-[14px]',
-                  'bg-[var(--bg-card)] border transition-transform active:scale-[0.96]',
-                  b.id === 'again' && 'border-[rgba(190,18,60,.3)] text-[#be123c]',
-                  b.id === 'hard' && 'border-[rgba(180,83,9,.3)] text-[#b45309]',
-                  b.id === 'good' && 'border-[rgba(7,136,56,.3)] text-[#078838]',
-                  b.id === 'easy' && 'border-[rgba(19,127,236,.3)] text-[var(--primary-hex)]',
+                  'flex min-h-12 items-center justify-center rounded-[14px] border bg-[var(--bg-card)] px-1 text-[13px] font-bold transition-transform active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-50',
+                  button.id === 'again' && 'border-[rgba(190,18,60,.3)] text-[#be123c]',
+                  button.id === 'hard' && 'border-[rgba(180,83,9,.3)] text-[#b45309]',
+                  button.id === 'good' && 'border-[rgba(7,136,56,.3)] text-[#078838]',
+                  button.id === 'easy' && 'border-[rgba(19,127,236,.3)] text-[var(--primary-hex)]',
                 )}
               >
-                <span className="text-[13px] font-bold tracking-snug">{b.label}</span>
-                <span className="font-mono text-[11px] opacity-65">{b.interval}</span>
+                {button.label}
               </button>
             ))}
           </div>
@@ -202,40 +288,121 @@ export default function Review() {
   );
 }
 
+function ReviewLoading() {
+  return (
+    <div className="flex h-full items-center justify-center px-6 text-center" role="status">
+      <div>
+        <RefreshCw size={30} className="mx-auto animate-spin text-[var(--primary-hex)]" />
+        <div className="mt-3 text-[17px] font-extrabold text-[var(--text-1)]">
+          Loading review session
+        </div>
+        <div className="mt-1 text-[13px] text-[var(--text-2)]">
+          Fetching the latest queue from Gramio.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewLoadError({ error, onRetry }) {
+  const status = error?.status ?? 0;
+  const title = status === 401
+    ? 'Your session expired'
+    : status === 404
+      ? 'Learning route is unavailable'
+      : status >= 500
+        ? 'Review is unavailable'
+        : 'Could not reach the learning service';
+
+  return (
+    <div className="flex h-full items-center justify-center px-6 text-center">
+      <div>
+        <TriangleAlert size={34} className="mx-auto text-[#b45309] dark:text-[#fbbf24]" />
+        <div className="mt-3 text-[19px] font-extrabold text-[var(--text-1)]">
+          {title}
+        </div>
+        <div className="mt-1 text-[13px] text-[var(--text-2)]">
+          {status === 401
+            ? 'Sign in again before reviewing cards.'
+            : 'Your queue could not be loaded.'}
+        </div>
+        {status !== 401 && (
+          <button
+            type="button"
+            onClick={onRetry}
+            className="mt-5 h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white"
+          >
+            Retry
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ReviewError({ error, retryable, submitting, onRetry, onRefresh }) {
+  return (
+    <div className="mb-3 rounded-xl border border-[rgba(180,83,9,.25)] bg-[rgba(180,83,9,.07)] p-3 text-[13px] text-[var(--text-1)]">
+      <div className="font-bold">
+        {retryable ? 'Review was not sent' : error.message}
+      </div>
+      {retryable && (
+        <div className="mt-0.5 text-[var(--text-2)]">
+          Your card stayed in place. Retry the same review safely.
+        </div>
+      )}
+      <button
+        type="button"
+        disabled={submitting}
+        onClick={retryable ? onRetry : onRefresh}
+        className="mt-2 min-h-11 rounded-lg bg-[var(--bg-card)] px-3 font-bold text-[var(--primary-hex)] disabled:opacity-50"
+      >
+        {retryable ? 'Retry review' : 'Refresh session'}
+      </button>
+    </div>
+  );
+}
+
 function ReviewDone({ counts, total, onExit }) {
-  const correct = counts.good + counts.easy;
-  const accuracy = total ? Math.round((correct / total) * 100) : 0;
+  const remembered = counts.good + counts.easy;
+  const accuracy = total ? Math.round((remembered / total) * 100) : 0;
 
   return (
     <div className="flex flex-col items-center px-6 py-16 text-center animate-screen-fade-in">
-      <div
-        className="inline-flex h-[88px] w-[88px] items-center justify-center rounded-full mb-4"
-        style={{ background: 'rgba(7,136,56,.10)', color: '#078838' }}
-      >
+      <div className="mb-4 inline-flex h-[88px] w-[88px] items-center justify-center rounded-full bg-[rgba(7,136,56,.10)] text-[#078838] dark:bg-[rgba(74,222,128,.14)] dark:text-[#4ade80]">
         <Check size={42} strokeWidth={2} />
       </div>
       <div className="text-[26px] font-extrabold tracking-tight text-[var(--text-1)]">
         Session complete
       </div>
-      <div className="text-[14px] text-[var(--text-2)] mt-1.5 mb-6">
-        You reviewed {total} cards · {accuracy}% remembered well
+      <div className="mb-6 mt-1.5 text-[14px] text-[var(--text-2)]">
+        {total > 0
+          ? `You reviewed ${total} cards · ${accuracy}% remembered well`
+          : 'Your review queue is caught up.'}
       </div>
 
-      <div className="w-full grid grid-cols-4 gap-2 mb-5">
-        {SRS_BUTTONS.map((b) => (
-          <div key={b.id} className="bg-[var(--bg-card)] border border-[var(--border-soft)] rounded-card p-3 text-center">
-            <div className="text-[20px] font-extrabold" style={{ color: b.color }}>{counts[b.id]}</div>
-            <div className="text-[11px] font-semibold uppercase tracking-eyebrow text-[var(--text-2)] mt-0.5">
-              {b.label}
+      {total > 0 && (
+        <div className="mb-5 grid w-full grid-cols-4 gap-2">
+          {REVIEW_BUTTONS.map((button) => (
+            <div
+              key={button.id}
+              className="rounded-card border border-[var(--border-soft)] bg-[var(--bg-card)] p-3 text-center"
+            >
+              <div className="text-[20px] font-extrabold" style={{ color: button.color }}>
+                {counts[button.id]}
+              </div>
+              <div className="mt-0.5 text-[11px] font-semibold uppercase tracking-eyebrow text-[var(--text-2)]">
+                {button.label}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <button
         type="button"
         onClick={onExit}
-        className="w-full h-12 rounded-xl bg-[var(--primary-hex)] text-white font-semibold text-[15px] active:scale-[0.98] transition-transform"
+        className="h-12 w-full rounded-xl bg-[var(--primary-hex)] text-[15px] font-semibold text-white transition-transform active:scale-[0.98]"
       >
         Back to Today
       </button>
