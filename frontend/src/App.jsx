@@ -40,8 +40,22 @@ function App() {
     <Router>
       <Routes>
         <Route element={<AppShell />}>
-          <Route path="/" element={<Today />} />
-          <Route path="/review" element={<Review />} />
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Today />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/review"
+            element={
+              <PrivateRoute>
+                <Review />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/library"
             element={

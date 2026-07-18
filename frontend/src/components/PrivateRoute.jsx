@@ -1,9 +1,11 @@
-import { SignedIn, SignedOut, SignIn } from '@clerk/clerk-react'
+import { useEffect, useRef } from 'react'
+import { SignedIn, SignedOut, SignIn, useUser } from '@clerk/clerk-react'
+import { useLearningStore } from '@/stores/learningStore'
 
 const HAS_CLERK = !!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
-export default function PrivateRoute({ children }) {
-  if (!HAS_CLERK) {
+export default function PrivateRoute({ children, isConfigured = HAS_CLERK }) {
+  if (!isConfigured) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--bg-app)] p-6 text-center">
         <div>
@@ -13,6 +15,22 @@ export default function PrivateRoute({ children }) {
       </div>
     )
   }
+
+  return <ConfiguredPrivateRoute>{children}</ConfiguredPrivateRoute>
+}
+
+function ConfiguredPrivateRoute({ children }) {
+  const { user } = useUser()
+  const resetLearning = useLearningStore((state) => state.resetLearning)
+  const previousUserId = useRef(user?.id ?? null)
+
+  useEffect(() => {
+    const userId = user?.id ?? null
+    if (!userId || (previousUserId.current && previousUserId.current !== userId)) {
+      resetLearning()
+    }
+    previousUserId.current = userId
+  }, [resetLearning, user?.id])
 
   return (
     <>
