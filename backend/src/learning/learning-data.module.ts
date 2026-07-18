@@ -6,6 +6,8 @@ import { Deck } from './entities/deck.entity';
 import { ReviewEvent } from './entities/review-event.entity';
 import { UserCardProgress } from './entities/user-card-progress.entity';
 import { UserDeck } from './entities/user-deck.entity';
+import { LearningController } from './learning.controller';
+import { LearningService } from './learning.service';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { UserDeck } from './entities/user-deck.entity';
       ReviewEvent,
     ]),
   ],
-  exports: [TypeOrmModule],
+  controllers: [LearningController],
+  providers: [LearningService],
+  exports: [TypeOrmModule, LearningService],
 })
 export class LearningDataModule {}
