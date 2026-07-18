@@ -7,7 +7,9 @@ import {
 } from '@nestjs/common';
 import { DataSource, QueryFailedError } from 'typeorm';
 import { LearningService } from '../learning/learning.service';
+import { LEARNING_VISIBILITY_CONDITION } from '../learning/learning-visibility';
 import { FsrsSchedulerService } from '../learning/scheduler/fsrs-scheduler.service';
+import { SchedulerState } from '../learning/scheduler/scheduler.types';
 import { ReviewEvent } from '../learning/entities/review-event.entity';
 import { UserCardProgress } from '../learning/entities/user-card-progress.entity';
 import { SubmitReviewDto } from './dto/submit-review.dto';
@@ -54,9 +56,7 @@ export class ReviewsService {
                 cardId: dto.cardId,
               },
             )
-            .andWhere(
-              'enrollment.is_active = true AND card.is_active = true AND deck.is_published = true',
-            );
+            .andWhere(LEARNING_VISIBILITY_CONDITION);
         const visible = await scoped().getOne();
         if (!visible) throw new NotFoundException('Card not found');
         const existingEvent = await events.findOneBy({
@@ -80,23 +80,8 @@ export class ReviewsService {
           return this.matchReplay(postLockEvent, dto);
         }
         const reviewedAt = new Date();
-        const next = this.scheduler.schedule(
-          {
-            stage: progress.stage,
-            dueAt: progress.due_at,
-            stability: Number(progress.stability),
-            difficulty: Number(progress.difficulty),
-            elapsedDays: progress.elapsed_days,
-            scheduledDays: progress.scheduled_days,
-            repetitions: progress.repetitions,
-            lapses: progress.lapses,
-            lastReviewedAt: progress.last_reviewed_at,
-            lastRating: progress.last_rating,
-            schedulerVersion: progress.scheduler_version,
-          },
-          dto.rating,
-          reviewedAt,
-        );
+        const before = this.progressState(progress);
+        const next = this.scheduler.schedule(before, dto.rating, reviewedAt);
         const created = events.create({
           user_id: userId,
           card_id: dto.cardId,
@@ -107,35 +92,11 @@ export class ReviewsService {
             ? new Date(dto.clientReviewedAt)
             : null,
           scheduler_version: next.schedulerVersion,
-          state_before: this.auditState({
-            stage: progress.stage,
-            dueAt: progress.due_at,
-            stability: Number(progress.stability),
-            difficulty: Number(progress.difficulty),
-            elapsedDays: progress.elapsed_days,
-            scheduledDays: progress.scheduled_days,
-            repetitions: progress.repetitions,
-            lapses: progress.lapses,
-            lastReviewedAt: progress.last_reviewed_at,
-            lastRating: progress.last_rating,
-            schedulerVersion: progress.scheduler_version,
-          }),
+          state_before: this.auditState(before),
           state_after: this.auditState(next),
         });
         const saved = await events.save(created);
-        Object.assign(progress, {
-          stage: next.stage,
-          due_at: next.dueAt,
-          stability: next.stability,
-          difficulty: next.difficulty,
-          elapsed_days: next.elapsedDays,
-          scheduled_days: next.scheduledDays,
-          repetitions: next.repetitions,
-          lapses: next.lapses,
-          last_reviewed_at: next.lastReviewedAt,
-          last_rating: next.lastRating,
-          scheduler_version: next.schedulerVersion,
-        });
+        this.applyProgressState(progress, next);
         await manager.save(progress);
         accepted = true;
         acceptedMeta = { schedulerVersion: next.schedulerVersion };
@@ -183,6 +144,8 @@ export class ReviewsService {
         difficulty: after.difficulty,
         dueAt: after.dueAt,
         lastReviewedAt: after.lastReviewedAt,
+        // reviewCount and lapseCount are canonical API fields. Keep the
+        // scheduler-native aliases below for backward compatibility.
         reviewCount: after.repetitions,
         lapseCount: after.lapses,
         schedulerVersion: after.schedulerVersion,
@@ -220,7 +183,7 @@ export class ReviewsService {
     );
   }
   private auditState(state: {
-    stage: unknown;
+    stage: SchedulerState['stage'];
     dueAt: Date;
     stability: number;
     difficulty: number;
@@ -229,7 +192,7 @@ export class ReviewsService {
     repetitions: number;
     lapses: number;
     lastReviewedAt: Date | null;
-    lastRating: unknown;
+    lastRating: SchedulerState['lastRating'];
     schedulerVersion: string;
   }) {
     return {
@@ -237,5 +200,38 @@ export class ReviewsService {
       dueAt: state.dueAt.toISOString(),
       lastReviewedAt: state.lastReviewedAt?.toISOString() ?? null,
     };
+  }
+  private progressState(progress: UserCardProgress): SchedulerState {
+    return {
+      stage: progress.stage,
+      dueAt: progress.due_at,
+      stability: Number(progress.stability),
+      difficulty: Number(progress.difficulty),
+      elapsedDays: progress.elapsed_days,
+      scheduledDays: progress.scheduled_days,
+      repetitions: progress.repetitions,
+      lapses: progress.lapses,
+      lastReviewedAt: progress.last_reviewed_at,
+      lastRating: progress.last_rating,
+      schedulerVersion: progress.scheduler_version,
+    };
+  }
+  private applyProgressState(
+    progress: UserCardProgress,
+    state: SchedulerState,
+  ) {
+    Object.assign(progress, {
+      stage: state.stage,
+      due_at: state.dueAt,
+      stability: state.stability,
+      difficulty: state.difficulty,
+      elapsed_days: state.elapsedDays,
+      scheduled_days: state.scheduledDays,
+      repetitions: state.repetitions,
+      lapses: state.lapses,
+      last_reviewed_at: state.lastReviewedAt,
+      last_rating: state.lastRating,
+      scheduler_version: state.schedulerVersion,
+    });
   }
 }

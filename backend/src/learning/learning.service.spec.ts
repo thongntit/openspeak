@@ -1,4 +1,5 @@
 import { LearningService } from './learning.service';
+import { LEARNING_VISIBILITY_CONDITION } from './learning-visibility';
 
 describe('LearningService', () => {
   const createQuery = (rows: unknown[] = []) => {
@@ -35,6 +36,7 @@ describe('LearningService', () => {
       countsByType: {},
       countsByDeck: {},
     });
+    expect(query.andWhere).toHaveBeenCalledWith(LEARNING_VISIBILITY_CONDITION);
   });
 
   it('serializes numeric progress fields and count values when TypeORM returns NUMERIC strings', async () => {
