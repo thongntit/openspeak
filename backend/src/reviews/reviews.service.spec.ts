@@ -48,6 +48,8 @@ describe('ReviewsService', () => {
   let service: ReviewsService;
   let queries: any[];
   beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-07-17T12:00:00.000Z'));
     eventRows = [];
     saveProgress = jest.fn();
     today = { getToday: jest.fn().mockResolvedValue({ totalDue: 0 }) };
@@ -98,6 +100,9 @@ describe('ReviewsService', () => {
     data.getRepository = jest.fn(() => events);
     service = new ReviewsService(data, new FsrsSchedulerService(), today);
   });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
   it('writes one event and one progress transition for an accepted review', async () => {
     const result = await service.submit(USER, dto);
     expect(events.save).toHaveBeenCalledTimes(1);
@@ -110,6 +115,7 @@ describe('ReviewsService', () => {
         duplicate: false,
         cardId: CARD,
         schedulerVersion: 'fsrs-v1',
+        today: { totalDue: 0 },
         progress: expect.objectContaining({
           cardId: CARD,
           stage: LearningStage.Review,

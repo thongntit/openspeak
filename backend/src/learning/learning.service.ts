@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserCardProgress } from './entities/user-card-progress.entity';
+import { LEARNING_VISIBILITY_CONDITION } from './learning-visibility';
 
 @Injectable()
 export class LearningService {
@@ -22,9 +23,7 @@ export class LearningService {
       )
       .where('progress.user_id = :userId', { userId })
       .andWhere('progress.due_at <= :now', { now })
-      .andWhere('enrollment.is_active = true')
-      .andWhere('deck.is_published = true')
-      .andWhere('card.is_active = true')
+      .andWhere(LEARNING_VISIBILITY_CONDITION)
       .orderBy('progress.due_at', 'ASC')
       .addOrderBy('card.sort_order', 'ASC')
       .addOrderBy('card.id', 'ASC')
