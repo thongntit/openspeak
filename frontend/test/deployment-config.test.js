@@ -14,10 +14,15 @@ const deployWorkflowPath = new URL(
   '../../.github/workflows/deploy-backend.yml',
   import.meta.url,
 );
+const frontendWorkflowPath = new URL(
+  '../../.github/workflows/ci-frontend.yml',
+  import.meta.url,
+);
 const readWorkflow = (path) =>
   existsSync(path) ? readFileSync(path, 'utf8') : '';
 const prWorkflow = readWorkflow(prWorkflowPath);
 const deployWorkflow = readWorkflow(deployWorkflowPath);
+const frontendWorkflow = readWorkflow(frontendWorkflowPath);
 const apiService = readFileSync(
   new URL('../src/services/openspeakApi.js', import.meta.url),
   'utf8',
@@ -188,6 +193,12 @@ test('TypeORM migration directory contains migration files only', () => {
 test('frontend API default points to production Gramio backend', () => {
   assert.match(apiService, /https:\/\/gramio-api\.thongnt\.dev\/api/);
   assert.doesNotMatch(apiService, /openspeak-api\.thongnt\.dev/);
+});
+
+test('frontend CI runs tests, lint, and build', () => {
+  assert.match(frontendWorkflow, /run: bun run test/);
+  assert.match(frontendWorkflow, /run: bun run lint/);
+  assert.match(frontendWorkflow, /run: bun run build/);
 });
 
 test('production image exposes compiled migration and seed commands', () => {

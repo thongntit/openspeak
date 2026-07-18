@@ -1,7 +1,7 @@
 const DEFAULT_BASE = 'https://gramio-api.thongnt.dev/api';
 
 function apiBase() {
-  const env = import.meta.env.VITE_OPENSPEAK_API_URL;
+  const env = import.meta.env?.VITE_OPENSPEAK_API_URL;
   return (env && env.replace(/\/$/, '')) || DEFAULT_BASE;
 }
 
@@ -15,7 +15,13 @@ export class ApiError extends Error {
   }
 }
 
-async function request(path, { params, signal, token } = {}) {
+async function request(path, {
+  params,
+  signal,
+  token,
+  method = 'GET',
+  body,
+} = {}) {
   const url = new URL(`${apiBase()}${path}`);
   if (params) {
     for (const [k, v] of Object.entries(params)) {
@@ -26,23 +32,29 @@ async function request(path, { params, signal, token } = {}) {
 
   const headers = { Accept: 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
 
   let res;
   try {
-    res = await fetch(url, { signal, headers });
+    res = await fetch(url, {
+      method,
+      signal,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
   } catch (err) {
     if (err.name === 'AbortError') throw err;
     throw new ApiError(0, { message: `Network error: ${err.message}` }, path);
   }
 
-  let body = null;
+  let responseBody = null;
   const text = await res.text();
   if (text) {
-    try { body = JSON.parse(text); }
-    catch { body = { message: text }; }
+    try { responseBody = JSON.parse(text); }
+    catch { responseBody = { message: text }; }
   }
-  if (!res.ok) throw new ApiError(res.status, body, path);
-  return body;
+  if (!res.ok) throw new ApiError(res.status, responseBody, path);
+  return responseBody;
 }
 
 export function getWords(params = {}, opts = {}) {
@@ -77,6 +89,14 @@ export function getContentDeckCards(slug, params = {}, opts = {}) {
     params,
     ...opts,
   });
+}
+
+export function getToday(opts = {}) {
+  return request('/today', opts);
+}
+
+export function submitReview(payload, opts = {}) {
+  return request('/reviews', { ...opts, method: 'POST', body: payload });
 }
 
 export function getHealth(opts = {}) {
