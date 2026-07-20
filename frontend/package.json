@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test test/content-api.test.js test/deployment-config.test.js test/library-content.test.js test/library-source.test.js test/product-scope.test.js && vitest run",
+    "test": "node --test test/app-entry.test.js test/content-api.test.js test/deployment-config.test.js test/library-content.test.js test/library-source.test.js test/product-scope.test.js && vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {

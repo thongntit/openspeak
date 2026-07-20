@@ -4,7 +4,6 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import './index.css'
 import App from './App.jsx'
 import ReloadPrompt from './components/ReloadPrompt'
-import AppLoader from './components/AppLoader'
 import DatabaseErrorBoundary from './components/DatabaseErrorBoundary'
 import OfflineIndicator from './components/OfflineIndicator'
 
@@ -13,9 +12,7 @@ const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 const inner = (
   <DatabaseErrorBoundary>
     <ReloadPrompt />
-    <AppLoader>
-      <App />
-    </AppLoader>
+    <App />
     <OfflineIndicator />
   </DatabaseErrorBoundary>
 )
