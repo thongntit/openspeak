@@ -92,7 +92,9 @@ Supporting copy states that all active cards will be added to Today. The action:
 4. updates the selected deck and Library list item to `isLearning: true`.
 
 The button remains in place on network or server failure and shows a concise
-inline alert with a retryable action. A 401 uses session-expired copy. The
+inline alert with a retryable action. Network and server failures preserve the
+existing Today snapshot. A 401 uses session-expired copy and clears the
+user-specific learning snapshot through the existing session boundary. The
 request is single-flight while the button is busy, and the control remains at
 least 44px tall with light and dark theme styling.
 
@@ -134,5 +136,6 @@ and frontend production build.
 2. Pressing the endpoint repeatedly creates no duplicate enrollment or progress
    rows and does not reset reviewed cards.
 3. The deck remains marked Learning after the Library is reloaded.
-4. A failed request leaves both the Library state and Today snapshot unchanged.
+4. A retryable network or server failure leaves both the Library state and
+   Today snapshot unchanged; a 401 clears authenticated learning state.
 5. Existing authenticated Today and Review behavior remains passing.

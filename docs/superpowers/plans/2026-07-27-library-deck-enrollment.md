@@ -41,7 +41,7 @@ Vitest, Testing Library, Tailwind CSS.
   `DeckEnrollmentService.enroll(userId: string, deckId: string, now?: Date)`
   and authenticated `POST /api/decks/:deckId/enroll`.
 
-- [ ] **Step 1: Write failing controller and service tests**
+- [x] **Step 1: Write failing controller and service tests**
 
 Create controller coverage that requires HTTP 200 semantics and authenticated
 ID forwarding:
@@ -69,7 +69,7 @@ that the insert builder receives every active card, one common `due_at`,
 Also cover unknown/unpublished decks, empty active-card sets, enrollment upsert,
 and the returned Today snapshot.
 
-- [ ] **Step 2: Run the new backend tests and confirm the red state**
+- [x] **Step 2: Run the new backend tests and confirm the red state**
 
 Run:
 
@@ -80,7 +80,7 @@ npm test -- --runInBand src/learning/deck-enrollment.controller.spec.ts src/lear
 
 Expected: FAIL because the controller and service files do not exist.
 
-- [ ] **Step 3: Implement the enrollment service**
+- [x] **Step 3: Implement the enrollment service**
 
 Implement the transaction with this public shape:
 
@@ -147,7 +147,7 @@ Implement `DeckEnrollmentController` under `@Controller('decks')`, use
 `ParseUUIDPipe`, `@Post(':deckId/enroll')`, and `@HttpCode(HttpStatus.OK)`.
 Register both classes in `LearningDataModule`.
 
-- [ ] **Step 4: Run focused and full backend tests**
+- [x] **Step 4: Run focused and full backend tests**
 
 Run:
 
@@ -159,7 +159,7 @@ npm test -- --runInBand
 
 Expected: the focused suites pass, then all backend suites pass.
 
-- [ ] **Step 5: Commit the backend enrollment**
+- [x] **Step 5: Commit the backend enrollment**
 
 ```bash
 git add backend/src/learning
@@ -179,7 +179,7 @@ git commit -m "feat(backend): enroll library decks"
 - Produces: `ContentDeck.isLearning: boolean` on
   `GET /api/content/decks`.
 
-- [ ] **Step 1: Write failing status-projection tests**
+- [x] **Step 1: Write failing status-projection tests**
 
 Update service tests to call:
 
@@ -204,7 +204,7 @@ expect(deckQuery.leftJoin).toHaveBeenCalledWith(
 
 Add a controller test proving `principal.id` is forwarded with pagination.
 
-- [ ] **Step 2: Run the content tests and confirm the red state**
+- [x] **Step 2: Run the content tests and confirm the red state**
 
 Run:
 
@@ -215,7 +215,7 @@ npm test -- --runInBand src/learning-content/learning-content.service.spec.ts sr
 
 Expected: FAIL because the content service lacks the user-scoped status.
 
-- [ ] **Step 3: Add the user-scoped query projection**
+- [x] **Step 3: Add the user-scoped query projection**
 
 Change the service signature to:
 
@@ -248,7 +248,7 @@ Group by `enrollment.is_active`. Update the controller to accept
 return this.content.findPublishedDecks(principal.id, query);
 ```
 
-- [ ] **Step 4: Run focused and full backend verification**
+- [x] **Step 4: Run focused and full backend verification**
 
 Run:
 
@@ -261,7 +261,7 @@ npm run build
 
 Expected: all tests pass and Nest compiles successfully.
 
-- [ ] **Step 5: Commit the status projection**
+- [x] **Step 5: Commit the status projection**
 
 ```bash
 git add backend/src/learning-content
@@ -286,7 +286,7 @@ git commit -m "feat(backend): expose deck learning status"
   `LibraryDeckDetail({ deck, getToken, onBack, onEnrolled })`, and local
   Library propagation of `isLearning: true`.
 
-- [ ] **Step 1: Write failing API and component tests**
+- [x] **Step 1: Write failing API and component tests**
 
 Add an API test requiring:
 
@@ -319,7 +319,7 @@ Use a deferred request in a second test to prove a second click cannot submit
 another enrollment. Add 401 and 500 cases that keep **Learn deck** available
 and render the appropriate inline alert.
 
-- [ ] **Step 2: Run the frontend tests and confirm the red state**
+- [x] **Step 2: Run the frontend tests and confirm the red state**
 
 Run:
 
@@ -331,7 +331,7 @@ node --test test/content-api.test.js
 
 Expected: FAIL because the API function and Learn action do not exist.
 
-- [ ] **Step 3: Add the enrollment API function**
+- [x] **Step 3: Add the enrollment API function**
 
 Add:
 
@@ -344,7 +344,7 @@ export function enrollDeck(deckId, opts = {}) {
 }
 ```
 
-- [ ] **Step 4: Add the deck detail action**
+- [x] **Step 4: Add the deck detail action**
 
 Add local `isLearning`, `enrollStatus`, and `enrollError` state. The click
 handler must obtain a fresh token, perform one request, replace Today, and
@@ -385,7 +385,7 @@ Render a minimum-44px full-width button with **Learn deck**,
 `aria-live` inline error. In `Library.jsx`, update both `decks` and
 `selectedDeck` in `onEnrolled`.
 
-- [ ] **Step 5: Run focused and full frontend verification**
+- [x] **Step 5: Run focused and full frontend verification**
 
 Run:
 
@@ -400,7 +400,7 @@ bun run build
 
 Expected: all tests and lint pass; Vite completes the production build.
 
-- [ ] **Step 6: Commit the frontend action**
+- [x] **Step 6: Commit the frontend action**
 
 ```bash
 git add frontend/src frontend/test
@@ -417,7 +417,7 @@ git commit -m "feat(frontend): learn decks from library"
 - Consumes: all Task 1-3 deliverables.
 - Produces: release-ready evidence for the feature branch.
 
-- [ ] **Step 1: Run all static and automated gates from a clean shell**
+- [x] **Step 1: Run all static and automated gates from a clean shell**
 
 ```bash
 cd backend
@@ -431,7 +431,7 @@ bun run build
 
 Expected: every command exits 0.
 
-- [ ] **Step 2: Review the complete diff**
+- [x] **Step 2: Review the complete diff**
 
 Run:
 

@@ -136,6 +136,53 @@ describe('learning store', () => {
     });
   });
 
+  it('preserves Today when deck enrollment has a retryable failure', async () => {
+    useLearningStore.getState().replaceToday(TODAY);
+    enrollDeck.mockRejectedValue(
+      new ApiError(500, { message: 'failure' }, '/decks/deck-1/enroll'),
+    );
+
+    await expect(
+      useLearningStore.getState().enrollDeck(
+        '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+        () => Promise.resolve('fresh-token'),
+      ),
+    ).rejects.toMatchObject({ status: 500 });
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: TODAY,
+      loadStatus: 'ready',
+      loadError: null,
+    });
+  });
+
+  it('clears authenticated learning state when deck enrollment returns 401', async () => {
+    useLearningStore.getState().replaceToday(TODAY);
+    enrollDeck.mockRejectedValue(
+      new ApiError(
+        401,
+        { message: 'Authentication required' },
+        '/decks/deck-1/enroll',
+      ),
+    );
+
+    await expect(
+      useLearningStore.getState().enrollDeck(
+        '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+        () => Promise.resolve('expired-token'),
+      ),
+    ).rejects.toMatchObject({ status: 401 });
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: null,
+      loadStatus: 'error',
+      loadError: {
+        status: 401,
+        message: 'Authentication required',
+      },
+    });
+  });
+
   it('ignores a stale Today success after the learning session resets', async () => {
     const request = deferred();
     getToday.mockReturnValue(request.promise);
