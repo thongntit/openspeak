@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ApiError,
+  enrollDeck,
   getToday,
   submitReview,
 } from '@/services/openspeakApi';
@@ -10,6 +11,7 @@ vi.mock('@/services/openspeakApi', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
+    enrollDeck: vi.fn(),
     getToday: vi.fn(),
     submitReview: vi.fn(),
   };
@@ -80,6 +82,60 @@ beforeEach(() => {
 });
 
 describe('learning store', () => {
+  it('enrolls with a fresh token and replaces the whole Today snapshot', async () => {
+    enrollDeck.mockResolvedValue({
+      deckId: '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      isLearning: true,
+      enrolledCardCount: 1,
+      today: TODAY,
+    });
+
+    const response = await useLearningStore.getState().enrollDeck(
+      '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      () => Promise.resolve('fresh-token'),
+    );
+
+    expect(enrollDeck).toHaveBeenCalledWith(
+      '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      { token: 'fresh-token' },
+    );
+    expect(response).toMatchObject({
+      deckId: '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      isLearning: true,
+    });
+    expect(useLearningStore.getState()).toMatchObject({
+      today: TODAY,
+      loadStatus: 'ready',
+      loadError: null,
+    });
+  });
+
+  it('ignores a stale enrollment success after the learning session resets', async () => {
+    const request = deferred();
+    enrollDeck.mockReturnValue(request.promise);
+
+    const enrollment = useLearningStore.getState().enrollDeck(
+      '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      () => Promise.resolve('user-a-token'),
+    );
+    await vi.waitFor(() => expect(enrollDeck).toHaveBeenCalledOnce());
+
+    useLearningStore.getState().resetLearning();
+    request.resolve({
+      deckId: '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      isLearning: true,
+      enrolledCardCount: 1,
+      today: TODAY,
+    });
+    await enrollment;
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: null,
+      loadStatus: 'idle',
+      loadError: null,
+    });
+  });
+
   it('ignores a stale Today success after the learning session resets', async () => {
     const request = deferred();
     getToday.mockReturnValue(request.promise);

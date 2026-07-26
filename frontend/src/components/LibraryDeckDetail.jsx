@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, BookOpen, Languages, Lightbulb } from 'lucide-react';
+import {
+  ArrowLeft,
+  BookOpen,
+  Check,
+  Languages,
+  Lightbulb,
+  LoaderCircle,
+} from 'lucide-react';
 import Card from '@/components/ui/Card';
 import TypeChip from '@/components/ui/TypeChip';
 import { ApiError, getContentDeckCards } from '@/services/openspeakApi';
+import { useLearningStore } from '@/stores/learningStore';
 
 const TYPE_META = {
   vocab: { Icon: Languages, color: '#137fec' },
@@ -10,11 +18,20 @@ const TYPE_META = {
   tip: { Icon: Lightbulb, color: '#ea580c' },
 };
 
-export default function LibraryDeckDetail({ deck, getToken, onBack }) {
+export default function LibraryDeckDetail({
+  deck,
+  getToken,
+  onBack,
+  onEnrolled,
+}) {
   const [cards, setCards] = useState([]);
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState(null);
   const [retryKey, setRetryKey] = useState(0);
+  const [isLearning, setIsLearning] = useState(Boolean(deck.isLearning));
+  const [enrollStatus, setEnrollStatus] = useState('idle');
+  const [enrollError, setEnrollError] = useState(null);
+  const enrollDeck = useLearningStore((state) => state.enrollDeck);
   const meta = TYPE_META[deck.type] ?? TYPE_META.vocab;
   const Icon = meta.Icon;
 
@@ -53,6 +70,29 @@ export default function LibraryDeckDetail({ deck, getToken, onBack }) {
     return () => controller.abort();
   }, [deck.slug, getToken, retryKey]);
 
+  async function handleEnroll() {
+    if (isLearning || enrollStatus === 'loading') return;
+    setEnrollStatus('loading');
+    setEnrollError(null);
+    try {
+      const response = await enrollDeck(deck.id, getToken);
+      if (!response) {
+        setEnrollStatus('idle');
+        return;
+      }
+      setIsLearning(true);
+      setEnrollStatus('success');
+      onEnrolled?.(deck.id);
+    } catch (requestError) {
+      setEnrollStatus('error');
+      setEnrollError(
+        requestError.status === 401
+          ? 'Your session expired. Please sign in again.'
+          : 'Could not add this deck. Try again.',
+      );
+    }
+  }
+
   return (
     <div className="animate-screen-fade-in">
       <header className="flex items-center px-4 pb-3 pt-4">
@@ -81,6 +121,53 @@ export default function LibraryDeckDetail({ deck, getToken, onBack }) {
             </h1>
           </div>
         </div>
+      </div>
+
+      <div className="px-4 pb-4">
+        <Card className="p-4">
+          <button
+            type="button"
+            onClick={handleEnroll}
+            disabled={isLearning || enrollStatus === 'loading'}
+            aria-busy={enrollStatus === 'loading'}
+            className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-4 text-[15px] font-semibold transition-transform active:scale-[0.98] disabled:cursor-default disabled:active:scale-100 ${
+              isLearning
+                ? 'border border-[rgba(7,136,56,.22)] bg-[rgba(7,136,56,.10)] text-[#078838] dark:border-[rgba(74,222,128,.22)] dark:bg-[rgba(74,222,128,.14)] dark:text-[#4ade80]'
+                : 'bg-[var(--primary-hex)] text-white'
+            }`}
+          >
+            {isLearning ? (
+              <Check size={18} aria-hidden="true" />
+            ) : enrollStatus === 'loading' ? (
+              <LoaderCircle
+                size={18}
+                className="animate-spin"
+                aria-hidden="true"
+              />
+            ) : (
+              <BookOpen size={18} aria-hidden="true" />
+            )}
+            {isLearning
+              ? 'Learning'
+              : enrollStatus === 'loading'
+                ? 'Adding deck…'
+                : 'Learn deck'}
+          </button>
+          <p className="mt-2 text-center text-xs leading-relaxed text-[var(--text-2)]">
+            {isLearning
+              ? `All ${deck.cardCount} active cards are in your review schedule.`
+              : `Add all ${deck.cardCount} active cards to Today now.`}
+          </p>
+          {enrollError && (
+            <p
+              role="alert"
+              aria-live="polite"
+              className="mt-2 text-center text-xs font-semibold text-[#b42318] dark:text-[#fda29b]"
+            >
+              {enrollError}
+            </p>
+          )}
+        </Card>
       </div>
 
       <div className="mb-2.5 flex items-center justify-between px-5">

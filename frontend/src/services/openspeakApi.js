@@ -91,6 +91,13 @@ export function getContentDeckCards(slug, params = {}, opts = {}) {
   });
 }
 
+export function enrollDeck(deckId, opts = {}) {
+  return request(`/decks/${encodeURIComponent(deckId)}/enroll`, {
+    ...opts,
+    method: 'POST',
+  });
+}
+
 export function getToday(opts = {}) {
   return request('/today', opts);
 }
