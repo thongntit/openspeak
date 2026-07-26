@@ -7,6 +7,7 @@ import {
 } from '../common/dto/paginated-response.dto';
 import { Card } from '../learning/entities/card.entity';
 import { Deck, DeckType } from '../learning/entities/deck.entity';
+import { UserDeck } from '../learning/entities/user-deck.entity';
 import { GetContentDeckCardsQueryDto } from './dto/get-content-deck-cards-query.dto';
 import { GetContentDecksQueryDto } from './dto/get-content-decks-query.dto';
 
@@ -18,6 +19,7 @@ export interface ContentDeck {
   type: DeckType;
   level: string;
   cardCount: number;
+  isLearning: boolean;
 }
 
 export interface ContentCard {
@@ -42,6 +44,7 @@ export class LearningContentService {
   ) {}
 
   async findPublishedDecks(
+    userId: string,
     query: GetContentDecksQueryDto,
   ): Promise<PaginatedResponse<ContentDeck>> {
     const { limit, offset } = query;
@@ -55,7 +58,14 @@ export class LearningContentService {
         'deck.type AS type',
         'deck.level AS level',
         'COUNT(card.id)::int AS "cardCount"',
+        'COALESCE(enrollment.is_active, false) AS "isLearning"',
       ])
+      .leftJoin(
+        UserDeck,
+        'enrollment',
+        'enrollment.deck_id = deck.id AND enrollment.user_id = :userId',
+        { userId },
+      )
       .leftJoin(
         Card,
         'card',
@@ -64,6 +74,7 @@ export class LearningContentService {
       )
       .where('deck.is_published = :isPublished', { isPublished: true })
       .groupBy('deck.id')
+      .addGroupBy('enrollment.is_active')
       .orderBy('deck.sort_order', 'ASC')
       .addOrderBy('deck.slug', 'ASC')
       .take(limit)
