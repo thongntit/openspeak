@@ -4,8 +4,10 @@ Runtime evidence captured: 2026-07-26 (Asia/Ho_Chi_Minh)
 Candidate reconciliation: 2026-07-26 (Asia/Ho_Chi_Minh), after fetching
 `origin/dev`
 
-This document records a secret-free runtime baseline. It is not evidence that
-the one-time database-preparation workers have run.
+This document records a secret-free runtime baseline and subsequent release
+evidence. The baseline section alone is not evidence that a one-time
+database-preparation worker ran; the Task 2 section records the separately
+verified dev-only fallback executions.
 
 ## Candidate revisions
 
@@ -47,8 +49,9 @@ Only names and masked-presence state were read.
 - Public endpoint checks completed without saving response bodies:
   - `https://gramio-api-dev.thongnt.dev/api/health` returned `200`.
   - `https://gramio-api.thongnt.dev/api/health` returned `200`.
-- No database-preparation worker was invoked and no production data was
-  modified.
+- During this Task 1 baseline phase, no database-preparation worker was invoked
+  and no production data was modified. Subsequent Task 2 dev-only fallback
+  executions are recorded separately below.
 
 ## Log and remediation outcome
 
@@ -113,6 +116,10 @@ baseline task.
   returned `d: 6`, `c: 120`, `dd: 0`, and `dc: 0`, respectively: published
   decks, active cards, duplicate deck slugs, and duplicate card identities.
   It selected no learning content or secret values.
+- Two additional read-only API-container queries completed with terminal
+  `success`: `d: 0` older published starter decks and `c: 0` older active
+  starter cards, where `content_version` begins with `starter@` but differs
+  from `starter@2026.07.1`.
 
 ### Remaining Task 2 blockers
 
