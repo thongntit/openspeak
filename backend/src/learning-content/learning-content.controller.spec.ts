@@ -23,9 +23,6 @@ describe('LearningContentController', () => {
 
     await (controller.findAll as any)({ id: 'user-123' }, query);
 
-    expect(content.findPublishedDecks).toHaveBeenCalledWith(
-      'user-123',
-      query,
-    );
+    expect(content.findPublishedDecks).toHaveBeenCalledWith('user-123', query);
   });
 });

@@ -144,9 +144,7 @@ describe('LearningContentService', () => {
     );
     expect(deckQuery.orderBy).toHaveBeenCalledWith('deck.sort_order', 'ASC');
     expect(deckQuery.addOrderBy).toHaveBeenCalledWith('deck.slug', 'ASC');
-    expect(deckQuery.addGroupBy).toHaveBeenCalledWith(
-      'enrollment.is_active',
-    );
+    expect(deckQuery.addGroupBy).toHaveBeenCalledWith('enrollment.is_active');
   });
 
   it('reports a next page when more published decks remain', async () => {

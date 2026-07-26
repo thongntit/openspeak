@@ -52,7 +52,7 @@ describe('DeckEnrollmentService', () => {
       }),
     };
     const data = {
-      transaction: jest.fn(async (callback) => callback(manager)),
+      transaction: jest.fn((callback) => callback(manager)),
     } as any;
     const today = {
       queue: [],
@@ -83,9 +83,7 @@ describe('DeckEnrollmentService', () => {
   it('enrolls every active card as due now and returns canonical Today', async () => {
     const harness = createHarness();
 
-    await expect(
-      harness.service.enroll(userId, deckId, now),
-    ).resolves.toEqual({
+    await expect(harness.service.enroll(userId, deckId, now)).resolves.toEqual({
       deckId,
       isLearning: true,
       enrolledCardCount: 2,
@@ -131,9 +129,9 @@ describe('DeckEnrollmentService', () => {
   it('hides unknown and unpublished decks behind the same 404', async () => {
     const harness = createHarness({ deck: null });
 
-    await expect(
-      harness.service.enroll(userId, deckId, now),
-    ).rejects.toEqual(new NotFoundException('Deck not found'));
+    await expect(harness.service.enroll(userId, deckId, now)).rejects.toEqual(
+      new NotFoundException('Deck not found'),
+    );
 
     expect(harness.cardRepository.find).not.toHaveBeenCalled();
     expect(harness.enrollmentRepository.upsert).not.toHaveBeenCalled();
@@ -142,14 +140,14 @@ describe('DeckEnrollmentService', () => {
   it('rejects a published deck without active cards before enrollment', async () => {
     const harness = createHarness({ activeCards: [] });
 
-    await expect(
-      harness.service.enroll(userId, deckId, now),
-    ).rejects.toEqual(
+    await expect(harness.service.enroll(userId, deckId, now)).rejects.toEqual(
       new BadRequestException('Deck has no active cards'),
     );
 
     expect(harness.enrollmentRepository.upsert).not.toHaveBeenCalled();
-    expect(harness.progressRepository.createQueryBuilder).not.toHaveBeenCalled();
+    expect(
+      harness.progressRepository.createQueryBuilder,
+    ).not.toHaveBeenCalled();
     expect(harness.learning.getToday).not.toHaveBeenCalled();
   });
 });

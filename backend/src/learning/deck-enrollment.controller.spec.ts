@@ -19,11 +19,13 @@ describe('DeckEnrollmentController', () => {
   });
 
   it('uses HTTP 200 for repeat-safe enrollment', () => {
-    expect(
-      Reflect.getMetadata(
-        HTTP_CODE_METADATA,
-        DeckEnrollmentController.prototype.enroll,
-      ),
-    ).toBe(HttpStatus.OK);
+    const handler = Object.getOwnPropertyDescriptor(
+      DeckEnrollmentController.prototype,
+      'enroll',
+    )?.value;
+
+    expect(Reflect.getMetadata(HTTP_CODE_METADATA, handler)).toBe(
+      HttpStatus.OK,
+    );
   });
 });
