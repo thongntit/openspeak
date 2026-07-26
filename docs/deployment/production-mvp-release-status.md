@@ -71,3 +71,48 @@ baseline task.
 - Tasks 2 and 3 remain pending: worker command/target validation, two dev
   preparations, aggregate database proof, authenticated browser smoke testing,
   and any production promotion/execution.
+
+## Task 2 dev database/content proof (2026-07-26)
+
+### Configuration validation
+
+- Authorized dev worker: `gramio-db-prepare-dev`
+  (`e25dix66p3rz54zpnwyoytp2`), separate from the production worker.
+- Masked service definition: image `ghcr.io/thongntit/openspeak-backend:dev`,
+  command `npm run db:prepare:prod`, `restart: no`, and the isolated dev
+  PostgreSQL host on the `kjduvgi7sin5hmly73l8za2f` network.
+- Masked environment-variable presence: `POSTGRES_PASSWORD` only. No values
+  were requested or recorded.
+
+### Execution evidence and stop condition
+
+- A manual Coolify start request was issued for the dev worker. The service
+  returned to `exited`, but the available Compose-service API did not expose an
+  exit code or stdout. This is not treated as a successful preparation run.
+- A service-scoped Coolify one-time command for `npm run db:prepare:prod` then
+  timed out after 90 seconds without producing an execution and was removed by
+  Coolify. No retry or third preparation run was attempted.
+- Consequently, this task has no terminal summary proving
+  `starter@2026.07.1`, six deck upserts, or 120 card upserts. Do not proceed to
+  production on this evidence.
+
+### Read-only checks completed
+
+- Dev health recheck: `https://gramio-api-dev.thongnt.dev/api/health` returned
+  HTTP `200` without saving a response body.
+- Unauthenticated access was rejected: `/api/today`, `/api/content/decks`, and
+  `/api/content/decks/starter/cards` each returned HTTP `401` without an
+  authorization header.
+
+### Remaining Task 2 blockers
+
+- Coolify's available connector routes reject log/deployment reads for the
+  Compose subservice, so the first manual execution has no inspectable terminal
+  result. Obtain an operator-visible, read-only worker-log/exit-status route
+  before deciding whether a new two-run verification sequence is needed.
+- The Coolify connector exposes no database-console or SQL-query capability, so
+  the required read-only aggregate query has not been run.
+- The existing browser session had no Gramio tab, and the documented dev
+  frontend URL returned HTTP `410 Gone` at the required 375px viewport. No
+  authenticated Today/Library/review, light/dark, or unavailable-state proof
+  was performed.
