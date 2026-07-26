@@ -68,9 +68,10 @@ baseline task.
   Coolify service API currently exposes tags only.
 - Obtain a usable read-only API-subresource log route (or equivalent Coolify UI
   evidence) before relying on this document for a latest-error-class assertion.
-- Tasks 2 and 3 remain pending: worker command/target validation, two dev
-  preparations, aggregate database proof, authenticated browser smoke testing,
-  and any production promotion/execution.
+- Task 2 still requires authenticated browser smoke evidence. Task 3 remains
+  entirely pending: promotion, production configuration confirmation,
+  production preparation, production aggregate proof, and production UI smoke
+  testing.
 
 ## Task 2 dev database/content proof (2026-07-26)
 
@@ -84,17 +85,22 @@ baseline task.
 - Masked environment-variable presence: `POSTGRES_PASSWORD` only. No values
   were requested or recorded.
 
-### Execution evidence and stop condition
+### Worker limitation and authorized API-container fallback
 
 - A manual Coolify start request was issued for the dev worker. The service
   returned to `exited`, but the available Compose-service API did not expose an
   exit code or stdout. This is not treated as a successful preparation run.
 - A service-scoped Coolify one-time command for `npm run db:prepare:prod` then
   timed out after 90 seconds without producing an execution and was removed by
-  Coolify. No retry or third preparation run was attempted.
-- Consequently, this task has no terminal summary proving
-  `starter@2026.07.1`, six deck upserts, or 120 card upserts. Do not proceed to
-  production on this evidence.
+  Coolify. The worker itself therefore could not supply terminal evidence.
+- Under the documented observability fallback, the same compiled command ran
+  twice as Coolify one-time tasks in the already-running dev API container
+  (`kjduvgi7sin5hmly73l8za2f`, `api`). Both terminal results were `success` and
+  reported `starter@2026.07.1`, `decksUpserted: 6`, `cardsUpserted: 120`,
+  `decksUnpublished: 0`, and `cardsDeactivated: 0`.
+- Task UUIDs were `c1360yjk1e894ertpw9i0k0k` and
+  `mkpm926grv7eza7d6icn3zn5`; Coolify deleted each temporary one-time task
+  after its terminal result.
 
 ### Read-only checks completed
 
@@ -103,16 +109,16 @@ baseline task.
 - Unauthenticated access was rejected: `/api/today`, `/api/content/decks`, and
   `/api/content/decks/starter/cards` each returned HTTP `401` without an
   authorization header.
+- The corrected short read-only aggregate command in the dev API container
+  returned `d: 6`, `c: 120`, `dd: 0`, and `dc: 0`, respectively: published
+  decks, active cards, duplicate deck slugs, and duplicate card identities.
+  It selected no learning content or secret values.
 
 ### Remaining Task 2 blockers
 
-- Coolify's available connector routes reject log/deployment reads for the
-  Compose subservice, so the first manual execution has no inspectable terminal
-  result. Obtain an operator-visible, read-only worker-log/exit-status route
-  before deciding whether a new two-run verification sequence is needed.
-- The Coolify connector exposes no database-console or SQL-query capability, so
-  the required read-only aggregate query has not been run.
-- The existing browser session had no Gramio tab, and the documented dev
-  frontend URL returned HTTP `410 Gone` at the required 375px viewport. No
-  authenticated Today/Library/review, light/dark, or unavailable-state proof
-  was performed.
+- The dedicated Compose worker still lacks an inspectable terminal-log route,
+  but the approved same-image/same-database API-container fallback supplied the
+  required two terminal results and aggregate proof.
+- Authenticated 375px UI verification remains pending. Vercel SSO and the lack
+  of an existing signed-in Gramio browser session prevent access; no attempt was
+  made to authenticate or fabricate UI proof.
