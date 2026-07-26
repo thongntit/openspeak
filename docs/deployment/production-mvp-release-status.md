@@ -1,18 +1,25 @@
 # Production MVP Release Status
 
-Captured: 2026-07-26 (Asia/Ho_Chi_Minh)
+Runtime evidence captured: 2026-07-26 (Asia/Ho_Chi_Minh)
+Candidate reconciliation: 2026-07-26 (Asia/Ho_Chi_Minh), after fetching
+`origin/dev`
 
 This document records a secret-free runtime baseline. It is not evidence that
 the one-time database-preparation workers have run.
 
 ## Candidate revisions
 
-- `dev`: `9892d551a88542ee0e682def19d444732200ce7c`
+- `dev`: `56e60d6c7f8f0f83bf2dca894338ec0960b953d8`
 - `main`: `19c9d3eafc165c1a6c3348de038815b4da59190d`
+
+The health observations below were collected before PR #58 advanced `dev` from
+`9892d551a88542ee0e682def19d444732200ce7c` to `56e60d6`; this reconciliation
+updates the release candidate reference only and does not represent a new
+runtime observation.
 
 ## Runtime baseline
 
-| Environment | Coolify service | API state | Image reference | Public domain | Health code |
+| Environment | Coolify service | API state | Image reference | Public domain | Health code at baseline capture |
 | --- | --- | --- | --- | --- | ---: |
 | Dev | `gramio-api-dev` (`kjduvgi7sin5hmly73l8za2f`) | `running:healthy` | `ghcr.io/thongntit/openspeak-backend:dev` | `https://gramio-api-dev.thongnt.dev` | 200 |
 | Production | `gramio-api-production` (`ea2xn2x5i6y6gvs0bmpzdp4a`) | `running:healthy` | `ghcr.io/thongntit/openspeak-backend:latest` | `https://gramio-api.thongnt.dev` | 200 |
