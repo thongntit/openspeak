@@ -1,0 +1,306 @@
+{
+  "slug": "articles-a-an-the",
+  "name": "Articles: A, An, and The",
+  "description": "Practice choosing articles for first mentions, known things, and common sound patterns.",
+  "type": "grammar",
+  "level": "beginner",
+  "sortOrder": 30,
+  "isPublished": true,
+  "cards": [
+    {
+      "contentKey": "articles-001",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention when any notebook will do: “I need ___ notebook for class.”",
+      "answer": "I need a notebook for class.",
+      "explanation": "Use “a” before a singular countable noun that is not specific and begins with a consonant sound.",
+      "example": "She brought a pencil to the workshop.",
+      "options": [
+        "I need a notebook for class.",
+        "I need an notebook for class.",
+        "I need the notebook for class."
+      ],
+      "sortOrder": 1
+    },
+    {
+      "contentKey": "articles-002",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention of one umbrella: “She packed ___ umbrella because rain was expected.”",
+      "answer": "She packed an umbrella because rain was expected.",
+      "explanation": "Use “an” before a singular countable noun that begins with a vowel sound.",
+      "example": "I saw an elephant in the nature documentary.",
+      "options": [
+        "She packed a umbrella because rain was expected.",
+        "She packed an umbrella because rain was expected.",
+        "She packed the umbrella because rain was expected."
+      ],
+      "sortOrder": 2
+    },
+    {
+      "contentKey": "articles-003",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "You already said, “I bought a book yesterday.” Complete the next sentence: “___ book is on my desk.”",
+      "answer": "The book is on my desk.",
+      "explanation": "Use “the” because the book has already been introduced and is now specific.",
+      "example": "We rented a car. The car was clean and comfortable.",
+      "options": [
+        "A book is on my desk.",
+        "An book is on my desk.",
+        "The book is on my desk."
+      ],
+      "sortOrder": 3
+    },
+    {
+      "contentKey": "articles-004",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention of one of several universities: “Maya studies at ___ university in her city.”",
+      "answer": "Maya studies at a university in her city.",
+      "explanation": "Use “a” because “university” begins with a consonant sound, even though it starts with a vowel letter.",
+      "example": "They joined a European research project.",
+      "options": [
+        "Maya studies at a university in her city.",
+        "Maya studies at an university in her city.",
+        "Maya studies at the university in her city."
+      ],
+      "sortOrder": 4
+    },
+    {
+      "contentKey": "articles-005",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete the sentence about a duration of sixty minutes: “The repair took ___ hour.”",
+      "answer": "The repair took an hour.",
+      "explanation": "Use “an” because the initial “h” in “hour” is silent, so the word begins with a vowel sound.",
+      "example": "We waited for an honest response.",
+      "options": ["The repair took a hour.", "The repair took an hour."],
+      "sortOrder": 5
+    },
+    {
+      "contentKey": "articles-006",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete the statement about the one sun seen from Earth: “___ sun is bright today.”",
+      "answer": "The sun is bright today.",
+      "explanation": "Use “the” for something understood as unique in the shared context.",
+      "example": "The moon was visible above the clouds.",
+      "options": [
+        "A sun is bright today.",
+        "An sun is bright today.",
+        "The sun is bright today."
+      ],
+      "sortOrder": 6
+    },
+    {
+      "contentKey": "articles-007",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete the sentence that states Omar’s profession: “Omar is ___ doctor.”",
+      "answer": "Omar is a doctor.",
+      "explanation": "Use “a” before a singular job title that begins with a consonant sound.",
+      "example": "Her sister is a designer.",
+      "options": [
+        "Omar is a doctor.",
+        "Omar is an doctor.",
+        "Omar is the doctor."
+      ],
+      "sortOrder": 7
+    },
+    {
+      "contentKey": "articles-008",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this request for one non-specific response: “Please give me ___ honest answer.”",
+      "answer": "Please give me an honest answer.",
+      "explanation": "Use “an” because “honest” begins with a vowel sound; its initial “h” is silent.",
+      "example": "It was an honorable decision.",
+      "options": [
+        "Please give me a honest answer.",
+        "Please give me an honest answer.",
+        "Please give me the honest answer."
+      ],
+      "sortOrder": 8
+    },
+    {
+      "contentKey": "articles-009",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "You lent Sam a specific set of keys. Complete the request: “Please put ___ keys I lent you on the table.”",
+      "answer": "Please put the keys I lent you on the table.",
+      "explanation": "Use “the” because the phrase “I lent you” identifies which keys the speaker means.",
+      "example": "Could you return the folder that I gave you?",
+      "options": [
+        "Please put a keys I lent you on the table.",
+        "Please put the keys I lent you on the table."
+      ],
+      "sortOrder": 9
+    },
+    {
+      "contentKey": "articles-010",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention when no particular sandwich is meant: “I would like ___ sandwich for lunch.”",
+      "answer": "I would like a sandwich for lunch.",
+      "explanation": "Use “a” for one non-specific singular countable noun that begins with a consonant sound.",
+      "example": "He ordered a bowl of soup.",
+      "options": [
+        "I would like a sandwich for lunch.",
+        "I would like an sandwich for lunch.",
+        "I would like the sandwich for lunch."
+      ],
+      "sortOrder": 10
+    },
+    {
+      "contentKey": "articles-011",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "You already said, “I made a sandwich.” Complete the next sentence: “___ sandwich is in the fridge.”",
+      "answer": "The sandwich is in the fridge.",
+      "explanation": "Use “the” because both sentences refer to the same sandwich.",
+      "example": "I received a package. The package was from my cousin.",
+      "options": [
+        "A sandwich is in the fridge.",
+        "An sandwich is in the fridge.",
+        "The sandwich is in the fridge."
+      ],
+      "sortOrder": 11
+    },
+    {
+      "contentKey": "articles-012",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention of one message: “I sent you ___ email with the details.”",
+      "answer": "I sent you an email with the details.",
+      "explanation": "Use “an” before the singular noun “email” because it begins with a vowel sound.",
+      "example": "She added an image to the document.",
+      "options": [
+        "I sent you a email with the details.",
+        "I sent you an email with the details.",
+        "I sent you the email with the details."
+      ],
+      "sortOrder": 12
+    },
+    {
+      "contentKey": "articles-013",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete the question asking for the station closest to you: “Where is ___ nearest station?”",
+      "answer": "Where is the nearest station?",
+      "explanation": "Use “the” with a superlative such as “nearest” when identifying one item as the most extreme in a group.",
+      "example": "This is the shortest route to the park.",
+      "options": [
+        "Where is a nearest station?",
+        "Where is an nearest station?",
+        "Where is the nearest station?"
+      ],
+      "sortOrder": 13
+    },
+    {
+      "contentKey": "articles-014",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention of one helpful document: “The website has ___ useful guide.”",
+      "answer": "The website has a useful guide.",
+      "explanation": "Use “a” because “useful” begins with a consonant sound, even though it starts with a vowel letter.",
+      "example": "We found a user-friendly map online.",
+      "options": [
+        "The website has a useful guide.",
+        "The website has an useful guide.",
+        "The website has the useful guide."
+      ],
+      "sortOrder": 14
+    },
+    {
+      "contentKey": "articles-015",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention of one piece of fruit: “Noah packed ___ apple for the trip.”",
+      "answer": "Noah packed an apple for the trip.",
+      "explanation": "Use “an” before a singular countable noun that begins with a vowel sound.",
+      "example": "I added an orange to my lunch bag.",
+      "options": [
+        "Noah packed a apple for the trip.",
+        "Noah packed an apple for the trip.",
+        "Noah packed the apple for the trip."
+      ],
+      "sortOrder": 15
+    },
+    {
+      "contentKey": "articles-016",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "There is one door in the room. Complete the request about that door: “Please close ___ door before you leave.”",
+      "answer": "Please close the door before you leave.",
+      "explanation": "Use “the” because the context identifies one specific door shared by the speaker and listener.",
+      "example": "Please turn off the light in this room.",
+      "options": [
+        "Please close a door before you leave.",
+        "Please close an door before you leave.",
+        "Please close the door before you leave."
+      ],
+      "sortOrder": 16
+    },
+    {
+      "contentKey": "articles-017",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention of one possible suggestion: “Lina had ___ idea for the project.”",
+      "answer": "Lina had an idea for the project.",
+      "explanation": "Use “an” before the singular noun “idea” because it begins with a vowel sound.",
+      "example": "The group discussed an option for reducing costs.",
+      "options": [
+        "Lina had a idea for the project.",
+        "Lina had an idea for the project.",
+        "Lina had the idea for the project."
+      ],
+      "sortOrder": 17
+    },
+    {
+      "contentKey": "articles-018",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first request for one ticket: “I need ___ one-way ticket for tomorrow.”",
+      "answer": "I need a one-way ticket for tomorrow.",
+      "explanation": "Use “a” because “one” begins with a consonant sound, even though it starts with a vowel letter.",
+      "example": "We took a one-hour break after lunch.",
+      "options": [
+        "I need a one-way ticket for tomorrow.",
+        "I need an one-way ticket for tomorrow.",
+        "I need the one-way ticket for tomorrow."
+      ],
+      "sortOrder": 18
+    },
+    {
+      "contentKey": "articles-019",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "You spoke to one manager yesterday. Complete the sentence about that person: “___ manager will call me today.”",
+      "answer": "The manager will call me today.",
+      "explanation": "Use “the” because the earlier conversation identifies the particular manager.",
+      "example": "I met a technician on Monday. The technician fixed the issue.",
+      "options": [
+        "A manager will call me today.",
+        "An manager will call me today.",
+        "The manager will call me today."
+      ],
+      "sortOrder": 19
+    },
+    {
+      "contentKey": "articles-020",
+      "type": "grammar",
+      "level": "beginner",
+      "front": "Complete this first mention of one friend from the past: “I met ___ old friend at the station.”",
+      "answer": "I met an old friend at the station.",
+      "explanation": "Use “an” before the singular phrase “old friend” because “old” begins with a vowel sound.",
+      "example": "She received an unexpected message this morning.",
+      "options": [
+        "I met a old friend at the station.",
+        "I met an old friend at the station.",
+        "I met the old friend at the station."
+      ],
+      "sortOrder": 20
+    }
+  ]
+}

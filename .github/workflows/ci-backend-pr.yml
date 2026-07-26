@@ -32,6 +32,7 @@ jobs:
       DATABASE_URL: postgresql://openspeak:openspeak@localhost:5432/openspeak_test
       PORT: "3001"
       NODE_ENV: test
+      ALLOW_DESTRUCTIVE_DB_TESTS: "true"
       CORS_ORIGIN: http://localhost:5173
 
     defaults:
@@ -56,8 +57,19 @@ jobs:
       - name: Unit tests
         run: npm test -- --ci
 
-      - name: Run migrations on ephemeral CI database
-        run: npm run migration:run
+      - name: Build production backend
+        run: npm run build
+
+      - name: Rehearse production migrations on ephemeral CI database
+        run: npm run migration:run:prod
+
+      - name: Rehearse learning content seed twice
+        run: |
+          npm run seed:learning:prod
+          npm run seed:learning:prod
+
+      - name: Verify learning content integration
+        run: npm run test:e2e -- --runInBand learning-content-seed.e2e-spec.ts
 
       - name: E2E tests
         run: npm run test:e2e -- --ci

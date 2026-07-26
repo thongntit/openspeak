@@ -29,6 +29,9 @@ src/
       1738157000000-InitialSchema.ts
     seeds/
       seed.ts                  `npm run seed` entrypoint
+      seed-learning-content.ts `npm run seed:learning` entrypoint
+    content/starter/           versioned learning-content JSON assets
+    prepare-learning-database.ts migrations + learning-content release task
   data-source.ts               TypeORM CLI DataSource (for migrations/seed)
   words/
     word.entity.ts
@@ -65,10 +68,15 @@ npm run build && npm start:prod
 npm run migration:run    # apply migrations
 npm run migration:revert # roll back last migration
 npm run migration:generate -- src/database/migrations/<Name>
-npm run seed             # idempotent seed (101 words, 7 collections)
+npm run seed             # legacy idempotent word/collection seed
+npm run seed:learning    # validate and import learning-content JSON
+npm run db:prepare       # validate content, migrate, and import it
 npm run lint             # eslint --fix
 npm run test:e2e         # full API e2e suite
 ```
+
+Use the `:prod` variants after `npm run build`: `migration:run:prod`,
+`migration:revert:prod`, `seed:learning:prod`, and `db:prepare:prod`.
 
 ## Local setup
 
@@ -80,8 +88,10 @@ docker compose up -d postgres
 cp .env.example .env       # edit DATABASE_URL if needed
 npm install
 
-# 3. Schema + data
-npm run migration:run
+# 3. Schema + learning content (first setup or after schema/content changes)
+npm run db:prepare
+
+# Optional legacy word/collection data
 npm run seed
 
 # 4. Start
@@ -89,14 +99,27 @@ npm run start:dev
 # API at http://localhost:3000/api
 ```
 
+For a content-only rerun after the schema is prepared:
+
+```bash
+npm run seed:learning
+```
+
 Or run the full stack in containers:
 
 ```bash
 docker compose up --build
-# then inside the api container, or from host against localhost:
-npm run migration:run
-npm run seed
+# From a source checkout, against the compose Postgres service:
+npm run db:prepare
+
+# Inside the built API runtime container/image (dist + production deps only):
+npm run db:prepare:prod
 ```
+
+Production startup deliberately does not run migrations or seed content. Run
+`npm run db:prepare:prod` once as a Coolify release task before starting or
+restarting the production service. Ordinary restarts only start the API and do
+not seed data.
 
 ## API
 
@@ -237,17 +260,17 @@ You supply your own Postgres 16 instance (anywhere — managed, VM, docker-compo
 # 1. Pull
 docker pull ghcr.io/<owner>/openspeak-backend:latest
 
-# 2. Run migrations once against your database
+# 2. Validate bundled content, run migrations, and import content once
 docker run --rm \
   -e DATABASE_URL=postgresql://user:pass@your-db-host:5432/openspeak \
   ghcr.io/<owner>/openspeak-backend:latest \
-  node -e "require('child_process').execSync('npm run migration:run',{stdio:'inherit'})"
+  npm run db:prepare:prod
 
-# 3. (Optional) seed
+# 3. (Optional) seed legacy words and collections
 docker run --rm \
   -e DATABASE_URL=postgresql://user:pass@your-db-host:5432/openspeak \
   ghcr.io/<owner>/openspeak-backend:latest \
-  node -e "require('child_process').execSync('npm run seed',{stdio:'inherit'})"
+  npm run seed:prod
 
 # 4. Run the API
 docker run -d --name openspeak-api -p 3000:3000 \
@@ -267,7 +290,8 @@ Where the image actually runs (VM, Kubernetes, Nomad, Railway, Render, …) is u
 ## Troubleshooting
 
 - **`password authentication failed`** — verify `DATABASE_URL`; Postgres roles created with `CREATE USER … WITH PASSWORD …` need a matching password in the URL.
-- **`relation "words" does not exist`** — run `npm run migration:run`.
+- **`relation "words" does not exist`** — run `npm run db:prepare` locally or `npm run db:prepare:prod` from the built image.
 - **`CORS_ORIGIN is required`** — `@nestjs/config` Joi validation is strict; set the env var.
 - **`400 Bad Request` on unknown query params** — `ValidationPipe` uses `forbidNonWhitelisted: true`. Drop unsupported params.
-- **Seed data drift** — `npm run seed` is idempotent (upsert by `word` / `name`). Safe to re-run.
+- **Legacy seed data drift** — `npm run seed` is idempotent (upsert by `word` / `name`). Safe to re-run.
+- **Learning-content drift** — `npm run seed:learning` validates and idempotently imports the bundled starter content without running migrations.

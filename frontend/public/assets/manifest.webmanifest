@@ -1,7 +1,7 @@
 {
-  "name": "OpenSpeak",
-  "short_name": "OpenSpeak",
-  "description": "Speak English with confidence — AI pronunciation coach.",
+  "name": "Gramio",
+  "short_name": "Gramio",
+  "description": "Practice English grammar and vocabulary.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#101922",

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "namespace": "starter",
+  "contentVersion": "2026.07.1",
+  "deckFiles": [
+    "essential-everyday-vocabulary.json",
+    "work-and-daily-routines.json",
+    "articles-a-an-the.json",
+    "present-simple-vs-continuous.json",
+    "common-prepositions.json",
+    "natural-english-tips.json"
+  ]
+}

@@ -39,6 +39,7 @@ design
 
 # OpenSpec / AI session transcripts
 session-*.md
+.superpowers/
 
 # Dev dist
 dev-dist

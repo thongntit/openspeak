@@ -5,7 +5,7 @@ Mobile-first Progressive Web App for English grammar and vocabulary practice.
 ## Monorepo Structure
 
 ```
-openspeak/
+gramio/
 ├── frontend/               # React + Vite + Tailwind PWA
 │   ├── src/
 │   │   ├── components/     # React components

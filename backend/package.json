@@ -23,8 +23,13 @@
     "migration:run": "npm run typeorm -- migration:run -d src/data-source.ts",
     "migration:run:prod": "typeorm migration:run -d dist/data-source.js",
     "migration:revert": "npm run typeorm -- migration:revert -d src/data-source.ts",
+    "migration:revert:prod": "typeorm migration:revert -d dist/data-source.js",
     "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",
-    "seed:prod": "node dist/database/seeds/seed.js"
+    "seed:prod": "node dist/database/seeds/seed.js",
+    "seed:learning": "ts-node -r tsconfig-paths/register src/database/seeds/seed-learning-content.ts",
+    "seed:learning:prod": "node dist/database/seeds/seed-learning-content.js",
+    "db:prepare": "ts-node -r tsconfig-paths/register src/database/prepare-learning-database.ts",
+    "db:prepare:prod": "node dist/database/prepare-learning-database.js"
   },
   "dependencies": {
     "@clerk/backend": "^3.3.0",
