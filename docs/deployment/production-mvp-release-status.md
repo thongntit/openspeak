@@ -12,10 +12,10 @@ the one-time database-preparation workers have run.
 - `dev`: `56e60d6c7f8f0f83bf2dca894338ec0960b953d8`
 - `main`: `19c9d3eafc165c1a6c3348de038815b4da59190d`
 
-The health observations below were collected before PR #58 advanced `dev` from
-`9892d551a88542ee0e682def19d444732200ce7c` to `56e60d6`; this reconciliation
-updates the release candidate reference only and does not represent a new
-runtime observation.
+The health observations below were collected before this document's candidate
+SHA reconciliation/fetch to `56e60d6`. They were not re-run after that
+reconciliation, which updates the release candidate reference only and does
+not represent a new runtime observation.
 
 ## Runtime baseline
 
