@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Card } from '../learning/entities/card.entity';
 import { Deck, DeckType } from '../learning/entities/deck.entity';
+import { UserDeck } from '../learning/entities/user-deck.entity';
 import { LearningContentService } from './learning-content.service';
 
 type DeckQuery = {
@@ -10,6 +11,7 @@ type DeckQuery = {
   leftJoin: jest.Mock;
   where: jest.Mock;
   groupBy: jest.Mock;
+  addGroupBy: jest.Mock;
   orderBy: jest.Mock;
   addOrderBy: jest.Mock;
   take: jest.Mock;
@@ -33,6 +35,7 @@ function makeDeckQuery(): DeckQuery {
     leftJoin: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
     groupBy: jest.fn().mockReturnThis(),
+    addGroupBy: jest.fn().mockReturnThis(),
     orderBy: jest.fn().mockReturnThis(),
     addOrderBy: jest.fn().mockReturnThis(),
     take: jest.fn().mockReturnThis(),
@@ -97,12 +100,13 @@ describe('LearningContentService', () => {
         type: DeckType.Grammar,
         level: 'beginner',
         cardCount: 20,
+        isLearning: true,
       },
     ]);
     deckRepository.count.mockResolvedValue(1);
 
     await expect(
-      service.findPublishedDecks({ limit: 20, offset: 0 }),
+      service.findPublishedDecks('user-123', { limit: 20, offset: 0 }),
     ).resolves.toEqual({
       data: [
         {
@@ -113,6 +117,7 @@ describe('LearningContentService', () => {
           type: DeckType.Grammar,
           level: 'beginner',
           cardCount: 20,
+          isLearning: true,
         },
       ],
       total: 1,
@@ -127,19 +132,26 @@ describe('LearningContentService', () => {
       'card.deck_id = deck.id AND card.is_active = :isActive',
       { isActive: true },
     );
+    expect(deckQuery.leftJoin).toHaveBeenCalledWith(
+      UserDeck,
+      'enrollment',
+      'enrollment.deck_id = deck.id AND enrollment.user_id = :userId',
+      { userId: 'user-123' },
+    );
     expect(deckQuery.where).toHaveBeenCalledWith(
       'deck.is_published = :isPublished',
       { isPublished: true },
     );
     expect(deckQuery.orderBy).toHaveBeenCalledWith('deck.sort_order', 'ASC');
     expect(deckQuery.addOrderBy).toHaveBeenCalledWith('deck.slug', 'ASC');
+    expect(deckQuery.addGroupBy).toHaveBeenCalledWith('enrollment.is_active');
   });
 
   it('reports a next page when more published decks remain', async () => {
     deckRepository.count.mockResolvedValue(101);
 
     await expect(
-      service.findPublishedDecks({ limit: 100, offset: 0 }),
+      service.findPublishedDecks('user-123', { limit: 100, offset: 0 }),
     ).resolves.toMatchObject({
       total: 101,
       limit: 100,

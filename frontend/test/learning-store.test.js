@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   ApiError,
+  enrollDeck,
   getToday,
   submitReview,
 } from '@/services/openspeakApi';
@@ -10,6 +11,7 @@ vi.mock('@/services/openspeakApi', async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
+    enrollDeck: vi.fn(),
     getToday: vi.fn(),
     submitReview: vi.fn(),
   };
@@ -80,6 +82,107 @@ beforeEach(() => {
 });
 
 describe('learning store', () => {
+  it('enrolls with a fresh token and replaces the whole Today snapshot', async () => {
+    enrollDeck.mockResolvedValue({
+      deckId: '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      isLearning: true,
+      enrolledCardCount: 1,
+      today: TODAY,
+    });
+
+    const response = await useLearningStore.getState().enrollDeck(
+      '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      () => Promise.resolve('fresh-token'),
+    );
+
+    expect(enrollDeck).toHaveBeenCalledWith(
+      '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      { token: 'fresh-token' },
+    );
+    expect(response).toMatchObject({
+      deckId: '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      isLearning: true,
+    });
+    expect(useLearningStore.getState()).toMatchObject({
+      today: TODAY,
+      loadStatus: 'ready',
+      loadError: null,
+    });
+  });
+
+  it('ignores a stale enrollment success after the learning session resets', async () => {
+    const request = deferred();
+    enrollDeck.mockReturnValue(request.promise);
+
+    const enrollment = useLearningStore.getState().enrollDeck(
+      '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      () => Promise.resolve('user-a-token'),
+    );
+    await vi.waitFor(() => expect(enrollDeck).toHaveBeenCalledOnce());
+
+    useLearningStore.getState().resetLearning();
+    request.resolve({
+      deckId: '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+      isLearning: true,
+      enrolledCardCount: 1,
+      today: TODAY,
+    });
+    await enrollment;
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: null,
+      loadStatus: 'idle',
+      loadError: null,
+    });
+  });
+
+  it('preserves Today when deck enrollment has a retryable failure', async () => {
+    useLearningStore.getState().replaceToday(TODAY);
+    enrollDeck.mockRejectedValue(
+      new ApiError(500, { message: 'failure' }, '/decks/deck-1/enroll'),
+    );
+
+    await expect(
+      useLearningStore.getState().enrollDeck(
+        '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+        () => Promise.resolve('fresh-token'),
+      ),
+    ).rejects.toMatchObject({ status: 500 });
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: TODAY,
+      loadStatus: 'ready',
+      loadError: null,
+    });
+  });
+
+  it('clears authenticated learning state when deck enrollment returns 401', async () => {
+    useLearningStore.getState().replaceToday(TODAY);
+    enrollDeck.mockRejectedValue(
+      new ApiError(
+        401,
+        { message: 'Authentication required' },
+        '/decks/deck-1/enroll',
+      ),
+    );
+
+    await expect(
+      useLearningStore.getState().enrollDeck(
+        '9bb9dfab-3572-44c0-a6cf-bd49edc30563',
+        () => Promise.resolve('expired-token'),
+      ),
+    ).rejects.toMatchObject({ status: 401 });
+
+    expect(useLearningStore.getState()).toMatchObject({
+      today: null,
+      loadStatus: 'error',
+      loadError: {
+        status: 401,
+        message: 'Authentication required',
+      },
+    });
+  });
+
   it('ignores a stale Today success after the learning session resets', async () => {
     const request = deferred();
     getToday.mockReturnValue(request.promise);

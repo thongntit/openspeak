@@ -61,15 +61,18 @@ describe('learning content API (e2e)', () => {
       });
   });
 
-  it('passes validated pagination to the deck service', async () => {
+  it('passes the authenticated user and validated pagination to the deck service', async () => {
     await request(app.getHttpServer())
       .get('/api/content/decks?limit=100&offset=0')
       .set('Authorization', 'Bearer valid')
       .expect(200);
-    expect(service.findPublishedDecks).toHaveBeenCalledWith({
-      limit: 100,
-      offset: 0,
-    });
+    expect(service.findPublishedDecks).toHaveBeenCalledWith(
+      '2f35e726-198d-4862-84df-f1c12dbe9347',
+      {
+        limit: 100,
+        offset: 0,
+      },
+    );
   });
 
   it('encodes a slug route and passes card pagination', async () => {

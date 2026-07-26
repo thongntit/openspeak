@@ -9,8 +9,11 @@ import { LearningService } from '../src/learning/learning.service';
 import { ReviewsController } from '../src/reviews/reviews.controller';
 import { ReviewsService } from '../src/reviews/reviews.service';
 import { UsersService } from '../src/users/users.service';
+import { DeckEnrollmentController } from '../src/learning/deck-enrollment.controller';
+import { DeckEnrollmentService } from '../src/learning/deck-enrollment.service';
 
 const USER_ID = '2f35e726-198d-4862-84df-f1c12dbe9347';
+const DECK_ID = '9bb9dfab-3572-44c0-a6cf-bd49edc30563';
 const CARD_ID = 'be7d7592-2e3d-4a41-8cf5-20f1ea90f4fd';
 const REQUEST_ID = 'a9ba9e4d-f965-48f6-8a66-1d6279e038d0';
 const REVIEWED_AT = '2026-07-17T06:00:00.000Z';
@@ -41,6 +44,14 @@ describe('learning loop HTTP contract (e2e)', () => {
     }),
   };
   const learning = { getToday: jest.fn().mockResolvedValue(today) };
+  const enrollment = {
+    enroll: jest.fn().mockResolvedValue({
+      deckId: DECK_ID,
+      isLearning: true,
+      enrolledCardCount: 20,
+      today,
+    }),
+  };
   const reviews = {
     submit: jest.fn().mockResolvedValue({
       reviewEventId: 'd8b103d5-c0a1-47a0-a61e-2f5a8a288bf4',
@@ -71,12 +82,17 @@ describe('learning loop HTTP contract (e2e)', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [LearningController, ReviewsController],
+      controllers: [
+        LearningController,
+        ReviewsController,
+        DeckEnrollmentController,
+      ],
       providers: [
         ClerkAuthGuard,
         { provide: ClerkTokenVerifier, useValue: verifier },
         { provide: UsersService, useValue: users },
         { provide: LearningService, useValue: learning },
+        { provide: DeckEnrollmentService, useValue: enrollment },
         { provide: ReviewsService, useValue: reviews },
         { provide: APP_GUARD, useExisting: ClerkAuthGuard },
       ],
@@ -102,6 +118,12 @@ describe('learning loop HTTP contract (e2e)', () => {
       clerk_user_id: 'user_123',
     });
     learning.getToday.mockResolvedValue(today);
+    enrollment.enroll.mockResolvedValue({
+      deckId: DECK_ID,
+      isLearning: true,
+      enrolledCardCount: 20,
+      today,
+    });
     reviews.submit.mockResolvedValue({
       reviewEventId: 'd8b103d5-c0a1-47a0-a61e-2f5a8a288bf4',
       cardId: CARD_ID,
@@ -136,6 +158,7 @@ describe('learning loop HTTP contract (e2e)', () => {
   it.each([
     ['get', '/api/today'],
     ['post', '/api/reviews'],
+    ['post', `/api/decks/${DECK_ID}/enroll`],
   ])('returns 401 for unauthenticated %s %s', async (method, path) => {
     const response = await request(app.getHttpServer())[method](path);
 
@@ -215,6 +238,33 @@ describe('learning loop HTTP contract (e2e)', () => {
         caughtUp: expect.any(Boolean),
       },
     });
+  });
+
+  it('validates and enrolls a deck for the authenticated user', async () => {
+    const response = await request(app.getHttpServer())
+      .post(`/api/decks/${DECK_ID}/enroll`)
+      .set(authenticated());
+
+    expect(response.status).toBe(200);
+    expect(enrollment.enroll).toHaveBeenCalledWith(USER_ID, DECK_ID);
+    expect(response.body).toMatchObject({
+      deckId: DECK_ID,
+      isLearning: true,
+      enrolledCardCount: 20,
+      today: {
+        totalDue: expect.any(Number),
+        caughtUp: expect.any(Boolean),
+      },
+    });
+  });
+
+  it('rejects a malformed deck id before enrollment', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/api/decks/not-a-uuid/enroll')
+      .set(authenticated());
+
+    expect(response.status).toBe(400);
+    expect(enrollment.enroll).not.toHaveBeenCalled();
   });
 
   it('preserves a duplicate replay response from the review boundary', async () => {

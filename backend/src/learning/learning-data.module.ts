@@ -6,6 +6,8 @@ import { Deck } from './entities/deck.entity';
 import { ReviewEvent } from './entities/review-event.entity';
 import { UserCardProgress } from './entities/user-card-progress.entity';
 import { UserDeck } from './entities/user-deck.entity';
+import { DeckEnrollmentController } from './deck-enrollment.controller';
+import { DeckEnrollmentService } from './deck-enrollment.service';
 import { LearningController } from './learning.controller';
 import { LearningService } from './learning.service';
 
@@ -20,8 +22,8 @@ import { LearningService } from './learning.service';
       ReviewEvent,
     ]),
   ],
-  controllers: [LearningController],
-  providers: [LearningService],
+  controllers: [LearningController, DeckEnrollmentController],
+  providers: [LearningService, DeckEnrollmentService],
   exports: [TypeOrmModule, LearningService],
 })
 export class LearningDataModule {}

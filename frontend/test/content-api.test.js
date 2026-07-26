@@ -3,6 +3,7 @@ import test, { afterEach } from 'node:test';
 
 import {
   ApiError,
+  enrollDeck,
   getContentDeckCards,
   getContentDecks,
 } from '../src/services/openspeakApi.js';
@@ -55,6 +56,35 @@ test('getContentDeckCards encodes the slug', async () => {
     new URL(capturedUrl).pathname,
     '/api/content/decks/tips%20%2F%20tricks/cards',
   );
+});
+
+test('enrollDeck posts the encoded deck id with a bearer token', async () => {
+  let captured;
+  globalThis.fetch = async (url, init) => {
+    captured = { url: String(url), init };
+    return new Response(JSON.stringify({
+      deckId: 'deck / id',
+      isLearning: true,
+      enrolledCardCount: 20,
+      today: {
+        queue: [],
+        totalDue: 0,
+        countsByType: {},
+        countsByDeck: {},
+        caughtUp: true,
+        serverTimestamp: '2026-07-27T00:00:00.000Z',
+      },
+    }), { status: 200 });
+  };
+
+  await enrollDeck('deck / id', { token: 'clerk-token' });
+
+  assert.equal(
+    new URL(captured.url).pathname,
+    '/api/decks/deck%20%2F%20id/enroll',
+  );
+  assert.equal(captured.init.method, 'POST');
+  assert.equal(captured.init.headers.Authorization, 'Bearer clerk-token');
 });
 
 test('content requests preserve API errors', async () => {
