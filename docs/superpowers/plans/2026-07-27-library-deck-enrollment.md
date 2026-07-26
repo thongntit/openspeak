@@ -444,7 +444,7 @@ git status --short --branch
 Confirm the diff contains no schema migration, dependency change, unrelated
 file, secret, placeholder, or debug logging.
 
-- [ ] **Step 3: Publish for integration**
+- [x] **Step 3: Publish for integration**
 
 ```bash
 git push -u origin codex/library-learn-enroll-all
