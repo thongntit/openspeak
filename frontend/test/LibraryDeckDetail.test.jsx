@@ -6,6 +6,7 @@ import {
   ApiError,
   enrollDeck,
   getContentDeckCards,
+  unenrollDeck,
 } from '@/services/openspeakApi';
 import { useLearningStore } from '@/stores/learningStore';
 
@@ -15,6 +16,7 @@ vi.mock('@/services/openspeakApi', async (importOriginal) => {
     ...actual,
     enrollDeck: vi.fn(),
     getContentDeckCards: vi.fn(),
+    unenrollDeck: vi.fn(),
   };
 });
 
@@ -89,7 +91,7 @@ function deferred() {
 function renderDetail({
   deck = DECK,
   getToken = vi.fn().mockResolvedValue('fresh-token'),
-  onEnrolled = vi.fn(),
+  onLearningChanged = vi.fn(),
 } = {}) {
   const onBack = vi.fn();
   render(
@@ -97,10 +99,10 @@ function renderDetail({
       deck={deck}
       getToken={getToken}
       onBack={onBack}
-      onEnrolled={onEnrolled}
+      onLearningChanged={onLearningChanged}
     />,
   );
-  return { getToken, onBack, onEnrolled };
+  return { getToken, onBack, onLearningChanged };
 }
 
 beforeEach(() => {
@@ -127,11 +129,11 @@ describe('LibraryDeckDetail enrollment', () => {
     expect(enrollDeck).toHaveBeenCalledWith(DECK.id, {
       token: 'fresh-token',
     });
-    expect(props.onEnrolled).toHaveBeenCalledWith(DECK.id);
+    expect(props.onLearningChanged).toHaveBeenCalledWith(DECK.id, true);
     expect(useLearningStore.getState().today).toBe(TODAY);
     expect(
-      await screen.findByRole('button', { name: /^learning$/i }),
-    ).toBeDisabled();
+      await screen.findByRole('button', { name: /stop learning/i }),
+    ).toBeEnabled();
   });
 
   it('keeps enrollment single-flight while the request is pending', async () => {
@@ -151,8 +153,8 @@ describe('LibraryDeckDetail enrollment', () => {
 
     request.resolve(ENROLLMENT);
     expect(
-      await screen.findByRole('button', { name: /^learning$/i }),
-    ).toBeDisabled();
+      await screen.findByRole('button', { name: /stop learning/i }),
+    ).toBeEnabled();
   });
 
   it.each([
@@ -172,12 +174,51 @@ describe('LibraryDeckDetail enrollment', () => {
     expect(useLearningStore.getState().today).toBeNull();
   });
 
-  it('renders a durable Learning state from the Library response', () => {
+  it('renders a durable stop-learning state from the Library response', () => {
     renderDetail({ deck: { ...DECK, isLearning: true } });
 
     expect(
-      screen.getByRole('button', { name: /^learning$/i }),
-    ).toBeDisabled();
+      screen.getByRole('button', { name: /stop learning/i }),
+    ).toBeEnabled();
     expect(enrollDeck).not.toHaveBeenCalled();
+  });
+
+  it('stops learning and replaces Today without deleting progress', async () => {
+    const user = userEvent.setup();
+    const props = renderDetail({ deck: { ...DECK, isLearning: true } });
+    const stoppedToday = { ...TODAY, queue: [], totalDue: 0, caughtUp: true };
+    unenrollDeck.mockResolvedValue({
+      deckId: DECK.id,
+      isLearning: false,
+      today: stoppedToday,
+    });
+
+    await user.click(screen.getByRole('button', { name: /stop learning/i }));
+
+    expect(unenrollDeck).toHaveBeenCalledWith(DECK.id, {
+      token: 'fresh-token',
+    });
+    expect(props.onLearningChanged).toHaveBeenCalledWith(DECK.id, false);
+    expect(useLearningStore.getState().today).toBe(stoppedToday);
+    expect(
+      await screen.findByRole('button', { name: /learn deck/i }),
+    ).toBeEnabled();
+  });
+
+  it('keeps Stop learning available after a request failure', async () => {
+    const user = userEvent.setup();
+    unenrollDeck.mockRejectedValue(
+      new ApiError(500, { message: 'failure' }, `/decks/${DECK.id}/enrollment`),
+    );
+    renderDetail({ deck: { ...DECK, isLearning: true } });
+
+    await user.click(screen.getByRole('button', { name: /stop learning/i }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Could not stop learning this deck. Try again.',
+    );
+    expect(
+      screen.getByRole('button', { name: /stop learning/i }),
+    ).toBeEnabled();
   });
 });

@@ -1,4 +1,7 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -9,6 +12,9 @@ import {
 } from '@/services/openspeakApi';
 import { useLearningStore } from '@/stores/learningStore';
 import Review from '@/pages/Review';
+
+const testDir = path.dirname(fileURLToPath(import.meta.url));
+const reviewSource = readFileSync(path.resolve(testDir, '../src/pages/Review.jsx'), 'utf8');
 
 const clerk = vi.hoisted(() => ({ signOut: vi.fn() }));
 
@@ -132,6 +138,26 @@ describe('Review', () => {
     expect(screen.getByLabelText('Correct answer')).toHaveTextContent(CARD.answer);
     expect(screen.getByText(CARD.explanation)).toBeInTheDocument();
     expect(screen.getByText(CARD.example)).toBeInTheDocument();
+  });
+
+  it('keeps a revealed answer and all rating actions in normal scroll flow', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    submitReview.mockResolvedValue({ duplicate: false, today: NEXT_TODAY });
+
+    renderReview();
+
+    await user.click(screen.getByRole('button', { name: /show answer/i }));
+    expect(screen.getByText(CARD.explanation)).toBeInTheDocument();
+    for (const label of ['Again', 'Hard', 'Good', 'Easy']) {
+      expect(screen.getByRole('button', { name: label })).toBeEnabled();
+    }
+    await user.click(screen.getByRole('button', { name: 'Good' }));
+    expect(submitReview).toHaveBeenCalledOnce();
+
+    expect(reviewSource).toContain('flex min-h-full flex-col animate-screen-fade-in');
+    expect(reviewSource).not.toContain('min-h-0 flex-1 px-4 pb-3');
+    expect(reviewSource).toContain('min-h-[calc(100dvh-190px)]');
   });
 
   it('disables ratings until POST resolves then renders the returned next card', async () => {

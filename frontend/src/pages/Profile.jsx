@@ -1,26 +1,18 @@
-import { useUser, useClerk } from '@clerk/clerk-react';
+import { useEffect, useState } from 'react';
+import { useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import {
   Settings as SettingsIcon,
   Sun,
   Moon,
-  Bell,
-  CreditCard,
   ChevronRight,
   Lock,
-  HelpCircle,
   LogOut,
 } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { getProfileSummary } from '@/services/openspeakApi';
 import { useThemeStore } from '@/stores/themeStore';
 import { cn } from '@/lib/cn';
-
-// TODO: backend — GET /me/stats should return { cardsReviewed, streak, retention }.
-const STATS = [
-  { value: '438', label: 'Cards' },
-  { value: '12', label: 'Day streak' },
-  { value: '87%', label: 'Retention' },
-];
 
 function initialsOf(user) {
   const first = user?.firstName?.[0] ?? '';
@@ -84,14 +76,53 @@ function Toggle({ on }) {
 
 export default function Profile() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const clerk = useClerk();
   const { isDark, toggleTheme } = useThemeStore();
+  const [summary, setSummary] = useState(null);
+  const [summaryStatus, setSummaryStatus] = useState('loading');
+  const [summaryRetryKey, setSummaryRetryKey] = useState(0);
 
   const name = user?.fullName || user?.firstName || user?.username || 'You';
   const email = user?.primaryEmailAddress?.emailAddress ?? '';
 
   const openClerkProfile = () => clerk.openUserProfile();
   const handleSignOut = () => clerk.signOut();
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadSummary() {
+      try {
+        const token = await getToken();
+        if (!token) throw new Error('Authentication required');
+        const response = await getProfileSummary({ token });
+        if (!active) return;
+        setSummary(response);
+        setSummaryStatus('ready');
+      } catch {
+        if (!active) return;
+        setSummary(null);
+        setSummaryStatus('error');
+      }
+    }
+
+    void loadSummary();
+    return () => {
+      active = false;
+    };
+  }, [getToken, summaryRetryKey]);
+
+  const retrySummary = () => {
+    setSummaryStatus('loading');
+    setSummaryRetryKey((current) => current + 1);
+  };
+
+  const stats = summary && [
+    { value: summary.reviewsCompleted, label: 'Reviews' },
+    { value: summary.learningDecks, label: 'Learning decks' },
+    { value: summary.dueNow, label: 'Due now' },
+  ];
 
   return (
     <div className="animate-screen-fade-in">
@@ -111,9 +142,17 @@ export default function Profile() {
 
       <div className="px-4 mb-[18px]">
         <Card className="flex items-center gap-3.5 p-[18px]">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-[18px] bg-gradient-to-br from-[#137fec] to-[#0a5fb5] text-[22px] font-extrabold tracking-tight text-white">
-            {initialsOf(user)}
-          </span>
+          {user?.imageUrl ? (
+            <img
+              src={user.imageUrl}
+              alt={`${name} profile`}
+              className="h-14 w-14 rounded-[18px] object-cover"
+            />
+          ) : (
+            <span className="inline-flex h-14 w-14 items-center justify-center rounded-[18px] bg-gradient-to-br from-[#137fec] to-[#0a5fb5] text-[22px] font-extrabold tracking-tight text-white">
+              {initialsOf(user)}
+            </span>
+          )}
           <div className="flex-1 min-w-0">
             <div className="text-[17px] font-bold tracking-snug text-[var(--text-1)] truncate">
               {name}
@@ -130,18 +169,41 @@ export default function Profile() {
         </Card>
       </div>
 
-      <div className="px-4 mb-[18px] grid grid-cols-3 gap-2">
-        {STATS.map((s) => (
-          <Card key={s.label} className="px-3.5 py-3.5 text-center">
-            <div className="text-[22px] font-extrabold tracking-tight text-[var(--text-1)]">
-              {s.value}
-            </div>
-            <div className="text-[11px] font-semibold uppercase tracking-eyebrow text-[var(--text-2)] mt-0.5">
-              {s.label}
-            </div>
+      <section className="px-4 mb-[18px]" aria-label="Learning summary">
+        {summaryStatus === 'loading' && (
+          <div className="py-4 text-center text-[13px] text-[var(--text-2)]" role="status">
+            Loading learning stats…
+          </div>
+        )}
+        {summaryStatus === 'error' && (
+          <Card className="p-4 text-center">
+            <p role="alert" className="text-[13px] text-[var(--text-2)]">
+              Learning stats are unavailable right now.
+            </p>
+            <button
+              type="button"
+              onClick={retrySummary}
+              className="mt-3 min-h-11 rounded-xl bg-[var(--primary-hex)] px-4 text-sm font-semibold text-white"
+            >
+              Try again
+            </button>
           </Card>
-        ))}
-      </div>
+        )}
+        {summaryStatus === 'ready' && (
+          <div className="grid grid-cols-3 gap-2">
+            {stats.map((stat) => (
+              <Card key={stat.label} className="px-3.5 py-3.5 text-center">
+                <div className="text-[22px] font-extrabold tracking-tight text-[var(--text-1)]">
+                  {stat.value}
+                </div>
+                <div className="text-[11px] font-semibold uppercase tracking-eyebrow text-[var(--text-2)] mt-0.5">
+                  {stat.label}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
 
       <h2 className="px-5 mb-2.5 text-[12px] font-bold uppercase tracking-eyebrow text-[var(--text-2)]">
         Preferences
@@ -155,18 +217,6 @@ export default function Profile() {
             right={<Toggle on={isDark} />}
             onClick={toggleTheme}
           />
-          <ListRow
-            icon={<Bell size={18} />}
-            title="Daily reminder"
-            subtitle="9:00 AM"
-            onClick={() => {}}
-          />
-          <ListRow
-            icon={<CreditCard size={18} />}
-            title="Daily new cards"
-            subtitle="20 per day"
-            onClick={() => {}}
-          />
         </Card>
       </div>
 
@@ -179,11 +229,6 @@ export default function Profile() {
             icon={<Lock size={18} />}
             title="Password & security"
             onClick={openClerkProfile}
-          />
-          <ListRow
-            icon={<HelpCircle size={18} />}
-            title="Help & support"
-            onClick={() => {}}
           />
           <ListRow
             icon={<LogOut size={18} />}
