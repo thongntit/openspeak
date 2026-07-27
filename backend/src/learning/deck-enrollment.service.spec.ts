@@ -38,6 +38,7 @@ describe('DeckEnrollmentService', () => {
     };
     const enrollmentRepository = {
       upsert: jest.fn().mockResolvedValue({}),
+      update: jest.fn().mockResolvedValue({ affected: 1 }),
     };
     const progressRepository = {
       createQueryBuilder: jest.fn().mockReturnValue(progressQuery),
@@ -148,6 +149,42 @@ describe('DeckEnrollmentService', () => {
     expect(
       harness.progressRepository.createQueryBuilder,
     ).not.toHaveBeenCalled();
+    expect(harness.learning.getToday).not.toHaveBeenCalled();
+  });
+
+  it('stops learning a published deck without deleting its progress', async () => {
+    const harness = createHarness();
+
+    await expect(
+      harness.service.stopLearning(userId, deckId, now),
+    ).resolves.toEqual({
+      deckId,
+      isLearning: false,
+      today: harness.today,
+    });
+
+    expect(harness.deckRepository.findOneBy).toHaveBeenCalledWith({
+      id: deckId,
+      is_published: true,
+    });
+    expect(harness.enrollmentRepository.update).toHaveBeenCalledWith(
+      { user_id: userId, deck_id: deckId },
+      { is_active: false },
+    );
+    expect(
+      harness.progressRepository.createQueryBuilder,
+    ).not.toHaveBeenCalled();
+    expect(harness.learning.getToday).toHaveBeenCalledWith(userId, now);
+  });
+
+  it('hides unknown and unpublished decks when stopping learning', async () => {
+    const harness = createHarness({ deck: null });
+
+    await expect(
+      harness.service.stopLearning(userId, deckId, now),
+    ).rejects.toEqual(new NotFoundException('Deck not found'));
+
+    expect(harness.enrollmentRepository.update).not.toHaveBeenCalled();
     expect(harness.learning.getToday).not.toHaveBeenCalled();
   });
 });

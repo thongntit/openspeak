@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -21,5 +22,14 @@ export class DeckEnrollmentController {
     @Param('deckId', new ParseUUIDPipe({ version: '4' })) deckId: string,
   ) {
     return this.enrollment.enroll(user.id, deckId);
+  }
+
+  @Delete(':deckId/enrollment')
+  @HttpCode(HttpStatus.OK)
+  stopLearning(
+    @CurrentUser() user: AuthenticatedPrincipal,
+    @Param('deckId', new ParseUUIDPipe({ version: '4' })) deckId: string,
+  ) {
+    return this.enrollment.stopLearning(user.id, deckId);
   }
 }

@@ -134,7 +134,7 @@ export default function Review() {
   };
 
   return (
-    <div className="flex h-full flex-col animate-screen-fade-in">
+    <div className="flex min-h-full flex-col animate-screen-fade-in">
       <div className="flex flex-shrink-0 items-center gap-3 px-4 py-3">
         <button
           type="button"
@@ -156,8 +156,8 @@ export default function Review() {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 px-4 pb-3">
-        <div className="relative h-full w-full">
+      <div className="px-4 pb-3">
+        <div className="relative w-full">
           <div
             className="pointer-events-none absolute bottom-[-16px] left-0 right-0 rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] opacity-35"
             style={{ top: 16, transform: 'scale(0.92)' }}
@@ -169,7 +169,7 @@ export default function Review() {
 
           <div
             key={card.id}
-            className="relative flex min-h-full w-full flex-col rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]"
+            className="relative flex min-h-[calc(100dvh-190px)] w-full flex-col rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]"
           >
             <div className="mb-4 flex items-center justify-between">
               <TypeChip type={card.type} />

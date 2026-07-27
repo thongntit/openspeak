@@ -79,4 +79,24 @@ export class DeckEnrollmentService {
       today: await this.learning.getToday(userId, now),
     };
   }
+
+  async stopLearning(userId: string, deckId: string, now = new Date()) {
+    await this.data.transaction(async (manager) => {
+      const deck = await manager.getRepository(Deck).findOneBy({
+        id: deckId,
+        is_published: true,
+      });
+      if (!deck) throw new NotFoundException('Deck not found');
+
+      await manager
+        .getRepository(UserDeck)
+        .update({ user_id: userId, deck_id: deckId }, { is_active: false });
+    });
+
+    return {
+      deckId,
+      isLearning: false,
+      today: await this.learning.getToday(userId, now),
+    };
+  }
 }

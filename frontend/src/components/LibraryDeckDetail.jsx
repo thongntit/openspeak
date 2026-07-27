@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   ArrowLeft,
   BookOpen,
-  Check,
+  CircleMinus,
   Languages,
   Lightbulb,
   LoaderCircle,
@@ -22,16 +22,17 @@ export default function LibraryDeckDetail({
   deck,
   getToken,
   onBack,
-  onEnrolled,
+  onLearningChanged,
 }) {
   const [cards, setCards] = useState([]);
   const [status, setStatus] = useState('loading');
   const [error, setError] = useState(null);
   const [retryKey, setRetryKey] = useState(0);
   const [isLearning, setIsLearning] = useState(Boolean(deck.isLearning));
-  const [enrollStatus, setEnrollStatus] = useState('idle');
-  const [enrollError, setEnrollError] = useState(null);
+  const [enrollmentStatus, setEnrollmentStatus] = useState('idle');
+  const [enrollmentError, setEnrollmentError] = useState(null);
   const enrollDeck = useLearningStore((state) => state.enrollDeck);
+  const unenrollDeck = useLearningStore((state) => state.unenrollDeck);
   const meta = TYPE_META[deck.type] ?? TYPE_META.vocab;
   const Icon = meta.Icon;
 
@@ -70,25 +71,29 @@ export default function LibraryDeckDetail({
     return () => controller.abort();
   }, [deck.slug, getToken, retryKey]);
 
-  async function handleEnroll() {
-    if (isLearning || enrollStatus === 'loading') return;
-    setEnrollStatus('loading');
-    setEnrollError(null);
+  async function updateLearning(nextIsLearning) {
+    if (nextIsLearning === isLearning || enrollmentStatus === 'loading') return;
+    setEnrollmentStatus('loading');
+    setEnrollmentError(null);
     try {
-      const response = await enrollDeck(deck.id, getToken);
+      const response = nextIsLearning
+        ? await enrollDeck(deck.id, getToken)
+        : await unenrollDeck(deck.id, getToken);
       if (!response) {
-        setEnrollStatus('idle');
+        setEnrollmentStatus('idle');
         return;
       }
-      setIsLearning(true);
-      setEnrollStatus('success');
-      onEnrolled?.(deck.id);
+      setIsLearning(nextIsLearning);
+      setEnrollmentStatus('success');
+      onLearningChanged?.(deck.id, nextIsLearning);
     } catch (requestError) {
-      setEnrollStatus('error');
-      setEnrollError(
+      setEnrollmentStatus('error');
+      setEnrollmentError(
         requestError.status === 401
           ? 'Your session expired. Please sign in again.'
-          : 'Could not add this deck. Try again.',
+          : nextIsLearning
+            ? 'Could not add this deck. Try again.'
+            : 'Could not stop learning this deck. Try again.',
       );
     }
   }
@@ -127,44 +132,42 @@ export default function LibraryDeckDetail({
         <Card className="p-4">
           <button
             type="button"
-            onClick={handleEnroll}
-            disabled={isLearning || enrollStatus === 'loading'}
-            aria-busy={enrollStatus === 'loading'}
+            onClick={() => updateLearning(!isLearning)}
+            disabled={enrollmentStatus === 'loading'}
+            aria-busy={enrollmentStatus === 'loading'}
             className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-4 text-[15px] font-semibold transition-transform active:scale-[0.98] disabled:cursor-default disabled:active:scale-100 ${
               isLearning
-                ? 'border border-[rgba(7,136,56,.22)] bg-[rgba(7,136,56,.10)] text-[#078838] dark:border-[rgba(74,222,128,.22)] dark:bg-[rgba(74,222,128,.14)] dark:text-[#4ade80]'
+                ? 'border border-[rgba(190,18,60,.25)] bg-[rgba(190,18,60,.08)] text-[#be123c] dark:border-[rgba(253,164,175,.24)] dark:bg-[rgba(253,164,175,.12)] dark:text-[#fda4af]'
                 : 'bg-[var(--primary-hex)] text-white'
             }`}
           >
-            {isLearning ? (
-              <Check size={18} aria-hidden="true" />
-            ) : enrollStatus === 'loading' ? (
+            {enrollmentStatus === 'loading' ? (
               <LoaderCircle
                 size={18}
                 className="animate-spin"
                 aria-hidden="true"
               />
+            ) : isLearning ? (
+              <CircleMinus size={18} aria-hidden="true" />
             ) : (
               <BookOpen size={18} aria-hidden="true" />
             )}
-            {isLearning
-              ? 'Learning'
-              : enrollStatus === 'loading'
-                ? 'Adding deck…'
-                : 'Learn deck'}
+            {enrollmentStatus === 'loading'
+              ? isLearning ? 'Removing deck…' : 'Adding deck…'
+              : isLearning ? 'Stop learning' : 'Learn deck'}
           </button>
           <p className="mt-2 text-center text-xs leading-relaxed text-[var(--text-2)]">
             {isLearning
-              ? `All ${deck.cardCount} active cards are in your review schedule.`
+              ? `Remove all ${deck.cardCount} active cards from your review schedule. Your history is kept.`
               : `Add all ${deck.cardCount} active cards to Today now.`}
           </p>
-          {enrollError && (
+          {enrollmentError && (
             <p
               role="alert"
               aria-live="polite"
               className="mt-2 text-center text-xs font-semibold text-[#b42318] dark:text-[#fda29b]"
             >
-              {enrollError}
+              {enrollmentError}
             </p>
           )}
         </Card>
