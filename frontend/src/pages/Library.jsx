@@ -56,9 +56,9 @@ export default function Library() {
     return () => controller.abort();
   }, [getToken, retryKey]);
 
-  function handleDeckEnrolled(deckId) {
+  function handleDeckLearningChanged(deckId, isLearning) {
     const markLearning = (deck) => (
-      deck.id === deckId ? { ...deck, isLearning: true } : deck
+      deck.id === deckId ? { ...deck, isLearning } : deck
     );
     setDecks((currentDecks) => currentDecks.map(markLearning));
     setSelectedDeck((currentDeck) => (
@@ -72,7 +72,7 @@ export default function Library() {
         deck={selectedDeck}
         getToken={getToken}
         onBack={() => setSelectedDeck(null)}
-        onEnrolled={handleDeckEnrolled}
+        onLearningChanged={handleDeckLearningChanged}
       />
     );
   }

@@ -6,6 +6,7 @@ import {
   enrollDeck,
   getContentDeckCards,
   getContentDecks,
+  unenrollDeck,
 } from '@/services/openspeakApi';
 import { useLearningStore } from '@/stores/learningStore';
 
@@ -24,6 +25,7 @@ vi.mock('@/services/openspeakApi', async (importOriginal) => {
     enrollDeck: vi.fn(),
     getContentDeckCards: vi.fn(),
     getContentDecks: vi.fn(),
+    unenrollDeck: vi.fn(),
   };
 });
 
@@ -84,6 +86,11 @@ beforeEach(() => {
     enrolledCardCount: 20,
     today: TODAY,
   });
+  unenrollDeck.mockResolvedValue({
+    deckId: DECK.id,
+    isLearning: false,
+    today: { ...TODAY, totalDue: 0, caughtUp: true },
+  });
 });
 
 describe('Library enrollment propagation', () => {
@@ -94,15 +101,38 @@ describe('Library enrollment propagation', () => {
     await user.click(await screen.findByText(DECK.name));
     await user.click(screen.getByRole('button', { name: /learn deck/i }));
     expect(
-      await screen.findByRole('button', { name: /^learning$/i }),
-    ).toBeDisabled();
+      await screen.findByRole('button', { name: /stop learning/i }),
+    ).toBeEnabled();
 
     await user.click(screen.getByRole('button', { name: /back to library/i }));
     await user.click(screen.getByText(DECK.name));
 
     expect(
-      screen.getByRole('button', { name: /^learning$/i }),
-    ).toBeDisabled();
+      screen.getByRole('button', { name: /stop learning/i }),
+    ).toBeEnabled();
     expect(enrollDeck).toHaveBeenCalledOnce();
+  });
+
+  it('propagates stop learning back to a Library deck', async () => {
+    const user = userEvent.setup();
+    getContentDecks.mockResolvedValue({
+      data: [{ ...DECK, isLearning: true }],
+      total: 1,
+      limit: 100,
+      offset: 0,
+      hasNext: false,
+      hasPrev: false,
+    });
+    render(<Library />);
+
+    await user.click(await screen.findByText(DECK.name));
+    await user.click(screen.getByRole('button', { name: /stop learning/i }));
+    expect(await screen.findByRole('button', { name: /learn deck/i })).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: /back to library/i }));
+    await user.click(screen.getByText(DECK.name));
+
+    expect(screen.getByRole('button', { name: /learn deck/i })).toBeEnabled();
+    expect(unenrollDeck).toHaveBeenCalledOnce();
   });
 });

@@ -98,6 +98,17 @@ export function enrollDeck(deckId, opts = {}) {
   });
 }
 
+export function unenrollDeck(deckId, opts = {}) {
+  return request(`/decks/${encodeURIComponent(deckId)}/enrollment`, {
+    ...opts,
+    method: 'DELETE',
+  });
+}
+
+export function getProfileSummary(opts = {}) {
+  return request('/me/summary', opts);
+}
+
 export function getToday(opts = {}) {
   return request('/today', opts);
 }

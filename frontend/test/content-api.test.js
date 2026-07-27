@@ -7,6 +7,7 @@ import {
   getContentDeckCards,
   getContentDecks,
 } from '../src/services/openspeakApi.js';
+import * as api from '../src/services/openspeakApi.js';
 
 const originalFetch = globalThis.fetch;
 
@@ -84,6 +85,46 @@ test('enrollDeck posts the encoded deck id with a bearer token', async () => {
     '/api/decks/deck%20%2F%20id/enroll',
   );
   assert.equal(captured.init.method, 'POST');
+  assert.equal(captured.init.headers.Authorization, 'Bearer clerk-token');
+});
+
+test('unenrollDeck deletes the encoded deck enrollment with a bearer token', async () => {
+  let captured;
+  globalThis.fetch = async (url, init) => {
+    captured = { url: String(url), init };
+    return new Response(JSON.stringify({
+      deckId: 'deck / id',
+      isLearning: false,
+      today: { queue: [], totalDue: 0, countsByType: {}, countsByDeck: {}, caughtUp: true },
+    }), { status: 200 });
+  };
+
+  assert.equal(typeof api.unenrollDeck, 'function');
+  await api.unenrollDeck('deck / id', { token: 'clerk-token' });
+
+  assert.equal(
+    new URL(captured.url).pathname,
+    '/api/decks/deck%20%2F%20id/enrollment',
+  );
+  assert.equal(captured.init.method, 'DELETE');
+  assert.equal(captured.init.headers.Authorization, 'Bearer clerk-token');
+});
+
+test('getProfileSummary requests the authenticated profile summary', async () => {
+  let captured;
+  globalThis.fetch = async (url, init) => {
+    captured = { url: String(url), init };
+    return new Response(JSON.stringify({
+      reviewsCompleted: 17,
+      learningDecks: 2,
+      dueNow: 4,
+    }), { status: 200 });
+  };
+
+  assert.equal(typeof api.getProfileSummary, 'function');
+  await api.getProfileSummary({ token: 'clerk-token' });
+
+  assert.equal(new URL(captured.url).pathname, '/api/me/summary');
   assert.equal(captured.init.headers.Authorization, 'Bearer clerk-token');
 });
 

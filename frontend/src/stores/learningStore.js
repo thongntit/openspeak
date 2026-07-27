@@ -4,6 +4,7 @@ import {
   enrollDeck as enrollDeckRequest,
   getToday,
   submitReview,
+  unenrollDeck as unenrollDeckRequest,
 } from '@/services/openspeakApi';
 
 const INITIAL_STATE = {
@@ -89,6 +90,35 @@ export const useLearningStore = create((set, get) => ({
       const token = await requireToken(getToken);
       if (!isCurrentSession()) return null;
       const response = await enrollDeckRequest(deckId, { token });
+      if (!isCurrentSession()) return null;
+      set({
+        today: response.today,
+        loadStatus: 'ready',
+        loadError: null,
+      });
+      return response;
+    } catch (error) {
+      if (!isCurrentSession()) return null;
+      if (error?.status === 401) {
+        const loadError = toStatusError(error);
+        set((state) => ({
+          ...INITIAL_STATE,
+          sessionEpoch: state.sessionEpoch + 1,
+          loadStatus: 'error',
+          loadError,
+        }));
+      }
+      throw error;
+    }
+  },
+
+  unenrollDeck: async (deckId, getToken) => {
+    const requestEpoch = get().sessionEpoch;
+    const isCurrentSession = () => get().sessionEpoch === requestEpoch;
+    try {
+      const token = await requireToken(getToken);
+      if (!isCurrentSession()) return null;
+      const response = await unenrollDeckRequest(deckId, { token });
       if (!isCurrentSession()) return null;
       set({
         today: response.today,
