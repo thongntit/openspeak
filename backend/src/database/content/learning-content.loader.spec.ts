@@ -321,7 +321,42 @@ describe('loadLearningContent', () => {
   it('loads the curated starter production bundle', () => {
     const bundle = loadLearningContent();
 
-    expect(bundle.databaseContentVersion).toBe('starter@2026.07.1');
+    const expectedNewTenseKeys = [
+      'present-perfect-001',
+      'present-perfect-002',
+      'present-perfect-continuous-001',
+      'present-perfect-continuous-002',
+      'past-simple-001',
+      'past-continuous-001',
+      'past-perfect-001',
+      'past-perfect-continuous-001',
+      'future-simple-001',
+      'future-continuous-001',
+      'future-perfect-001',
+      'future-perfect-continuous-001',
+      'tense-contrast-001',
+      'tense-contrast-002',
+      'tense-contrast-003',
+      'tense-contrast-004',
+      'tense-contrast-005',
+      'tense-contrast-006',
+      'tense-contrast-007',
+      'tense-contrast-008',
+      'tense-correction-001',
+      'tense-correction-002',
+      'tense-correction-003',
+      'tense-correction-004',
+      'tense-recall-001',
+      'tense-recall-002',
+      'tense-recall-003',
+      'tense-recall-004',
+    ];
+    const expectedRetainedTenseKeys = Array.from(
+      { length: 20 },
+      (_, index) => `present-tense-${String(index + 1).padStart(3, '0')}`,
+    );
+
+    expect(bundle.databaseContentVersion).toBe('starter@2026.07.2');
     expect(bundle.decks.map((deck) => deck.slug)).toEqual([
       'essential-everyday-vocabulary',
       'work-and-daily-routines',
@@ -330,8 +365,35 @@ describe('loadLearningContent', () => {
       'common-prepositions',
       'natural-english-tips',
     ]);
-    expect(bundle.decks.every((deck) => deck.cards.length === 20)).toBe(true);
-    expect(bundle.decks.flatMap((deck) => deck.cards)).toHaveLength(120);
+    const tenseDeck = bundle.decks.find(
+      (deck) => deck.slug === 'present-simple-vs-continuous',
+    );
+    expect(tenseDeck).toMatchObject({
+      name: 'English Tenses in Use',
+      type: 'grammar',
+      level: 'intermediate',
+      sortOrder: 40,
+      isPublished: true,
+    });
+    expect(tenseDeck?.cards).toHaveLength(48);
+    expect(tenseDeck?.cards.map((card) => card.contentKey)).toEqual([
+      ...expectedRetainedTenseKeys,
+      ...expectedNewTenseKeys,
+    ]);
+    expect(tenseDeck?.cards.map((card) => card.sortOrder)).toEqual(
+      Array.from({ length: 48 }, (_, index) => index + 1),
+    );
+    expect(
+      tenseDeck?.cards
+        .filter((card) => card.options === undefined)
+        .map((card) => card.contentKey),
+    ).toEqual([
+      'tense-recall-001',
+      'tense-recall-002',
+      'tense-recall-003',
+      'tense-recall-004',
+    ]);
+    expect(bundle.decks.flatMap((deck) => deck.cards)).toHaveLength(148);
   });
 
   it('loads exactly the manifest-listed deck documents', () => {
