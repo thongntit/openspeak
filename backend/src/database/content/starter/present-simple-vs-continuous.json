@@ -1,7 +1,7 @@
 {
   "slug": "present-simple-vs-continuous",
-  "name": "Present Simple vs. Present Continuous",
-  "description": "Choose between routines and facts in the present simple and actions or temporary situations in the present continuous.",
+  "name": "English Tenses in Use",
+  "description": "Use all twelve English tense-aspect forms in practical present, past, and future situations.",
   "type": "grammar",
   "level": "intermediate",
   "sortOrder": 40,
@@ -277,6 +277,90 @@
         "The café is usually closing at six, but today it stays open until nine."
       ],
       "sortOrder": 20
+    },
+    {
+      "contentKey": "present-perfect-001", "type": "grammar", "level": "intermediate", "front": "Mai bought the café in 2022 and still owns it. Complete: Mai ___ the café since 2022.", "answer": "Mai has owned the café since 2022.", "explanation": "Present perfect links a state begun in the past to now.", "example": "We have known our neighbors for years.", "options": ["Mai has owned the café since 2022.", "Mai owned the café since 2022.", "Mai has been owning the café since 2022."], "sortOrder": 21
+    },
+    {
+      "contentKey": "present-perfect-002", "type": "grammar", "level": "intermediate", "front": "Ask about an experience at any time before now: ___ sushi?", "answer": "Have you ever tried sushi?", "explanation": "Ever asks about life experience up to now.", "example": "Have you ever visited Da Nang?", "options": ["Have you ever tried sushi?", "Have you ever try sushi?", "Did you try sushi tomorrow?"], "sortOrder": 22
+    },
+    {
+      "contentKey": "present-perfect-continuous-001", "type": "grammar", "level": "intermediate", "front": "Nam has paint on his hands because the activity started an hour ago and is still continuing. Complete: Nam ___ the kitchen for an hour.", "answer": "Nam has been painting the kitchen for an hour.", "explanation": "Present perfect continuous focuses on an activity's duration from past to now.", "example": "I have been waiting for the bus since eight.", "options": ["Nam has been painting the kitchen for an hour.", "Nam painted the kitchen for an hour.", "Nam has painted the kitchen for an hour."], "sortOrder": 23
+    },
+    {
+      "contentKey": "present-perfect-continuous-002", "type": "grammar", "level": "intermediate", "front": "Use the present perfect continuous to explain your tiredness: I ___ since dawn.", "answer": "I have been working since dawn.", "explanation": "The form have been plus verb-ing shows ongoing recent activity.", "example": "She has been studying all afternoon.", "options": ["I have been working since dawn.", "I worked since dawn.", "I have worked since dawn."], "sortOrder": 24
+    },
+    {
+      "contentKey": "past-simple-001", "type": "grammar", "level": "intermediate", "front": "The flight landed once at 9:00 last night. Complete: The flight ___ at 9:00 last night.", "answer": "The flight landed at 9:00 last night.", "explanation": "Simple past describes a finished action at a specific past time.", "example": "Our guests arrived after dinner.", "options": ["The flight landed at 9:00 last night.", "The flight has landed at 9:00 last night.", "The flight was landing at 9:00 last night."], "sortOrder": 25
+    },
+    {
+      "contentKey": "past-continuous-001", "type": "grammar", "level": "intermediate", "front": "At 9:00 last night, the action was in progress. Complete: I ___ for tomorrow's meeting at 9:00 last night.", "answer": "I was preparing for tomorrow's meeting at 9:00 last night.", "explanation": "Past continuous describes an action in progress at a past time.", "example": "They were driving home when it began to rain.", "options": ["I was preparing for tomorrow's meeting at 9:00 last night.", "I prepared for tomorrow's meeting at 9:00 last night.", "I had prepared for tomorrow's meeting at 9:00 last night."], "sortOrder": 26
+    },
+    {
+      "contentKey": "past-perfect-001", "type": "grammar", "level": "intermediate", "front": "Use the past perfect to show that the server restart happened before the update began: The server ___ before the update began.", "answer": "The server had restarted before the update began.", "explanation": "Past perfect marks the earlier of two stated past actions.", "example": "The meeting had ended before I arrived.", "options": ["The server had restarted before the update began.", "The server restarted before the update began.", "The server was restarting before the update began."], "sortOrder": 27
+    },
+    {
+      "contentKey": "past-perfect-continuous-001", "type": "grammar", "level": "intermediate", "front": "Use past perfect continuous for the duration before the meeting: The team ___ the proposal for an hour before the meeting began.", "answer": "The team had been discussing the proposal for an hour before the meeting began.", "explanation": "Past perfect continuous shows duration leading up to a past point.", "example": "She had been driving for two hours when she stopped.", "options": ["The team had been discussing the proposal for an hour before the meeting began.", "The team was discussing the proposal for an hour before the meeting began.", "The team had discussed the proposal for an hour before the meeting began."], "sortOrder": 28
+    },
+    {
+      "contentKey": "future-simple-001", "type": "grammar", "level": "intermediate", "front": "Make a prediction based on your opinion: I think the new feature ___ popular.", "answer": "I think the new feature will be popular.", "explanation": "Will expresses a prediction.", "example": "I think the weather will improve tomorrow.", "options": ["I think the new feature will be popular.", "I think the new feature is being popular.", "I think the new feature will being popular."], "sortOrder": 29
+    },
+    {
+      "contentKey": "future-continuous-001", "type": "grammar", "level": "intermediate", "front": "At 3:00 tomorrow, the appointment will be in progress. Complete: At 3:00 tomorrow, I ___ with the client.", "answer": "At 3:00 tomorrow, I will be meeting with the client.", "explanation": "Future continuous describes an action in progress at a specified future time.", "example": "This time next week, we will be travelling.", "options": ["At 3:00 tomorrow, I will be meeting with the client.", "At 3:00 tomorrow, I will meet with the client.", "At 3:00 tomorrow, I will have met with the client."], "sortOrder": 30
+    },
+    {
+      "contentKey": "future-perfect-001", "type": "grammar", "level": "intermediate", "front": "Use the future perfect for a task completed before Friday: By Friday, Elena ___ the report.", "answer": "By Friday, Elena will have finished the report.", "explanation": "Future perfect shows completion before a future deadline.", "example": "By noon, I will have sent the invoices.", "options": ["By Friday, Elena will have finished the report.", "By Friday, Elena will finish the report.", "By Friday, Elena will have been finishing the report."], "sortOrder": 31
+    },
+    {
+      "contentKey": "future-perfect-continuous-001", "type": "grammar", "level": "intermediate", "front": "Use future perfect continuous for Sam's ongoing employment: By July, Sam ___ here for five years.", "answer": "By July, Sam will have been working here for five years.", "explanation": "Future perfect continuous shows a duration continuing up to a future time.", "example": "In December, they will have been living there for a decade.", "options": ["By July, Sam will have been working here for five years.", "By July, Sam will work here for five years.", "By July, Sam will have worked here for five years."], "sortOrder": 32
+    },
+    {
+      "contentKey": "tense-contrast-001", "type": "grammar", "level": "intermediate", "front": "Choose the pair that reports a completed action yesterday and an unfinished result now: I ___ the invoice yesterday, but I ___ the receipt yet.", "answer": "I sent the invoice yesterday, but I have not received the receipt yet.", "explanation": "The dated action takes simple past while yet connects the missing receipt to now.", "example": "We booked the room last week, but we have not received confirmation yet.", "options": ["I sent the invoice yesterday, but I have not received the receipt yet.", "I have sent the invoice yesterday, but I did not receive the receipt yet.", "I was sending the invoice yesterday, but I have not received the receipt yet."], "sortOrder": 33
+    },
+    {
+      "contentKey": "tense-contrast-002", "type": "grammar", "level": "intermediate", "front": "Emphasize the ongoing activity, not its finished result: Leo ___ the proposal since 8:00 a.m., so he needs a break.", "answer": "Leo has been writing the proposal since 8:00 a.m., so he needs a break.", "explanation": "Present perfect continuous emphasizes activity and duration.", "example": "They have been testing the app all morning.", "options": ["Leo has been writing the proposal since 8:00 a.m., so he needs a break.", "Leo has written the proposal since 8:00 a.m., so he needs a break.", "Leo wrote the proposal since 8:00 a.m., so he needs a break."], "sortOrder": 34
+    },
+    {
+      "contentKey": "tense-contrast-003", "type": "grammar", "level": "intermediate", "front": "One action interrupted another. Complete: While I ___ to the office, a cyclist ___ a bag.", "answer": "While I was walking to the office, a cyclist dropped a bag.", "explanation": "Past continuous supplies the background action and simple past supplies the completed interrupting event.", "example": "While we were eating, the lights went out.", "options": ["While I was walking to the office, a cyclist dropped a bag.", "While I walked to the office, a cyclist was dropping a bag.", "While I had walked to the office, a cyclist dropped a bag."], "sortOrder": 35
+    },
+    {
+      "contentKey": "tense-contrast-004", "type": "grammar", "level": "intermediate", "front": "Use past perfect to make the sequence explicit: First the server restarted; then the update began. Complete: The server ___ before the update began.", "answer": "The server had restarted before the update began.", "explanation": "The past perfect makes the earlier action explicit.", "example": "I had saved the file before the laptop shut down.", "options": ["The server had restarted before the update began.", "The server was restarting before the update began.", "The server has restarted before the update began."], "sortOrder": 36
+    },
+    {
+      "contentKey": "tense-contrast-005", "type": "grammar", "level": "intermediate", "front": "Emphasize the length of the activity before the past event: The team ___ for an hour when the manager arrived.", "answer": "The team had been discussing the plan for an hour when the manager arrived.", "explanation": "Past perfect continuous focuses on duration before a past event.", "example": "We had been waiting for thirty minutes when the bus came.", "options": ["The team had been discussing the plan for an hour when the manager arrived.", "The team discussed the plan for an hour when the manager arrived.", "The team was discussing the plan for an hour when the manager arrived."], "sortOrder": 37
+    },
+    {
+      "contentKey": "tense-contrast-006", "type": "grammar", "level": "intermediate", "front": "At this exact time tomorrow, the flight will be in progress. Complete: This time tomorrow, we ___ to Singapore.", "answer": "This time tomorrow, we will be flying to Singapore.", "explanation": "Future continuous describes an in-progress action at a future time.", "example": "At noon, I will be presenting the budget.", "options": ["This time tomorrow, we will be flying to Singapore.", "This time tomorrow, we will fly to Singapore.", "This time tomorrow, we will have flown to Singapore."], "sortOrder": 38
+    },
+    {
+      "contentKey": "tense-contrast-007", "type": "grammar", "level": "intermediate", "front": "The tickets are already booked. Use present continuous for the fixed arrangement: We ___ at the Riverside Hotel on Friday.", "answer": "We are staying at the Riverside Hotel on Friday.", "explanation": "Present continuous can express an arranged personal future plan.", "example": "I am meeting the designer tomorrow morning.", "options": ["We are staying at the Riverside Hotel on Friday.", "We will be staying at the Riverside Hotel on Friday.", "We have stayed at the Riverside Hotel on Friday."], "sortOrder": 39
+    },
+    {
+      "contentKey": "tense-contrast-008", "type": "grammar", "level": "intermediate", "front": "Use future perfect continuous to focus on duration up to a deadline: By next December, Priya ___ for this company for ten years.", "answer": "By next December, Priya will have been working for this company for ten years.", "explanation": "Future perfect continuous emphasizes duration, unlike future perfect's completed result.", "example": "By 2030, I will have been teaching for fifteen years.", "options": ["By next December, Priya will have been working for this company for ten years.", "By next December, Priya will have worked for this company for ten years.", "By next December, Priya will be working for this company for ten years."], "sortOrder": 40
+    },
+    {
+      "contentKey": "tense-correction-001", "type": "grammar", "level": "intermediate", "front": "Correct the tense error: “I have met her at the workshop yesterday.”", "answer": "I met her at the workshop yesterday.", "explanation": "A finished event with yesterday requires simple past.", "example": "We signed the contract last Monday.", "options": ["I met her at the workshop yesterday.", "I have met her at the workshop yesterday.", "I was meeting her at the workshop yesterday."], "sortOrder": 41
+    },
+    {
+      "contentKey": "tense-correction-002", "type": "grammar", "level": "intermediate", "front": "Correct the tense error. The action was in progress at 8:00 last night: “At 8:00 last night, I prepared dinner.”", "answer": "At 8:00 last night, I was preparing dinner.", "explanation": "An action in progress at a specific past time uses past continuous.", "example": "At noon, they were discussing the schedule.", "options": ["At 8:00 last night, I was preparing dinner.", "At 8:00 last night, I prepared dinner.", "At 8:00 last night, I had prepared dinner."], "sortOrder": 42
+    },
+    {
+      "contentKey": "tense-correction-003", "type": "grammar", "level": "intermediate", "front": "Correct the tense error: “By the deadline on Friday, we will finish the report.”", "answer": "By the deadline on Friday, we will have finished the report.", "explanation": "Future perfect marks completion before a deadline.", "example": "By tomorrow, I will have completed the form.", "options": ["By the deadline on Friday, we will have finished the report.", "By the deadline on Friday, we will finish the report.", "By the deadline on Friday, we will have been finishing the report."], "sortOrder": 43
+    },
+    {
+      "contentKey": "tense-correction-004", "type": "grammar", "level": "intermediate", "front": "Correct the tense error using future perfect continuous: “By June, Sam will work here for five years.”", "answer": "By June, Sam will have been working here for five years.", "explanation": "Future perfect continuous shows the duration up to June.", "example": "By August, we will have been renting this office for a year.", "options": ["By June, Sam will have been working here for five years.", "By June, Sam will work here for five years.", "By June, Sam will have worked here for five years."], "sortOrder": 44
+    },
+    {
+      "contentKey": "tense-recall-001", "type": "grammar", "level": "intermediate", "front": "Use present perfect to complete the unfinished-result sentence: I ___ (not / receive) a reply yet.", "answer": "I have not received a reply yet.", "explanation": "Yet with an unfinished result calls for present perfect.", "example": "She has not called me yet.", "sortOrder": 45
+    },
+    {
+      "contentKey": "tense-recall-002", "type": "grammar", "level": "intermediate", "front": "Use past perfect to complete: The taxi ___ (leave) before we reached the hotel.", "answer": "The taxi had left before we reached the hotel.", "explanation": "Past perfect marks the earlier past action.", "example": "The store had closed before we arrived.", "sortOrder": 46
+    },
+    {
+      "contentKey": "tense-recall-003", "type": "grammar", "level": "intermediate", "front": "Use future continuous to complete: At 10:00 on Tuesday, I ___ (present) the budget.", "answer": "At 10:00 on Tuesday, I will be presenting the budget.", "explanation": "Future continuous describes an action in progress at a future time.", "example": "At six, they will be having dinner.", "sortOrder": 47
+    },
+    {
+      "contentKey": "tense-recall-004", "type": "grammar", "level": "intermediate", "front": "Use future simple to make an offer: I ___ (carry) your bag.", "answer": "I will carry your bag.", "explanation": "Future simple with will can make an immediate offer.", "example": "I will call a taxi for you.", "sortOrder": 48
     }
   ]
 }
