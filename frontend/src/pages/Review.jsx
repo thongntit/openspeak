@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/cn';
 import TypeChip from '@/components/ui/TypeChip';
 import ReauthenticateButton from '@/components/ReauthenticateButton';
+import useHorizontalSwipe from '@/hooks/useHorizontalSwipe';
 import { useLearningStore } from '@/stores/learningStore';
 
 const REVIEW_BUTTONS = [
@@ -20,6 +21,21 @@ const REVIEW_BUTTONS = [
 ];
 
 const EMPTY_COUNTS = { again: 0, hard: 0, good: 0, easy: 0 };
+
+const SWIPE_FEEDBACK = {
+  easy: {
+    label: 'Easy',
+    className: 'border-[rgba(19,127,236,.3)] bg-[rgba(19,127,236,.12)] text-[var(--primary-hex)]',
+  },
+  good: {
+    label: 'Good',
+    className: 'border-[rgba(7,136,56,.3)] bg-[rgba(7,136,56,.12)] text-[#078838] dark:text-[#4ade80]',
+  },
+  hard: {
+    label: 'Hard',
+    className: 'border-[rgba(180,83,9,.3)] bg-[rgba(180,83,9,.12)] text-[#b45309] dark:text-[#fbbf24]',
+  },
+};
 
 export default function Review() {
   const navigate = useNavigate();
@@ -50,6 +66,7 @@ export default function Review() {
     ? cardUi
     : { cardId: card?.id ?? null, revealed: false, picked: null };
   const { revealed, picked } = currentCardUi;
+  const hasMCQ = Array.isArray(card?.options) && card.options.length > 0;
 
   useEffect(() => {
     if (loadStatus === 'idle') {
@@ -98,6 +115,19 @@ export default function Review() {
     clearReviewError();
   };
 
+  const swipeEnabled = Boolean(
+    hasMCQ && revealed && picked && !isSubmitting && !reviewError,
+  );
+  const leftSwipeRating = picked === card?.answer ? 'easy' : 'good';
+  const { dragX, direction: swipeDirection, pointerHandlers } = useHorizontalSwipe({
+    enabled: swipeEnabled,
+    onSwipeLeft: () => void submitRating(leftSwipeRating),
+    onSwipeRight: () => void submitRating('hard'),
+  });
+  const swipeRating = swipeDirection === 'left'
+    ? leftSwipeRating
+    : swipeDirection === 'right' ? 'hard' : null;
+
   if (loadStatus === 'idle' || loadStatus === 'loading') {
     return <ReviewLoading />;
   }
@@ -121,7 +151,6 @@ export default function Review() {
     100,
     Math.round((reviewedCount / Math.max(1, total)) * 100),
   );
-  const hasMCQ = Array.isArray(card.options) && card.options.length > 0;
 
   const pick = (option) => {
     if (picked || isSubmitting) return;
@@ -169,8 +198,25 @@ export default function Review() {
 
           <div
             key={card.id}
-            className="relative flex min-h-[calc(100dvh-190px)] w-full flex-col rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]"
+            data-testid="review-card"
+            {...pointerHandlers}
+            style={{
+              touchAction: swipeEnabled ? 'pan-y' : undefined,
+              transform: dragX ? `translateX(${dragX}px) rotate(${dragX / 30}deg)` : undefined,
+            }}
+            className="relative flex min-h-[calc(100dvh-190px)] w-full flex-col rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_6px_20px_rgba(15,22,32,0.04)] transition-transform duration-150 dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]"
           >
+            {swipeRating && (
+              <div
+                aria-hidden="true"
+                className={cn(
+                  'pointer-events-none absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full border px-4 py-1.5 text-sm font-bold shadow-sm',
+                  SWIPE_FEEDBACK[swipeRating].className,
+                )}
+              >
+                {SWIPE_FEEDBACK[swipeRating].label}
+              </div>
+            )}
             <div className="mb-4 flex items-center justify-between">
               <TypeChip type={card.type} />
               <span className="font-mono text-[11px] font-semibold uppercase text-[var(--text-2)]">
@@ -231,6 +277,16 @@ export default function Review() {
                   <div className="mt-3.5 whitespace-pre-wrap rounded-xl bg-[var(--bg-app)] p-3 text-[13px] italic leading-relaxed text-[var(--text-2)]">
                     {card.example}
                   </div>
+                )}
+                {hasMCQ && !picked && (
+                  <p role="status" className="mt-3 text-center text-sm text-[var(--text-2)]">
+                    Choose an answer to swipe, or use a rating below.
+                  </p>
+                )}
+                {!hasMCQ && (
+                  <p role="status" className="mt-3 text-center text-sm text-[var(--text-2)]">
+                    Use a rating button below to continue.
+                  </p>
                 )}
               </div>
             )}
