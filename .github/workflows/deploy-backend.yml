@@ -79,5 +79,5 @@ jobs:
       - name: Trigger production Coolify redeploy
         run: |
           curl --fail-with-body --silent --show-error \
-            -X GET "${{ secrets.COOLIFY_PROD_WEBHOOK_URL }}" \
+            -X GET "${{ secrets.COOLIFY_PROD_WEBHOOK_URL }}&force=true" \
             -H "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
