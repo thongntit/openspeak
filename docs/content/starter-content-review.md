@@ -1,23 +1,24 @@
 # Starter Content Editorial Review
 
-Bundle: `starter@2026.07.1`
+Bundle: `starter@2026.07.2`
 
 Reviewer: Codex editorial review
 
-Review date: 2026-07-14
+Review date: 2026-07-31
 
-Scope: six published decks, 20 cards per deck, 120 cards total
+Scope: six published decks: five 20-card decks and one 48-card deck, 148 cards total
 
 ## Review method
 
 The reviewer read every card in manifest order, including its prompt, answer,
 explanation, example, and options when present. A deck was marked complete only
-after all 20 of its cards had been read and any discovered issue had been
+after all cards in that deck had been read and any discovered issue had been
 corrected. After the manual pass, an automated catalog check confirmed exact
-deck and card metadata, 120 globally unique normalized prompts, 120 unique
+deck and card metadata, 148 globally unique normalized prompts, 148 unique
 normalized examples, two to four unique choices on every multiple-choice card,
 the exact answer in every options array, and seven JSON source files. The final
-catalog contains 72 multiple-choice cards and no pronunciation coaching. A
+catalog contains 96 multiple-choice cards, 52 guided-recall cards, and no
+pronunciation coaching. A
 follow-up review also compared lesson targets across all six decks for semantic
 near-duplicates and re-checked guided free-recall prompts for other standard
 answers that their wording might allow.
@@ -100,35 +101,43 @@ Completed gates:
       choices and contains the complete exact answer.
 - [x] Card count: exactly 20 cards, `articles-001` through `articles-020`.
 
-## Present Simple vs. Present Continuous
+## English Tenses in Use
 
 - Slug: `present-simple-vs-continuous`
 - Reviewer: Codex editorial review
-- Date: 2026-07-14
-- Cards read: 20 of 20
-- Review changes: Made `present-tense-010` explicitly ask for the present
-  continuous interpretation of a developing trend, replaced the awkward “typing
-  on a document” context in `present-tense-013` with editing a document, and
-  rewrote the `present-tense-020` example to use natural future-arrangement
-  language.
+- Date: 2026-07-31
+- Cards read: 48 of 48
+- Review changes: `present-tense-001` through `present-tense-020` were retained
+  while cards 21 through 48 add the remaining tense forms, contrasts,
+  corrections, and guided recall.
 
 Completed gates:
 
-- [x] Correctness: answers correctly distinguish habits, facts, states,
-      timetables, current actions, temporary situations, trends, and arrangements.
-- [x] Unique answer support: time markers and explicit contexts select the
-      intended tense rather than relying on a trick interpretation.
-- [x] Explanation consistency: every explanation names the tense function used
-      by its complete-sentence answer.
-- [x] Natural examples: examples are original and idiomatic in both present
-      tenses.
-- [x] Level consistency: contrasts are appropriate for intermediate learners and
-      avoid unexplained edge cases.
-- [x] Duplicate scan: all 20 normalized prompts and examples are unique.
-- [x] Option/answer consistency: every options array has two unique choices and
-      contains the complete exact answer.
-- [x] Card count: exactly 20 cards, `present-tense-001` through
-      `present-tense-020`.
+- [x] Coverage: all twelve English tense-aspect forms appear in practical
+      present, past, and future contexts.
+- [x] Unique answer support: time markers, stated meaning, and guided tense
+      requests select one complete answer.
+- [x] Explanation consistency: every explanation states the same time
+      relationship represented by its answer.
+- [x] Natural examples: every example is an original, ordinary sentence and
+      no normalized example is duplicated elsewhere in the bundle.
+- [x] Level consistency: the deck requires intermediate learners to choose
+      among nearby forms rather than merely recite a conjugation.
+- [x] Duplicate scan: all 48 normalized prompts are unique within the deck;
+      all 148 normalized prompts and examples are unique across the bundle.
+- [x] Option/answer consistency: all 44 multiple-choice cards have two or
+      three unique choices containing the exact complete answer; the four
+      guided-recall cards intentionally omit options.
+- [x] Card count: exactly 48 cards, `present-tense-001` through
+      `present-tense-020` followed by the 28 keys asserted in the loader test.
+
+### Source attribution
+
+*Verb Tense*, Excelsior Online Writing Lab (OWL), Excelsior University,
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/),
+<https://owl.excelsior.edu/writing-refresher/grammar-refresher/verb-tense/>.
+Gramio adapted the learning objectives and exercise patterns and rewrote all
+published prompts, answers, explanations, examples, and distractors.
 
 ## Common Prepositions
 
