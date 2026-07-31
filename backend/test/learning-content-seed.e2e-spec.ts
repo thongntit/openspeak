@@ -465,7 +465,7 @@ describe('learning content seed (e2e)', () => {
     });
     expect(retiredCard).toMatchObject({
       id: replacedCard.id,
-      content_version: 'starter@2026.07.1',
+      content_version: 'starter@2026.07.2',
       is_active: false,
     });
     expect(
@@ -491,7 +491,7 @@ describe('learning content seed (e2e)', () => {
       await deckRepository.findOneByOrFail({ id: omittedDeck.id }),
     ).toMatchObject({
       slug: OMITTED_DECK_SLUG,
-      content_version: 'starter@2026.07.1',
+      content_version: 'starter@2026.07.2',
       is_published: false,
     });
     expect(
