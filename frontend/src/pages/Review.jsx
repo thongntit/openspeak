@@ -37,6 +37,16 @@ const SWIPE_FEEDBACK = {
   },
 };
 
+function isRenderableReviewCard(card) {
+  return Boolean(
+    card
+    && typeof card.id === 'string'
+    && card.id.length > 0
+    && typeof card.front === 'string'
+    && typeof card.answer === 'string',
+  );
+}
+
 export default function Review() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
@@ -133,7 +143,13 @@ export default function Review() {
   }
 
   if (loadStatus === 'error') {
-    return <ReviewLoadError error={loadError} onRetry={refreshSession} />;
+    return (
+      <ReviewLoadError
+        error={loadError}
+        onRetry={refreshSession}
+        onExit={exitReview}
+      />
+    );
   }
 
   if (!today || today.caughtUp || today.queue.length === 0) {
@@ -144,6 +160,10 @@ export default function Review() {
         onExit={() => navigate('/', { replace: true })}
       />
     );
+  }
+
+  if (!isRenderableReviewCard(card)) {
+    return <ReviewCardUnavailable onRetry={refreshSession} onExit={exitReview} />;
   }
 
   const total = reviewedCount + today.totalDue;
@@ -302,6 +322,7 @@ export default function Review() {
             submitting={isSubmitting}
             onRetry={retryReview}
             onRefresh={refreshSession}
+            onExit={exitReview}
           />
         )}
 
@@ -361,7 +382,7 @@ function ReviewLoading() {
   );
 }
 
-function ReviewLoadError({ error, onRetry }) {
+function ReviewLoadError({ error, onRetry, onExit }) {
   const status = error?.status ?? 0;
   const title = status === 401
     ? 'Your session expired'
@@ -383,23 +404,64 @@ function ReviewLoadError({ error, onRetry }) {
             ? 'Sign in again before reviewing cards.'
             : 'Your queue could not be loaded.'}
         </div>
-        {status === 401 ? (
-          <ReauthenticateButton className="mt-5 h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white" />
-        ) : (
+        <div className="mt-5 flex flex-col items-center gap-2">
+          {status === 401 ? (
+            <ReauthenticateButton className="h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white" />
+          ) : (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white"
+            >
+              Retry
+            </button>
+          )}
           <button
             type="button"
-            onClick={onRetry}
-            className="mt-5 h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white"
+            onClick={onExit}
+            className="min-h-11 px-3 text-[14px] font-bold text-[var(--primary-hex)]"
           >
-            Retry
+            Back to Today
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
 }
 
-function ReviewError({ error, retryable, submitting, onRetry, onRefresh }) {
+function ReviewCardUnavailable({ onRetry, onExit }) {
+  return (
+    <div className="flex h-full items-center justify-center px-6 text-center">
+      <div>
+        <TriangleAlert size={34} className="mx-auto text-[#b45309] dark:text-[#fbbf24]" />
+        <div className="mt-3 text-[19px] font-extrabold text-[var(--text-1)]">
+          Review card is unavailable
+        </div>
+        <div className="mt-1 text-[13px] text-[var(--text-2)]">
+          We could not open the next card. Retry the session or return to Today.
+        </div>
+        <div className="mt-5 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={onRetry}
+            className="h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white"
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            onClick={onExit}
+            className="min-h-11 px-3 text-[14px] font-bold text-[var(--primary-hex)]"
+          >
+            Back to Today
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewError({ error, retryable, submitting, onRetry, onRefresh, onExit }) {
   return (
     <div className="mb-3 rounded-xl border border-[rgba(180,83,9,.25)] bg-[rgba(180,83,9,.07)] p-3 text-[13px] text-[var(--text-1)]">
       <div className="font-bold">
@@ -410,14 +472,24 @@ function ReviewError({ error, retryable, submitting, onRetry, onRefresh }) {
           Your card stayed in place. Retry the same review safely.
         </div>
       )}
-      <button
-        type="button"
-        disabled={submitting}
-        onClick={retryable ? onRetry : onRefresh}
-        className="mt-2 min-h-11 rounded-lg bg-[var(--bg-card)] px-3 font-bold text-[var(--primary-hex)] disabled:opacity-50"
-      >
-        {retryable ? 'Retry review' : 'Refresh session'}
-      </button>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={submitting}
+          onClick={retryable ? onRetry : onRefresh}
+          className="min-h-11 rounded-lg bg-[var(--bg-card)] px-3 font-bold text-[var(--primary-hex)] disabled:opacity-50"
+        >
+          {retryable ? 'Retry review' : 'Refresh session'}
+        </button>
+        <button
+          type="button"
+          disabled={submitting}
+          onClick={onExit}
+          className="min-h-11 rounded-lg px-3 font-bold text-[var(--primary-hex)] disabled:opacity-50"
+        >
+          Back to Today
+        </button>
+      </div>
     </div>
   );
 }
