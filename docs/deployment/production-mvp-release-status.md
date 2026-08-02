@@ -9,6 +9,10 @@ evidence. The baseline section alone is not evidence that a one-time
 database-preparation worker ran; the Task 2 section records the separately
 verified dev-only fallback executions.
 
+For every production promotion that affects the learner experience, use the
+[production learning-flow smoke test](./production-learning-flow-smoke-test.md)
+to record the separate signed-in browser/device evidence.
+
 ## Candidate revisions
 
 - `dev`: `56e60d6c7f8f0f83bf2dca894338ec0960b953d8`
