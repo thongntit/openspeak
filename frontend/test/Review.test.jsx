@@ -95,6 +95,14 @@ const NEXT_TODAY = {
   serverTimestamp: '2026-07-18T00:01:00.000Z',
 };
 
+const UNUSABLE_TODAY = {
+  ...TODAY,
+  queue: [{
+    ...queueItem(CARD),
+    card: null,
+  }],
+};
+
 const CAUGHT_UP = {
   ...TODAY,
   queue: [],
@@ -366,6 +374,64 @@ describe('Review', () => {
     expect(await screen.findByText(/session expired/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /sign in again/i }));
     expect(clerk.signOut).toHaveBeenCalledWith({ redirectUrl: '/' });
+  });
+
+  it('lets a learner return to Today when the review queue cannot load', async () => {
+    const user = userEvent.setup();
+    getToday.mockRejectedValue(
+      new ApiError(503, { message: 'Service unavailable' }, '/today'),
+    );
+
+    renderReview();
+
+    expect(await screen.findByText(/review is unavailable/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /back to today/i }));
+
+    expect(screen.getByText('Today route')).toBeInTheDocument();
+  });
+
+  it('recovers from an unusable queued card without rendering card fields', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(UNUSABLE_TODAY);
+    getToday.mockResolvedValue(NEXT_TODAY);
+
+    renderReview();
+
+    expect(screen.getByText(/review card is unavailable/i)).toBeInTheDocument();
+    expect(screen.queryByTestId('review-card')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^retry$/i }));
+
+    expect(await screen.findByText(NEXT_CARD.front)).toBeInTheDocument();
+  });
+
+  it('shows recovery when the server returns an unusable next card', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    submitReview.mockResolvedValue({ duplicate: false, today: UNUSABLE_TODAY });
+
+    renderReview();
+
+    await revealAndRate(user, 'Good');
+
+    expect(await screen.findByText(/review card is unavailable/i)).toBeInTheDocument();
+  });
+
+  it('keeps a retryable review pending when the learner returns to Today', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    submitReview.mockRejectedValue(
+      new ApiError(503, { message: 'Service unavailable' }, '/reviews'),
+    );
+    renderReview();
+
+    await revealAndRate(user, 'Good');
+    await screen.findByRole('button', { name: /retry review/i });
+    await user.click(screen.getByRole('button', { name: /back to today/i }));
+
+    expect(screen.getByText('Today route')).toBeInTheDocument();
+    expect(useLearningStore.getState().pendingReview).toEqual(
+      expect.objectContaining({ cardId: CARD.id, rating: 'good' }),
+    );
   });
 
   it('refreshes Today once after a submitted card returns 404', async () => {
