@@ -232,6 +232,22 @@ describe('Review', () => {
     fireEvent.pointerCancel(card, pointer);
   });
 
+  it('keeps scrolling available when a vertical gesture drifts sideways', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    const card = screen.getByTestId('review-card');
+    const pointer = { pointerId: 1, pointerType: 'touch' };
+    fireEvent.pointerDown(card, { ...pointer, clientX: 200, clientY: 200 });
+    fireEvent.pointerMove(card, { ...pointer, clientX: 230, clientY: 180 });
+
+    expect(screen.queryByText('Hard', { selector: '[aria-hidden="true"]' })).not.toBeInTheDocument();
+    expect(card).not.toHaveClass('transition-none');
+    fireEvent.pointerCancel(card, pointer);
+  });
+
   it('tracks an intentional horizontal drag without a transform transition', async () => {
     const user = userEvent.setup();
     useLearningStore.getState().replaceToday(TODAY);
