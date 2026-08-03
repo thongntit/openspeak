@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 const DIRECTION_LOCK_PX = 12;
-const HORIZONTAL_INTENT_RATIO = 1.25;
+const HORIZONTAL_INTENT_RATIO = 2;
 const MAX_DRAG_PX = 120;
 const SWIPE_THRESHOLD_PX = 80;
 
