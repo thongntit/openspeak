@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 const DIRECTION_LOCK_PX = 12;
+const HORIZONTAL_INTENT_RATIO = 1.25;
 const MAX_DRAG_PX = 120;
 const SWIPE_THRESHOLD_PX = 80;
 
@@ -36,8 +37,12 @@ export default function useHorizontalSwipe({ enabled, onSwipeLeft, onSwipeRight 
     const deltaX = event.clientX - start.clientX;
     const deltaY = event.clientY - start.clientY;
     if (!axisRef.current && Math.max(Math.abs(deltaX), Math.abs(deltaY)) >= DIRECTION_LOCK_PX) {
-      axisRef.current = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
-      if (axisRef.current === 'horizontal') {
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+      if (absY >= absX) {
+        axisRef.current = 'vertical';
+      } else if (absX >= absY * HORIZONTAL_INTENT_RATIO) {
+        axisRef.current = 'horizontal';
         event.currentTarget.setPointerCapture?.(event.pointerId);
       }
     }
