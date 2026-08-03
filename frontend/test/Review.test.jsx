@@ -217,6 +217,37 @@ describe('Review', () => {
     fireEvent.pointerCancel(card, pointer);
   });
 
+  it('does not pull the card sideways during a near-vertical scroll', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    const card = screen.getByTestId('review-card');
+    const pointer = { pointerId: 1, pointerType: 'touch' };
+    fireEvent.pointerDown(card, { ...pointer, clientX: 200, clientY: 200 });
+    fireEvent.pointerMove(card, { ...pointer, clientX: 184, clientY: 185 });
+
+    expect(screen.queryByText('Easy', { selector: '[aria-hidden="true"]' })).not.toBeInTheDocument();
+    fireEvent.pointerCancel(card, pointer);
+  });
+
+  it('tracks an intentional horizontal drag without a transform transition', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    const card = screen.getByTestId('review-card');
+    const pointer = { pointerId: 1, pointerType: 'touch' };
+    fireEvent.pointerDown(card, { ...pointer, clientX: 240, clientY: 180 });
+    fireEvent.pointerMove(card, { ...pointer, clientX: 180, clientY: 180 });
+
+    expect(card).toHaveClass('transition-none');
+    expect(card).not.toHaveClass('transition-transform');
+    fireEvent.pointerCancel(card, pointer);
+  });
+
   it('does not submit from a swipe before a multiple-choice answer is selected', async () => {
     useLearningStore.getState().replaceToday(TODAY);
     renderReview();
