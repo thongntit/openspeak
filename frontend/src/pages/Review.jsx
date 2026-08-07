@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/cn';
 import TypeChip from '@/components/ui/TypeChip';
 import ReauthenticateButton from '@/components/ReauthenticateButton';
+import useHorizontalSwipe from '@/hooks/useHorizontalSwipe';
 import { useLearningStore } from '@/stores/learningStore';
 
 const REVIEW_BUTTONS = [
@@ -20,6 +21,31 @@ const REVIEW_BUTTONS = [
 ];
 
 const EMPTY_COUNTS = { again: 0, hard: 0, good: 0, easy: 0 };
+
+const SWIPE_FEEDBACK = {
+  easy: {
+    label: 'Easy',
+    className: 'border-[rgba(19,127,236,.3)] bg-[rgba(19,127,236,.12)] text-[var(--primary-hex)]',
+  },
+  good: {
+    label: 'Good',
+    className: 'border-[rgba(7,136,56,.3)] bg-[rgba(7,136,56,.12)] text-[#078838] dark:text-[#4ade80]',
+  },
+  hard: {
+    label: 'Hard',
+    className: 'border-[rgba(180,83,9,.3)] bg-[rgba(180,83,9,.12)] text-[#b45309] dark:text-[#fbbf24]',
+  },
+};
+
+function isRenderableReviewCard(card) {
+  return Boolean(
+    card
+    && typeof card.id === 'string'
+    && card.id.length > 0
+    && typeof card.front === 'string'
+    && typeof card.answer === 'string',
+  );
+}
 
 export default function Review() {
   const navigate = useNavigate();
@@ -50,6 +76,7 @@ export default function Review() {
     ? cardUi
     : { cardId: card?.id ?? null, revealed: false, picked: null };
   const { revealed, picked } = currentCardUi;
+  const hasMCQ = Array.isArray(card?.options) && card.options.length > 0;
 
   useEffect(() => {
     if (loadStatus === 'idle') {
@@ -98,12 +125,31 @@ export default function Review() {
     clearReviewError();
   };
 
+  const swipeEnabled = Boolean(
+    hasMCQ && revealed && picked && !isSubmitting && !reviewError,
+  );
+  const leftSwipeRating = picked === card?.answer ? 'easy' : 'good';
+  const { dragX, direction: swipeDirection, pointerHandlers } = useHorizontalSwipe({
+    enabled: swipeEnabled,
+    onSwipeLeft: () => void submitRating(leftSwipeRating),
+    onSwipeRight: () => void submitRating('hard'),
+  });
+  const swipeRating = swipeDirection === 'left'
+    ? leftSwipeRating
+    : swipeDirection === 'right' ? 'hard' : null;
+
   if (loadStatus === 'idle' || loadStatus === 'loading') {
     return <ReviewLoading />;
   }
 
   if (loadStatus === 'error') {
-    return <ReviewLoadError error={loadError} onRetry={refreshSession} />;
+    return (
+      <ReviewLoadError
+        error={loadError}
+        onRetry={refreshSession}
+        onExit={exitReview}
+      />
+    );
   }
 
   if (!today || today.caughtUp || today.queue.length === 0) {
@@ -116,12 +162,15 @@ export default function Review() {
     );
   }
 
+  if (!isRenderableReviewCard(card)) {
+    return <ReviewCardUnavailable onRetry={refreshSession} onExit={exitReview} />;
+  }
+
   const total = reviewedCount + today.totalDue;
   const progressPct = Math.min(
     100,
     Math.round((reviewedCount / Math.max(1, total)) * 100),
   );
-  const hasMCQ = Array.isArray(card.options) && card.options.length > 0;
 
   const pick = (option) => {
     if (picked || isSubmitting) return;
@@ -169,8 +218,28 @@ export default function Review() {
 
           <div
             key={card.id}
-            className="relative flex min-h-[calc(100dvh-190px)] w-full flex-col rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]"
+            data-testid="review-card"
+            {...pointerHandlers}
+            style={{
+              touchAction: swipeEnabled ? 'pan-y' : undefined,
+              transform: dragX ? `translateX(${dragX}px) rotate(${dragX / 30}deg)` : undefined,
+            }}
+            className={cn(
+              'relative flex min-h-[calc(100dvh-190px)] w-full flex-col rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]',
+              dragX ? 'transition-none' : 'transition-transform duration-150',
+            )}
           >
+            {swipeRating && (
+              <div
+                aria-hidden="true"
+                className={cn(
+                  'pointer-events-none absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full border px-4 py-1.5 text-sm font-bold shadow-sm',
+                  SWIPE_FEEDBACK[swipeRating].className,
+                )}
+              >
+                {SWIPE_FEEDBACK[swipeRating].label}
+              </div>
+            )}
             <div className="mb-4 flex items-center justify-between">
               <TypeChip type={card.type} />
               <span className="font-mono text-[11px] font-semibold uppercase text-[var(--text-2)]">
@@ -232,6 +301,16 @@ export default function Review() {
                     {card.example}
                   </div>
                 )}
+                {hasMCQ && !picked && (
+                  <p role="status" className="mt-3 text-center text-sm text-[var(--text-2)]">
+                    Choose an answer to swipe, or use a rating below.
+                  </p>
+                )}
+                {!hasMCQ && (
+                  <p role="status" className="mt-3 text-center text-sm text-[var(--text-2)]">
+                    Use a rating button below to continue.
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -246,6 +325,7 @@ export default function Review() {
             submitting={isSubmitting}
             onRetry={retryReview}
             onRefresh={refreshSession}
+            onExit={exitReview}
           />
         )}
 
@@ -305,7 +385,7 @@ function ReviewLoading() {
   );
 }
 
-function ReviewLoadError({ error, onRetry }) {
+function ReviewLoadError({ error, onRetry, onExit }) {
   const status = error?.status ?? 0;
   const title = status === 401
     ? 'Your session expired'
@@ -327,23 +407,64 @@ function ReviewLoadError({ error, onRetry }) {
             ? 'Sign in again before reviewing cards.'
             : 'Your queue could not be loaded.'}
         </div>
-        {status === 401 ? (
-          <ReauthenticateButton className="mt-5 h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white" />
-        ) : (
+        <div className="mt-5 flex flex-col items-center gap-2">
+          {status === 401 ? (
+            <ReauthenticateButton className="h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white" />
+          ) : (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white"
+            >
+              Retry
+            </button>
+          )}
           <button
             type="button"
-            onClick={onRetry}
-            className="mt-5 h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white"
+            onClick={onExit}
+            className="min-h-11 px-3 text-[14px] font-bold text-[var(--primary-hex)]"
           >
-            Retry
+            Back to Today
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
 }
 
-function ReviewError({ error, retryable, submitting, onRetry, onRefresh }) {
+function ReviewCardUnavailable({ onRetry, onExit }) {
+  return (
+    <div className="flex h-full items-center justify-center px-6 text-center">
+      <div>
+        <TriangleAlert size={34} className="mx-auto text-[#b45309] dark:text-[#fbbf24]" />
+        <div className="mt-3 text-[19px] font-extrabold text-[var(--text-1)]">
+          Review card is unavailable
+        </div>
+        <div className="mt-1 text-[13px] text-[var(--text-2)]">
+          We could not open the next card. Retry the session or return to Today.
+        </div>
+        <div className="mt-5 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={onRetry}
+            className="h-12 min-w-40 rounded-xl bg-[var(--primary-hex)] px-5 text-[15px] font-semibold text-white"
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            onClick={onExit}
+            className="min-h-11 px-3 text-[14px] font-bold text-[var(--primary-hex)]"
+          >
+            Back to Today
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewError({ error, retryable, submitting, onRetry, onRefresh, onExit }) {
   return (
     <div className="mb-3 rounded-xl border border-[rgba(180,83,9,.25)] bg-[rgba(180,83,9,.07)] p-3 text-[13px] text-[var(--text-1)]">
       <div className="font-bold">
@@ -354,14 +475,24 @@ function ReviewError({ error, retryable, submitting, onRetry, onRefresh }) {
           Your card stayed in place. Retry the same review safely.
         </div>
       )}
-      <button
-        type="button"
-        disabled={submitting}
-        onClick={retryable ? onRetry : onRefresh}
-        className="mt-2 min-h-11 rounded-lg bg-[var(--bg-card)] px-3 font-bold text-[var(--primary-hex)] disabled:opacity-50"
-      >
-        {retryable ? 'Retry review' : 'Refresh session'}
-      </button>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={submitting}
+          onClick={retryable ? onRetry : onRefresh}
+          className="min-h-11 rounded-lg bg-[var(--bg-card)] px-3 font-bold text-[var(--primary-hex)] disabled:opacity-50"
+        >
+          {retryable ? 'Retry review' : 'Refresh session'}
+        </button>
+        <button
+          type="button"
+          disabled={submitting}
+          onClick={onExit}
+          className="min-h-11 rounded-lg px-3 font-bold text-[var(--primary-hex)] disabled:opacity-50"
+        >
+          Back to Today
+        </button>
+      </div>
     </div>
   );
 }

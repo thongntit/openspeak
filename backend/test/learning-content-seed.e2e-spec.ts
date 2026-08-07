@@ -346,9 +346,9 @@ describe('learning content seed (e2e)', () => {
     const secondSummary = await seedLearningContent(dataSource, bundle);
 
     expect(firstSummary).toEqual({
-      contentVersion: 'starter@2026.07.1',
+      contentVersion: 'starter@2026.07.2',
       decksUpserted: 6,
-      cardsUpserted: 120,
+      cardsUpserted: 148,
       decksUnpublished: 0,
       cardsDeactivated: 0,
     });
@@ -361,7 +361,7 @@ describe('learning content seed (e2e)', () => {
     });
 
     expect(await deckRepository.count()).toBe(6);
-    expect(await cardRepository.count()).toBe(120);
+    expect(await cardRepository.count()).toBe(148);
     expect(await deckRepository.countBy({ slug: ESSENTIAL_DECK_SLUG })).toBe(1);
     expect(
       await cardRepository.countBy({
@@ -444,7 +444,7 @@ describe('learning content seed (e2e)', () => {
     expect(summary).toEqual({
       contentVersion: 'starter@2026.07.2',
       decksUpserted: 5,
-      cardsUpserted: 100,
+      cardsUpserted: 128,
       decksUnpublished: 1,
       cardsDeactivated: 21,
     });
@@ -465,7 +465,7 @@ describe('learning content seed (e2e)', () => {
     });
     expect(retiredCard).toMatchObject({
       id: replacedCard.id,
-      content_version: 'starter@2026.07.1',
+      content_version: 'starter@2026.07.2',
       is_active: false,
     });
     expect(
@@ -491,7 +491,7 @@ describe('learning content seed (e2e)', () => {
       await deckRepository.findOneByOrFail({ id: omittedDeck.id }),
     ).toMatchObject({
       slug: OMITTED_DECK_SLUG,
-      content_version: 'starter@2026.07.1',
+      content_version: 'starter@2026.07.2',
       is_published: false,
     });
     expect(

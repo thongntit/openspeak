@@ -2,7 +2,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -95,6 +95,14 @@ const NEXT_TODAY = {
   serverTimestamp: '2026-07-18T00:01:00.000Z',
 };
 
+const UNUSABLE_TODAY = {
+  ...TODAY,
+  queue: [{
+    ...queueItem(CARD),
+    card: null,
+  }],
+};
+
 const CAUGHT_UP = {
   ...TODAY,
   queue: [],
@@ -119,6 +127,19 @@ function renderReview() {
 async function revealAndRate(user, rating) {
   await user.click(screen.getByRole('button', { name: /show answer/i }));
   await user.click(screen.getByRole('button', { name: new RegExp(`^${rating}`, 'i') }));
+}
+
+async function selectAndReveal(user, option) {
+  await user.click(screen.getByText(option, { exact: true }));
+  await screen.findByLabelText('Correct answer');
+}
+
+function swipeReviewCard({ fromX, toX, fromY = 180, toY = fromY }) {
+  const card = screen.getByTestId('review-card');
+  const pointer = { pointerId: 1, pointerType: 'touch' };
+  fireEvent.pointerDown(card, { ...pointer, clientX: fromX, clientY: fromY });
+  fireEvent.pointerMove(card, { ...pointer, clientX: toX, clientY: toY });
+  fireEvent.pointerUp(card, { ...pointer, clientX: toX, clientY: toY });
 }
 
 beforeEach(() => {
@@ -158,6 +179,167 @@ describe('Review', () => {
     expect(reviewSource).toContain('flex min-h-full flex-col animate-screen-fade-in');
     expect(reviewSource).not.toContain('min-h-0 flex-1 px-4 pb-3');
     expect(reviewSource).toContain('min-h-[calc(100dvh-190px)]');
+  });
+
+  it.each([
+    ['correct left', 'works', { fromX: 240, toX: 120 }, 'easy'],
+    ['correct right', 'works', { fromX: 120, toX: 240 }, 'hard'],
+    ['wrong left', 'work', { fromX: 240, toX: 120 }, 'good'],
+    ['wrong right', 'work', { fromX: 120, toX: 240 }, 'hard'],
+  ])('%s swipe submits %s', async (_description, option, gesture, rating) => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    submitReview.mockResolvedValue({ duplicate: false, today: NEXT_TODAY });
+    renderReview();
+
+    await selectAndReveal(user, option);
+    swipeReviewCard(gesture);
+
+    await vi.waitFor(() => expect(submitReview).toHaveBeenCalledOnce());
+    expect(submitReview.mock.calls[0][0]).toEqual(
+      expect.objectContaining({ cardId: CARD.id, rating }),
+    );
+    expect(await screen.findByText(NEXT_CARD.front)).toBeInTheDocument();
+  });
+
+  it('shows the mapped rating while an eligible card is dragged', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    const card = screen.getByTestId('review-card');
+    const pointer = { pointerId: 1, pointerType: 'touch' };
+    fireEvent.pointerDown(card, { ...pointer, clientX: 240, clientY: 180 });
+    fireEvent.pointerMove(card, { ...pointer, clientX: 180, clientY: 180 });
+
+    expect(screen.getByText('Easy', { selector: '[aria-hidden="true"]' })).toBeInTheDocument();
+    fireEvent.pointerCancel(card, pointer);
+  });
+
+  it('does not pull the card sideways during a near-vertical scroll', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    const card = screen.getByTestId('review-card');
+    const pointer = { pointerId: 1, pointerType: 'touch' };
+    fireEvent.pointerDown(card, { ...pointer, clientX: 200, clientY: 200 });
+    fireEvent.pointerMove(card, { ...pointer, clientX: 184, clientY: 185 });
+
+    expect(screen.queryByText('Easy', { selector: '[aria-hidden="true"]' })).not.toBeInTheDocument();
+    fireEvent.pointerCancel(card, pointer);
+  });
+
+  it('keeps scrolling available when a vertical gesture drifts sideways', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    const card = screen.getByTestId('review-card');
+    const pointer = { pointerId: 1, pointerType: 'touch' };
+    fireEvent.pointerDown(card, { ...pointer, clientX: 200, clientY: 200 });
+    fireEvent.pointerMove(card, { ...pointer, clientX: 230, clientY: 180 });
+
+    expect(screen.queryByText('Hard', { selector: '[aria-hidden="true"]' })).not.toBeInTheDocument();
+    expect(card).not.toHaveClass('transition-none');
+    fireEvent.pointerCancel(card, pointer);
+  });
+
+  it('tracks an intentional horizontal drag without a transform transition', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    const card = screen.getByTestId('review-card');
+    const pointer = { pointerId: 1, pointerType: 'touch' };
+    fireEvent.pointerDown(card, { ...pointer, clientX: 240, clientY: 180 });
+    fireEvent.pointerMove(card, { ...pointer, clientX: 180, clientY: 180 });
+
+    expect(card).toHaveClass('transition-none');
+    expect(card).not.toHaveClass('transition-transform');
+    fireEvent.pointerCancel(card, pointer);
+  });
+
+  it('does not submit from a swipe before a multiple-choice answer is selected', async () => {
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    swipeReviewCard({ fromX: 240, toX: 120 });
+
+    expect(submitReview).not.toHaveBeenCalled();
+  });
+
+  it('does not submit from a direct Show answer reveal without a selection', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await user.click(screen.getByRole('button', { name: /show answer/i }));
+    swipeReviewCard({ fromX: 240, toX: 120 });
+
+    expect(screen.getByText(/choose an answer to swipe/i)).toBeInTheDocument();
+    expect(submitReview).not.toHaveBeenCalled();
+  });
+
+  it('does not submit from a guided-recall swipe after the answer is shown', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(NEXT_TODAY);
+    renderReview();
+
+    await user.click(screen.getByRole('button', { name: /show answer/i }));
+    swipeReviewCard({ fromX: 240, toX: 120 });
+
+    expect(screen.getByText(/use a rating button below/i)).toBeInTheDocument();
+    expect(submitReview).not.toHaveBeenCalled();
+  });
+
+  it('does not submit for short or vertical touch drags', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    swipeReviewCard({ fromX: 200, toX: 180 });
+    swipeReviewCard({ fromX: 200, toX: 160, fromY: 180, toY: 300 });
+
+    expect(submitReview).not.toHaveBeenCalled();
+  });
+
+  it('does not submit a second swipe while the first rating is pending', async () => {
+    const user = userEvent.setup();
+    const request = deferred();
+    useLearningStore.getState().replaceToday(TODAY);
+    submitReview.mockReturnValue(request.promise);
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    swipeReviewCard({ fromX: 240, toX: 120 });
+    await vi.waitFor(() => expect(submitReview).toHaveBeenCalledOnce());
+    swipeReviewCard({ fromX: 120, toX: 240 });
+
+    expect(submitReview).toHaveBeenCalledOnce();
+    request.resolve({ duplicate: false, today: NEXT_TODAY });
+    expect(await screen.findByText(NEXT_CARD.front)).toBeInTheDocument();
+  });
+
+  it('does not submit from a swipe while a retryable review error is visible', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    submitReview.mockRejectedValueOnce(
+      new ApiError(500, { message: 'failure' }, '/reviews'),
+    );
+    renderReview();
+
+    await selectAndReveal(user, CARD.answer);
+    swipeReviewCard({ fromX: 240, toX: 120 });
+    await screen.findByRole('button', { name: /retry review/i });
+    swipeReviewCard({ fromX: 120, toX: 240 });
+
+    expect(submitReview).toHaveBeenCalledOnce();
   });
 
   it('disables ratings until POST resolves then renders the returned next card', async () => {
@@ -239,6 +421,64 @@ describe('Review', () => {
     expect(await screen.findByText(/session expired/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /sign in again/i }));
     expect(clerk.signOut).toHaveBeenCalledWith({ redirectUrl: '/' });
+  });
+
+  it('lets a learner return to Today when the review queue cannot load', async () => {
+    const user = userEvent.setup();
+    getToday.mockRejectedValue(
+      new ApiError(503, { message: 'Service unavailable' }, '/today'),
+    );
+
+    renderReview();
+
+    expect(await screen.findByText(/review is unavailable/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /back to today/i }));
+
+    expect(screen.getByText('Today route')).toBeInTheDocument();
+  });
+
+  it('recovers from an unusable queued card without rendering card fields', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(UNUSABLE_TODAY);
+    getToday.mockResolvedValue(NEXT_TODAY);
+
+    renderReview();
+
+    expect(screen.getByText(/review card is unavailable/i)).toBeInTheDocument();
+    expect(screen.queryByTestId('review-card')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^retry$/i }));
+
+    expect(await screen.findByText(NEXT_CARD.front)).toBeInTheDocument();
+  });
+
+  it('shows recovery when the server returns an unusable next card', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    submitReview.mockResolvedValue({ duplicate: false, today: UNUSABLE_TODAY });
+
+    renderReview();
+
+    await revealAndRate(user, 'Good');
+
+    expect(await screen.findByText(/review card is unavailable/i)).toBeInTheDocument();
+  });
+
+  it('keeps a retryable review pending when the learner returns to Today', async () => {
+    const user = userEvent.setup();
+    useLearningStore.getState().replaceToday(TODAY);
+    submitReview.mockRejectedValue(
+      new ApiError(503, { message: 'Service unavailable' }, '/reviews'),
+    );
+    renderReview();
+
+    await revealAndRate(user, 'Good');
+    await screen.findByRole('button', { name: /retry review/i });
+    await user.click(screen.getByRole('button', { name: /back to today/i }));
+
+    expect(screen.getByText('Today route')).toBeInTheDocument();
+    expect(useLearningStore.getState().pendingReview).toEqual(
+      expect.objectContaining({ cardId: CARD.id, rating: 'good' }),
+    );
   });
 
   it('refreshes Today once after a submitted card returns 404', async () => {

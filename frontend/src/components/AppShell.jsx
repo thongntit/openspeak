@@ -6,11 +6,11 @@ export default function AppShell() {
   const isReview = pathname === '/review';
 
   return (
-    <div className="min-h-dvh flex justify-center md:items-center md:py-6">
+    <div className="flex min-h-dvh flex-col items-center bg-[var(--bg-app)] pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] md:justify-center md:bg-transparent md:py-6">
       <div
         className={[
-          'relative flex flex-col w-full max-w-md',
-          'h-dvh md:h-[874px] md:max-h-[calc(100dvh-3rem)]',
+          'relative flex min-h-0 w-full max-w-md flex-1 flex-col',
+          'md:h-[874px] md:max-h-[calc(100dvh-3rem)] md:flex-none',
           'bg-[var(--bg-app)] text-[var(--text-1)] overflow-hidden',
           'md:rounded-[28px] md:shadow-2xl md:border md:border-[var(--border-soft)]',
           '[transform:translateZ(0)]',
