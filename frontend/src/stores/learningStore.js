@@ -178,9 +178,24 @@ export const useLearningStore = create((set, get) => ({
   },
 
   submitPendingReview: async (getToken) => {
-    const { pendingReview, reviewStatus } = get();
+    const { pendingReview, reviewStatus, reviewSnapshot, today } = get();
     if (!pendingReview) return null;
     if (reviewStatus === 'submitting') return null;
+    const expectedCardId = reviewSnapshot?.queue?.[1]?.card?.id
+      ?? reviewSnapshot?.queue?.[0]?.card?.id;
+    if (today?.queue?.[0]?.card?.id !== expectedCardId) {
+      const reviewError = {
+        status: 409,
+        message: 'The review session changed. Refresh before rating again.',
+      };
+      set({
+        pendingReview: null,
+        reviewSnapshot: null,
+        reviewStatus: 'error',
+        reviewError,
+      });
+      return null;
+    }
     const requestEpoch = get().sessionEpoch;
     const isCurrentSession = () => get().sessionEpoch === requestEpoch;
 
