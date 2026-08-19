@@ -134,10 +134,17 @@ async function selectAndReveal(user, option) {
   await screen.findByLabelText('Correct answer');
 }
 
-function swipeReviewCard({ fromX, toX, fromY = 180, toY = fromY }) {
+async function armSwipe() {
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 260));
+  });
+}
+
+async function swipeReviewCard({ fromX, toX, fromY = 180, toY = fromY }) {
   const card = screen.getByTestId('review-card');
   const pointer = { pointerId: 1, pointerType: 'touch' };
   fireEvent.pointerDown(card, { ...pointer, clientX: fromX, clientY: fromY });
+  await armSwipe();
   fireEvent.pointerMove(card, { ...pointer, clientX: toX, clientY: toY });
   fireEvent.pointerUp(card, { ...pointer, clientX: toX, clientY: toY });
 }
@@ -193,7 +200,7 @@ describe('Review', () => {
     renderReview();
 
     await selectAndReveal(user, option);
-    swipeReviewCard(gesture);
+    await swipeReviewCard(gesture);
 
     await vi.waitFor(() => expect(submitReview).toHaveBeenCalledOnce());
     expect(submitReview.mock.calls[0][0]).toEqual(
@@ -211,6 +218,7 @@ describe('Review', () => {
     const card = screen.getByTestId('review-card');
     const pointer = { pointerId: 1, pointerType: 'touch' };
     fireEvent.pointerDown(card, { ...pointer, clientX: 240, clientY: 180 });
+    await armSwipe();
     fireEvent.pointerMove(card, { ...pointer, clientX: 180, clientY: 180 });
 
     expect(screen.getByText('Easy', { selector: '[aria-hidden="true"]' })).toBeInTheDocument();
@@ -257,6 +265,7 @@ describe('Review', () => {
     const card = screen.getByTestId('review-card');
     const pointer = { pointerId: 1, pointerType: 'touch' };
     fireEvent.pointerDown(card, { ...pointer, clientX: 240, clientY: 180 });
+    await armSwipe();
     fireEvent.pointerMove(card, { ...pointer, clientX: 180, clientY: 180 });
 
     expect(card).toHaveClass('transition-none');
@@ -268,7 +277,7 @@ describe('Review', () => {
     useLearningStore.getState().replaceToday(TODAY);
     renderReview();
 
-    swipeReviewCard({ fromX: 240, toX: 120 });
+    await swipeReviewCard({ fromX: 240, toX: 120 });
 
     expect(submitReview).not.toHaveBeenCalled();
   });
@@ -279,7 +288,7 @@ describe('Review', () => {
     renderReview();
 
     await user.click(screen.getByRole('button', { name: /show answer/i }));
-    swipeReviewCard({ fromX: 240, toX: 120 });
+    await swipeReviewCard({ fromX: 240, toX: 120 });
 
     expect(screen.getByText(/choose an answer to swipe/i)).toBeInTheDocument();
     expect(submitReview).not.toHaveBeenCalled();
@@ -291,7 +300,7 @@ describe('Review', () => {
     renderReview();
 
     await user.click(screen.getByRole('button', { name: /show answer/i }));
-    swipeReviewCard({ fromX: 240, toX: 120 });
+    await swipeReviewCard({ fromX: 240, toX: 120 });
 
     expect(screen.getByText(/use a rating button below/i)).toBeInTheDocument();
     expect(submitReview).not.toHaveBeenCalled();
@@ -303,8 +312,8 @@ describe('Review', () => {
     renderReview();
 
     await selectAndReveal(user, CARD.answer);
-    swipeReviewCard({ fromX: 200, toX: 180 });
-    swipeReviewCard({ fromX: 200, toX: 160, fromY: 180, toY: 300 });
+    await swipeReviewCard({ fromX: 200, toX: 180 });
+    await swipeReviewCard({ fromX: 200, toX: 160, fromY: 180, toY: 300 });
 
     expect(submitReview).not.toHaveBeenCalled();
   });
@@ -317,9 +326,9 @@ describe('Review', () => {
     renderReview();
 
     await selectAndReveal(user, CARD.answer);
-    swipeReviewCard({ fromX: 240, toX: 120 });
+    await swipeReviewCard({ fromX: 240, toX: 120 });
     await vi.waitFor(() => expect(submitReview).toHaveBeenCalledOnce());
-    swipeReviewCard({ fromX: 120, toX: 240 });
+    await swipeReviewCard({ fromX: 120, toX: 240 });
 
     expect(submitReview).toHaveBeenCalledOnce();
     request.resolve({ duplicate: false, today: NEXT_TODAY });
@@ -335,9 +344,9 @@ describe('Review', () => {
     renderReview();
 
     await selectAndReveal(user, CARD.answer);
-    swipeReviewCard({ fromX: 240, toX: 120 });
+    await swipeReviewCard({ fromX: 240, toX: 120 });
     await screen.findByRole('button', { name: /retry review/i });
-    swipeReviewCard({ fromX: 120, toX: 240 });
+    await swipeReviewCard({ fromX: 120, toX: 240 });
 
     expect(submitReview).toHaveBeenCalledOnce();
   });
