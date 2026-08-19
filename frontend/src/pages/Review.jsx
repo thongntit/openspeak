@@ -226,6 +226,7 @@ export default function Review() {
             }}
             className={cn(
               'relative flex min-h-[calc(100dvh-190px)] w-full flex-col rounded-[22px] border border-[var(--border-soft)] bg-[var(--bg-card)] p-6 shadow-[0_6px_20px_rgba(15,22,32,0.04)] dark:shadow-[0_6px_20px_rgba(0,0,0,0.3)]',
+              swipeEnabled && 'select-none',
               dragX ? 'transition-none' : 'transition-transform duration-150',
             )}
           >
